@@ -3,15 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
+  --background: #080c15;
   --foreground: #f8fafc;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: radial-gradient(circle at 50% 0%, #172554 0%, #0a0e1a 45%, #05070f 100%);
+  background-attachment: fixed;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* Glassmorphic UI utilities */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(100, 116, 139, 0.8);
+  transform: translateY(-1px);
 }
 
 /* Custom modern scrollbar */
