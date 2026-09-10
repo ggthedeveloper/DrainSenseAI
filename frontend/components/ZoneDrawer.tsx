@@ -35,9 +35,9 @@ export const ZoneDrawer: React.FC<ZoneDrawerProps> = ({ zone, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-slate-900/98 backdrop-blur-md border-l border-slate-800 shadow-2xl z-50 overflow-y-auto flex flex-col transition-all">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-slate-900/98 backdrop-blur-md border-l border-slate-800 shadow-2xl z-[9999] overflow-y-auto flex flex-col transition-all">
       {/* Header */}
-      <div className="p-5 border-b border-slate-800 flex items-start justify-between bg-slate-950/60 sticky top-0 z-10">
+      <div className="p-5 border-b border-slate-800 flex items-start justify-between bg-slate-950/90 sticky top-0 z-10 backdrop-blur">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-blue-400 font-semibold">
@@ -48,7 +48,7 @@ export const ZoneDrawer: React.FC<ZoneDrawerProps> = ({ zone, onClose }) => {
             </span>
           </div>
           <h2 className="text-lg font-bold text-slate-100 mt-1">{zone.zone_name}</h2>
-          <p className="text-xs text-slate-400">Vijayawada Municipal Corporation Monitoring Grid</p>
+          <p className="text-xs text-slate-400">Urban Flood Risk Monitoring Sector • {zone.city_id || "VJA"}</p>
         </div>
         <button
           onClick={onClose}

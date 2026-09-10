@@ -39,7 +39,18 @@ body {
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #0f172a !important;
+  background: #090d16 !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+.leaflet-pane {
+  z-index: 10 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 20 !important;
 }
 
 .leaflet-popup-content-wrapper {

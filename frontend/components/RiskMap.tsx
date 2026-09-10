@@ -161,9 +161,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         maxZoom: 16
       });
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>, OpenStreetMap',
-        maxZoom: 18,
+      // 100% Free Open-Source Dark Tile Layer (CARTO Dark Matter Free Public Endpoint / OSM Fallback)
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19
       }).addTo(map);
 
       mapInstanceRef.current = map;
@@ -298,11 +300,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const cellCount = mapData?.features?.length || 0;
 
   return (
-    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
-      <div ref={mapContainerRef} className="w-full h-full" />
+    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl z-0 isolation-auto">
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
 
       {/* Layer Controls Bar */}
-      <div className="absolute top-4 left-4 z-[1000] bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg shadow-xl flex items-center gap-2 text-xs">
+      <div className="absolute top-4 left-4 z-20 bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg shadow-xl flex items-center gap-2 text-xs">
         <span className="text-slate-400 font-medium flex items-center gap-1.5 pl-1">
           <Layers className="w-3.5 h-3.5 text-blue-400" />
           Layer:
@@ -342,7 +344,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       </div>
 
       {/* Bottom Map Legend */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-slate-900/95 backdrop-blur border border-slate-800 px-3.5 py-2.5 rounded-lg shadow-xl text-xs">
+      <div className="absolute bottom-4 left-4 z-20 bg-slate-900/95 backdrop-blur border border-slate-800 px-3.5 py-2.5 rounded-lg shadow-xl text-xs">
         <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
           {colorMode === "risk" ? "Risk Probability Scale" : colorMode === "elevation" ? "Topographic Elevation" : "Runoff Flow Index"}
         </div>
@@ -384,7 +386,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       </div>
 
       {/* Grid count badge */}
-      <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-xs text-slate-300 flex items-center gap-2">
+      <div className="absolute top-4 right-4 z-20 bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-xs text-slate-300 flex items-center gap-2">
         <Droplets className="w-3.5 h-3.5 text-blue-400" />
         <span>{cellCount} Grids (500m × 500m)</span>
       </div>
