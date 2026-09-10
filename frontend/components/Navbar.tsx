@@ -11,7 +11,8 @@ import {
   Database, 
   Presentation,
   Activity,
-  Building2
+  Building2,
+  Menu
 } from "lucide-react";
 
 interface NavbarProps {
@@ -24,6 +25,7 @@ interface NavbarProps {
     status: string;
     model_version: string;
   };
+  onToggleMobileMenu?: () => void;
 }
 
 const CITIES = [
@@ -47,7 +49,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLaunchDemo,
   selectedCity,
   onSelectCity,
-  healthStatus
+  healthStatus,
+  onToggleMobileMenu
 }) => {
   const [cityMenuOpen, setCityMenuOpen] = React.useState(false);
 
@@ -68,7 +71,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand & City Selector */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {onToggleMobileMenu && (
+              <button
+                type="button"
+                onClick={onToggleMobileMenu}
+                className="lg:hidden p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+                title="Toggle Navigation Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+
             <div className="relative flex items-center justify-center">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
                 <ShieldAlert className="w-5 h-5 text-white" />

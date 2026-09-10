@@ -123,3 +123,43 @@ class AICopilotResponse(BaseModel):
     critical_infrastructure_alerts: List[str]
     evacuation_and_traffic_advisories: List[str]
     model_confidence_score: float
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+    role: Optional[str] = "Administrator"
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: Dict[str, Any]
+
+class DrainAsset(BaseModel):
+    asset_id: str
+    city_id: str
+    asset_name: str
+    asset_type: str
+    location_desc: str
+    latitude: float
+    longitude: float
+    capacity_discharge_m3s: float
+    siltation_level_pct: int
+    condition: str
+    risk_level: str
+    last_inspection_date: str
+    assigned_team: str
+    operational_status: str
+
+class AlertItem(BaseModel):
+    alert_id: str
+    city_id: str
+    zone_name: str
+    grid_id: str
+    severity: str
+    title: str
+    message: str
+    trigger_metric: str
+    timestamp: str
+    status: str
+    acknowledged_by: Optional[str] = None
+    acknowledged_at: Optional[str] = None

@@ -1,4 +1,13 @@
-import { RiskMapGeoJSON, RiskSummary, ZoneDetail, SimulationResult, PriorityZoneItem, HistoricalEventItem } from "../types";
+import { 
+  RiskMapGeoJSON, 
+  RiskSummary, 
+  ZoneDetail, 
+  SimulationResult, 
+  PriorityZoneItem, 
+  HistoricalEventItem,
+  DrainAsset,
+  AlertItem
+} from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -255,4 +264,68 @@ export async function askAICopilot(cityId: string = "VJA", query: string, curren
     ],
     model_confidence_score: 0.94
   };
+}
+
+export async function fetchDrainAssets(cityId?: string): Promise<{ total: number; assets: DrainAsset[] }> {
+  try {
+    const url = cityId ? `${API_BASE_URL}/api/v1/assets?city_id=${cityId.toUpperCase()}` : `${API_BASE_URL}/api/v1/assets`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return { total: data.length, assets: data };
+      }
+      return data;
+    }
+  } catch (e) {
+    console.warn("Backend assets API unavailable, falling back to local synthesis.");
+  }
+  return { total: 0, assets: [] };
+}
+
+export async function fetchAlerts(cityId?: string): Promise<{ total: number; alerts: AlertItem[] }> {
+  try {
+    const url = cityId ? `${API_BASE_URL}/api/v1/alerts?city_id=${cityId.toUpperCase()}` : `${API_BASE_URL}/api/v1/alerts`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return { total: data.length, alerts: data };
+      }
+      return data;
+    }
+  } catch (e) {
+    console.warn("Backend alerts API unavailable, falling back to local synthesis.");
+  }
+  return { total: 0, alerts: [] };
+}
+
+export async function acknowledgeAlert(alertId: string, acknowledgedBy: string = "Gaurav (Administrator)"): Promise<{ success: boolean; message: string; alert?: AlertItem }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/alerts/${alertId}/acknowledge?officer_name=${encodeURIComponent(acknowledgedBy)}`, {
+      method: "POST"
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return { success: true, message: "Alert acknowledged", alert: data };
+    }
+  } catch (e) {
+    console.warn("Error acknowledging alert:", e);
+  }
+  return { success: false, message: "Failed to connect to dispatch server" };
+}
+
+export async function resolveAlert(alertId: string): Promise<{ success: boolean; message: string; alert?: AlertItem }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/alerts/${alertId}/resolve`, {
+      method: "POST"
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return { success: true, message: "Alert resolved", alert: data };
+    }
+  } catch (e) {
+    console.warn("Error resolving alert:", e);
+  }
+  return { success: false, message: "Failed to resolve alert" };
 }

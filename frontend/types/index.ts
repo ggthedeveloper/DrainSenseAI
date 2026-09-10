@@ -159,3 +159,36 @@ export interface AICopilotResponse {
   evacuation_and_traffic_advisories: string[];
   model_confidence_score: number;
 }
+
+export interface DrainAsset {
+  asset_id: string;
+  city_id: string;
+  asset_name: string;
+  asset_type: string;
+  location_desc: string;
+  latitude: number;
+  longitude: number;
+  capacity_discharge_m3s: number;
+  siltation_level_pct: number;
+  condition: "EXCELLENT" | "FAIR" | "DEGRADED" | "CRITICAL";
+  risk_level: "LOW" | "MODERATE" | "ELEVATED" | "HIGH" | "CRITICAL";
+  last_inspection_date: string;
+  assigned_team: string;
+  operational_status: "OPERATIONAL" | "REDUCED_CAPACITY" | "STANDBY" | "OFFLINE";
+}
+
+export interface AlertItem {
+  alert_id: string;
+  city_id: string;
+  zone_name: string;
+  grid_id: string;
+  severity: "CRITICAL" | "HIGH" | "ELEVATED" | "MODERATE" | "INFO";
+  title: string;
+  message: string;
+  trigger_metric: string;
+  timestamp: string;
+  status: "ACTIVE" | "ACKNOWLEDGED" | "RESOLVED";
+  acknowledged_by?: string | null;
+  acknowledged_at?: string | null;
+}
+

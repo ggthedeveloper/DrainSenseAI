@@ -140,3 +140,59 @@ def test_ai_copilot_endpoint():
     assert "ai_situation_assessment" in data
     assert len(data["tactical_recommendations"]) >= 1
     assert len(data["critical_infrastructure_alerts"]) >= 1
+
+def test_auth_login():
+    # Valid login
+    res = client.post(
+        "/api/v1/auth/login",
+        json={"username": "Gaurav", "password": "DrainSense@2026", "role": "Administrator"}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "access_token" in data
+    assert data["user"]["name"] == "Gaurav"
+    assert data["user"]["role"] == "Administrator"
+
+    # Invalid login
+    res_bad = client.post(
+        "/api/v1/auth/login",
+        json={"username": "Gaurav", "password": "WrongPassword"}
+    )
+    assert res_bad.status_code == 401
+
+def test_drain_assets():
+    res = client.get("/api/v1/assets")
+    assert res.status_code == 200
+    assets = res.json()
+    assert isinstance(assets, list)
+    assert len(assets) >= 10
+    first = assets[0]
+    assert "capacity_discharge_m3s" in first
+    assert "siltation_level_pct" in first
+
+    # City filtered
+    res_vja = client.get("/api/v1/assets?city_id=VJA")
+    assert res_vja.status_code == 200
+    vja_assets = res_vja.json()
+    assert all(a["city_id"] == "VJA" for a in vja_assets)
+
+def test_alerts_lifecycle():
+    res = client.get("/api/v1/alerts")
+    assert res.status_code == 200
+    alerts = res.json()
+    assert isinstance(alerts, list)
+    assert len(alerts) >= 1
+    first_id = alerts[0]["alert_id"]
+
+    # Acknowledge
+    ack_res = client.post(
+        f"/api/v1/alerts/{first_id}/acknowledge?officer_name=Gaurav%20(Administrator)"
+    )
+    assert ack_res.status_code == 200
+    assert ack_res.json()["status"] == "ACKNOWLEDGED"
+
+    # Resolve
+    res_res = client.post(f"/api/v1/alerts/{first_id}/resolve")
+    assert res_res.status_code == 200
+    assert res_res.json()["status"] == "RESOLVED"
+
