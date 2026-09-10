@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { RiskMapGeoJSON, GridProperties } from "../types";
-import { Layers, Droplets, MapPin } from "lucide-react";
+import { Layers, Droplets, MapPin, Satellite, Map as MapIcon, Moon } from "lucide-react";
 
 interface RiskMapProps {
   cityId: string;
@@ -136,10 +136,12 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
 export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid, selectedGridId }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const tileLayerRef = useRef<any>(null);
   const geojsonLayerRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
 
   const [colorMode, setColorMode] = useState<"risk" | "elevation" | "flow">("risk");
+  const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark">("satellite");
 
   // Initialize Map
   useEffect(() => {
@@ -158,15 +160,15 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         center: cityCfg.center,
         zoom: cityCfg.zoom,
         minZoom: 9,
-        maxZoom: 16
+        maxZoom: 18,
+        zoomControl: false
       });
 
-      // 100% Free Open-Source Dark Tile Layer (CARTO Dark Matter Free Public Endpoint / OSM Fallback)
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: "abcd",
-        maxZoom: 19
-      }).addTo(map);
+      // Clean, unobtrusive attribution without third-party watermarks
+      if (map.attributionControl) {
+        map.attributionControl.setPrefix(false);
+      }
+      L.control.zoom({ position: "bottomright" }).addTo(map);
 
       mapInstanceRef.current = map;
     });
@@ -182,6 +184,52 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       }
     };
   }, []);
+
+  // Update Base Tile Layer (Satellite vs Normal Street vs Dark)
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    import("leaflet").then((L) => {
+      const map = mapInstanceRef.current;
+      if (tileLayerRef.current) {
+        map.removeLayer(tileLayerRef.current);
+      }
+
+      let tileUrl = "";
+      let tileOptions: any = {};
+
+      if (baseMapMode === "satellite") {
+        // High-resolution ESRI World Imagery (100% Free Open GIS Satellite - No API Key)
+        tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+        tileOptions = {
+          attribution: "Tiles &copy; Esri World Imagery",
+          maxZoom: 19,
+          className: "base-tile-satellite"
+        };
+      } else if (baseMapMode === "normal") {
+        // Clean OpenStreetMap Daylight Street View (100% Free - No API Key)
+        tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+        tileOptions = {
+          attribution: "&copy; OpenStreetMap contributors",
+          maxZoom: 19,
+          className: "base-tile-normal"
+        };
+      } else {
+        // Dark Canvas View using OSM with CSS Dark Palette filter (Zero Watermarks - No API Key)
+        tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+        tileOptions = {
+          attribution: "&copy; OpenStreetMap contributors",
+          maxZoom: 19,
+          className: "base-tile-dark"
+        };
+      }
+
+      const layer = L.tileLayer(tileUrl, tileOptions);
+      layer.addTo(map);
+      layer.bringToBack();
+      tileLayerRef.current = layer;
+    });
+  }, [baseMapMode]);
 
   // Update center, landmarks and layer when cityId changes
   useEffect(() => {
@@ -262,10 +310,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
           const isSelected = selectedGridId === props.grid_id;
           return {
             fillColor: getFillColor(props),
-            weight: isSelected ? 2.5 : 0.7,
+            weight: isSelected ? 2.5 : (baseMapMode === "satellite" ? 0.8 : 0.7),
             opacity: 0.85,
-            color: isSelected ? "#ffffff" : "#1e293b",
-            fillOpacity: isSelected ? 0.85 : 0.55
+            color: isSelected ? "#ffffff" : (baseMapMode === "satellite" ? "#020617" : "#1e293b"),
+            fillOpacity: isSelected ? 0.8 : (baseMapMode === "satellite" ? 0.45 : 0.55)
           };
         },
         onEachFeature: (feature: any, layer: any) => {
@@ -295,7 +343,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       geojsonLayer.addTo(map);
       geojsonLayerRef.current = geojsonLayer;
     });
-  }, [mapData, colorMode, selectedGridId, cityId]);
+  }, [mapData, colorMode, selectedGridId, cityId, baseMapMode]);
 
   const cellCount = mapData?.features?.length || 0;
 
@@ -303,43 +351,97 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl isolate">
       <div ref={mapContainerRef} className="w-full h-full" />
 
-      {/* Layer Controls Bar */}
-      <div className="absolute top-4 left-4 z-20 bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg shadow-xl flex items-center gap-2 text-xs">
-        <span className="text-slate-400 font-medium flex items-center gap-1.5 pl-1">
-          <Layers className="w-3.5 h-3.5 text-blue-400" />
-          Layer:
-        </span>
-        <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800">
-          <button
-            onClick={() => setColorMode("risk")}
-            className={`px-2.5 py-1 rounded transition-all ${
-              colorMode === "risk"
-                ? "bg-blue-600 text-white font-medium"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            Flood Risk
-          </button>
-          <button
-            onClick={() => setColorMode("elevation")}
-            className={`px-2.5 py-1 rounded transition-all ${
-              colorMode === "elevation"
-                ? "bg-blue-600 text-white font-medium"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            Elevation (SRTM)
-          </button>
-          <button
-            onClick={() => setColorMode("flow")}
-            className={`px-2.5 py-1 rounded transition-all ${
-              colorMode === "flow"
-                ? "bg-blue-600 text-white font-medium"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            Flow Accumulation
-          </button>
+      {/* Map Control Bar (Base Map & Analysis Layer) */}
+      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-200px)]">
+        {/* Base Map Selector (Satellite, Normal Street, Dark) */}
+        <div className="bg-slate-900/95 backdrop-blur border border-slate-800 p-1.5 rounded-lg shadow-xl flex items-center gap-1.5 text-xs">
+          <span className="text-slate-400 font-medium pl-1 text-[11px]">
+            Base:
+          </span>
+          <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setBaseMapMode("satellite")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+                baseMapMode === "satellite"
+                  ? "bg-blue-600 text-white font-medium shadow"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Real Satellite Aerial View (ESRI World Imagery)"
+            >
+              <Satellite className="w-3.5 h-3.5" />
+              Satellite
+            </button>
+            <button
+              type="button"
+              onClick={() => setBaseMapMode("normal")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+                baseMapMode === "normal"
+                  ? "bg-blue-600 text-white font-medium shadow"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Standard Normal Street View (OpenStreetMap)"
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+              Normal
+            </button>
+            <button
+              type="button"
+              onClick={() => setBaseMapMode("dark")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+                baseMapMode === "dark"
+                  ? "bg-blue-600 text-white font-medium shadow"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Dark Mode Navigation Canvas"
+            >
+              <Moon className="w-3.5 h-3.5" />
+              Dark
+            </button>
+          </div>
+        </div>
+
+        {/* Data Layer Selector */}
+        <div className="bg-slate-900/95 backdrop-blur border border-slate-800 p-1.5 rounded-lg shadow-xl flex items-center gap-1.5 text-xs">
+          <span className="text-slate-400 font-medium flex items-center gap-1 pl-1 text-[11px]">
+            <Layers className="w-3.5 h-3.5 text-blue-400" />
+            Layer:
+          </span>
+          <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setColorMode("risk")}
+              className={`px-2.5 py-1 rounded transition-all text-xs ${
+                colorMode === "risk"
+                  ? "bg-blue-600 text-white font-medium"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Flood Risk
+            </button>
+            <button
+              type="button"
+              onClick={() => setColorMode("elevation")}
+              className={`px-2.5 py-1 rounded transition-all text-xs ${
+                colorMode === "elevation"
+                  ? "bg-blue-600 text-white font-medium"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Elevation
+            </button>
+            <button
+              type="button"
+              onClick={() => setColorMode("flow")}
+              className={`px-2.5 py-1 rounded transition-all text-xs ${
+                colorMode === "flow"
+                  ? "bg-blue-600 text-white font-medium"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Flow Acc
+            </button>
+          </div>
         </div>
       </div>
 

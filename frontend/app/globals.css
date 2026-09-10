@@ -62,3 +62,9 @@ body {
   line-height: 1.4 !important;
   z-index: 2000 !important;
 }
+
+/* Base tile styling for dark mode without external API key or watermark */
+.base-tile-dark img.leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
