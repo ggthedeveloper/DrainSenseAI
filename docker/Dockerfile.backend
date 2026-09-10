@@ -1,0 +1,28 @@
+# Production Dockerfile for DrainSense India FastAPI Backend
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+# Install system dependencies including OpenMP and GDAL runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application and ML models
+COPY backend/ backend/
+COPY ml/ ml/
+COPY data/ data/
+COPY models/ models/
+
+EXPOSE 8000
+
+ENV PORT=8000
+ENV ENVIRONMENT=production
+
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]

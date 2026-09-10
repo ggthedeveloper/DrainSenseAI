@@ -1,0 +1,241 @@
+{
+  "model_version": "v1.0",
+  "model_type": "XGBoost Classifier (Calibrated with Sigmoid)",
+  "training_timestamp": "2026-09-10T18:39:25.662314Z",
+  "dataset_path": "data/processed/drainsense_train_dataset.csv",
+  "total_samples": 258745,
+  "test_samples": 51749,
+  "feature_columns": [
+    "rain_1h_mm",
+    "rain_3h_mm",
+    "rain_6h_mm",
+    "rain_12h_mm",
+    "rain_24h_mm",
+    "rain_72h_mm",
+    "rain_intensity_mm_h",
+    "rain_change_rate",
+    "elevation_m",
+    "slope_deg",
+    "flow_accumulation",
+    "drainage_density",
+    "distance_to_water_m",
+    "impervious_surface_ratio",
+    "road_density_km_km2",
+    "building_density",
+    "historical_flood_frequency"
+  ],
+  "target_column": "flood_label",
+  "thresholds": {
+    "LOW": [
+      0.0,
+      0.2
+    ],
+    "MODERATE": [
+      0.2,
+      0.4
+    ],
+    "ELEVATED": [
+      0.4,
+      0.6
+    ],
+    "HIGH": [
+      0.6,
+      0.8
+    ],
+    "CRITICAL": [
+      0.8,
+      1.0
+    ]
+  },
+  "metrics_comparison": {
+    "Dummy Baseline": {
+      "precision": 0.2651,
+      "recall": 0.2628,
+      "f1_score": 0.264,
+      "roc_auc": 0.502,
+      "pr_auc": 0.2628,
+      "brier_score": 0.3841,
+      "recall_at_high_risk": 0.2628,
+      "train_time_sec": 0.021,
+      "confusion_matrix": [
+        [
+          28308,
+          9881
+        ],
+        [
+          9996,
+          3564
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "precision": 0.8113,
+      "recall": 0.9173,
+      "f1_score": 0.8611,
+      "roc_auc": 0.9783,
+      "pr_auc": 0.9426,
+      "brier_score": 0.0557,
+      "recall_at_high_risk": 0.8529,
+      "train_time_sec": 0.346,
+      "confusion_matrix": [
+        [
+          35296,
+          2893
+        ],
+        [
+          1121,
+          12439
+        ]
+      ]
+    },
+    "Random Forest": {
+      "precision": 0.8322,
+      "recall": 0.9292,
+      "f1_score": 0.878,
+      "roc_auc": 0.9847,
+      "pr_auc": 0.9632,
+      "brier_score": 0.0483,
+      "recall_at_high_risk": 0.8622,
+      "train_time_sec": 3.994,
+      "confusion_matrix": [
+        [
+          35649,
+          2540
+        ],
+        [
+          960,
+          12600
+        ]
+      ]
+    },
+    "XGBoost": {
+      "precision": 0.8264,
+      "recall": 0.9345,
+      "f1_score": 0.8771,
+      "roc_auc": 0.9853,
+      "pr_auc": 0.9645,
+      "brier_score": 0.0484,
+      "recall_at_high_risk": 0.8777,
+      "train_time_sec": 0.537,
+      "confusion_matrix": [
+        [
+          35527,
+          2662
+        ],
+        [
+          888,
+          12672
+        ]
+      ]
+    },
+    "XGBoost (Calibrated)": {
+      "precision": 0.8784,
+      "recall": 0.8975,
+      "f1_score": 0.8879,
+      "roc_auc": 0.9854,
+      "pr_auc": 0.9647,
+      "brier_score": 0.0435,
+      "recall_at_high_risk": 0.8582,
+      "confusion_matrix": [
+        [
+          36505,
+          1684
+        ],
+        [
+          1390,
+          12170
+        ]
+      ]
+    }
+  },
+  "active_model_metrics": {
+    "precision": 0.8784,
+    "recall": 0.8975,
+    "f1_score": 0.8879,
+    "roc_auc": 0.9854,
+    "pr_auc": 0.9647,
+    "brier_score": 0.0435,
+    "recall_at_high_risk": 0.8582,
+    "confusion_matrix": [
+      [
+        36505,
+        1684
+      ],
+      [
+        1390,
+        12170
+      ]
+    ]
+  },
+  "feature_importances": [
+    {
+      "feature": "rain_24h_mm",
+      "importance": 0.6135
+    },
+    {
+      "feature": "flow_accumulation",
+      "importance": 0.1774
+    },
+    {
+      "feature": "rain_12h_mm",
+      "importance": 0.04
+    },
+    {
+      "feature": "historical_flood_frequency",
+      "importance": 0.0366
+    },
+    {
+      "feature": "elevation_m",
+      "importance": 0.0218
+    },
+    {
+      "feature": "impervious_surface_ratio",
+      "importance": 0.0213
+    },
+    {
+      "feature": "rain_6h_mm",
+      "importance": 0.0152
+    },
+    {
+      "feature": "slope_deg",
+      "importance": 0.0148
+    },
+    {
+      "feature": "rain_1h_mm",
+      "importance": 0.0116
+    },
+    {
+      "feature": "drainage_density",
+      "importance": 0.0112
+    },
+    {
+      "feature": "distance_to_water_m",
+      "importance": 0.0111
+    },
+    {
+      "feature": "road_density_km_km2",
+      "importance": 0.0079
+    },
+    {
+      "feature": "rain_72h_mm",
+      "importance": 0.0046
+    },
+    {
+      "feature": "building_density",
+      "importance": 0.0045
+    },
+    {
+      "feature": "rain_3h_mm",
+      "importance": 0.0043
+    },
+    {
+      "feature": "rain_change_rate",
+      "importance": 0.0041
+    },
+    {
+      "feature": "rain_intensity_mm_h",
+      "importance": 0.0
+    }
+  ],
+  "scientific_disclaimer": "Estimates zone-level waterlogging risk; decision-support only."
+}

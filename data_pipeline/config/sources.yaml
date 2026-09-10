@@ -1,0 +1,290 @@
+version: "2.0"
+cities:
+  VJA:
+    city_id: "VJA"
+    city_name: "Vijayawada / Amaravati"
+    state: "Andhra Pradesh"
+    country: "India"
+    bounding_box:
+      min_lat: 16.4500
+      max_lat: 16.5700
+      min_lon: 80.5600
+      max_lon: 80.7000
+    center_lat: 16.5120
+    center_lon: 80.6400
+    zoom: 12
+    major_water_features:
+      - name: "Krishna River"
+        type: "river"
+      - name: "Budameru Rivulet"
+        type: "rivulet"
+      - name: "Eluru Canal"
+        type: "canal"
+      - name: "Ryves Canal"
+        type: "canal"
+      - name: "Bandar Canal"
+        type: "canal"
+
+  CHE:
+    city_id: "CHE"
+    city_name: "Chennai"
+    state: "Tamil Nadu"
+    country: "India"
+    bounding_box:
+      min_lat: 12.9200
+      max_lat: 13.1200
+      min_lon: 80.1400
+      max_lon: 80.2900
+    center_lat: 13.0400
+    center_lon: 80.2200
+    zoom: 11
+    major_water_features:
+      - name: "Adyar River"
+        type: "river"
+      - name: "Cooum River"
+        type: "river"
+      - name: "Buckingham Canal"
+        type: "canal"
+      - name: "Otteri Nullah"
+        type: "canal"
+      - name: "Pallikaranai Marshland"
+        type: "marsh"
+
+  BOM:
+    city_id: "BOM"
+    city_name: "Mumbai"
+    state: "Maharashtra"
+    country: "India"
+    bounding_box:
+      min_lat: 18.9600
+      max_lat: 19.2200
+      min_lon: 72.8000
+      max_lon: 72.9600
+    center_lat: 19.0760
+    center_lon: 72.8777
+    zoom: 11
+    major_water_features:
+      - name: "Mithi River"
+        type: "river"
+      - name: "Oshiwara River"
+        type: "river"
+      - name: "Dahisar River"
+        type: "river"
+      - name: "Mahim Creek"
+        type: "creek"
+      - name: "Arabian Sea Coastline"
+        type: "sea"
+
+  BLR:
+    city_id: "BLR"
+    city_name: "Bengaluru"
+    state: "Karnataka"
+    country: "India"
+    bounding_box:
+      min_lat: 12.8700
+      max_lat: 13.0700
+      min_lon: 77.5200
+      max_lon: 77.7200
+    center_lat: 12.9716
+    center_lon: 77.6200
+    zoom: 11
+    major_water_features:
+      - name: "Bellandur Lake"
+        type: "lake"
+      - name: "Varthur Lake"
+        type: "lake"
+      - name: "Vrishabhavathi River"
+        type: "valley"
+      - name: "Hebbal Lake"
+        type: "lake"
+      - name: "Challaghatta Valley"
+        type: "valley"
+
+  DEL:
+    city_id: "DEL"
+    city_name: "Delhi NCR"
+    state: "Delhi"
+    country: "India"
+    bounding_box:
+      min_lat: 28.5000
+      max_lat: 28.7500
+      min_lon: 77.0500
+      max_lon: 77.3500
+    center_lat: 28.6139
+    center_lon: 77.2090
+    zoom: 11
+    major_water_features:
+      - name: "Yamuna River"
+        type: "river"
+      - name: "Najafgarh Drain"
+        type: "drain"
+      - name: "Barapullah Nullah"
+        type: "drain"
+
+  HYD:
+    city_id: "HYD"
+    city_name: "Hyderabad"
+    state: "Telangana"
+    country: "India"
+    bounding_box:
+      min_lat: 17.3000
+      max_lat: 17.5000
+      min_lon: 78.3500
+      max_lon: 78.6000
+    center_lat: 17.3850
+    center_lon: 78.4867
+    zoom: 11
+    major_water_features:
+      - name: "Musi River"
+        type: "river"
+      - name: "Hussain Sagar Lake"
+        type: "lake"
+      - name: "Kukatpally Nala"
+        type: "drain"
+
+  CCU:
+    city_id: "CCU"
+    city_name: "Kolkata"
+    state: "West Bengal"
+    country: "India"
+    bounding_box:
+      min_lat: 22.4500
+      max_lat: 22.6500
+      min_lon: 88.2500
+      max_lon: 88.4500
+    center_lat: 22.5726
+    center_lon: 88.3639
+    zoom: 11
+    major_water_features:
+      - name: "Hooghly River"
+        type: "river"
+      - name: "East Kolkata Wetlands"
+        type: "marsh"
+      - name: "Circular Canal"
+        type: "canal"
+
+  AMD:
+    city_id: "AMD"
+    city_name: "Ahmedabad"
+    state: "Gujarat"
+    country: "India"
+    bounding_box:
+      min_lat: 22.9500
+      max_lat: 23.1200
+      min_lon: 72.4800
+      max_lon: 72.6800
+    center_lat: 23.0225
+    center_lon: 72.5714
+    zoom: 11
+    major_water_features:
+      - name: "Sabarmati River"
+        type: "river"
+      - name: "Chandrabhaga Stream"
+        type: "rivulet"
+      - name: "Kharicut Canal"
+        type: "canal"
+
+  PNQ:
+    city_id: "PNQ"
+    city_name: "Pune"
+    state: "Maharashtra"
+    country: "India"
+    bounding_box:
+      min_lat: 18.4200
+      max_lat: 18.6200
+      min_lon: 73.7500
+      max_lon: 73.9500
+    center_lat: 18.5204
+    center_lon: 73.8567
+    zoom: 11
+    major_water_features:
+      - name: "Mula-Mutha River"
+        type: "river"
+      - name: "Pavana River"
+        type: "river"
+      - name: "Ambil Odha Stream"
+        type: "stream"
+
+  COK:
+    city_id: "COK"
+    city_name: "Kochi"
+    state: "Kerala"
+    country: "India"
+    bounding_box:
+      min_lat: 9.9000
+      max_lat: 10.0800
+      min_lon: 76.2200
+      max_lon: 76.3800
+    center_lat: 9.9312
+    center_lon: 76.2673
+    zoom: 12
+    major_water_features:
+      - name: "Vembanad Lake Backwaters"
+        type: "lake"
+      - name: "Periyar River"
+        type: "river"
+      - name: "Edappally Canal"
+        type: "canal"
+
+  GAU:
+    city_id: "GAU"
+    city_name: "Guwahati"
+    state: "Assam"
+    country: "India"
+    bounding_box:
+      min_lat: 26.1000
+      max_lat: 26.2200
+      min_lon: 91.6500
+      max_lon: 91.8500
+    center_lat: 26.1445
+    center_lon: 91.7362
+    zoom: 12
+    major_water_features:
+      - name: "Brahmaputra River"
+        type: "river"
+      - name: "Bharalu River"
+        type: "rivulet"
+      - name: "Deepor Beel"
+        type: "wetland"
+
+  PAT:
+    city_id: "PAT"
+    city_name: "Patna"
+    state: "Bihar"
+    country: "India"
+    bounding_box:
+      min_lat: 25.5500
+      max_lat: 25.6800
+      min_lon: 85.0500
+      max_lon: 85.2500
+    center_lat: 25.5941
+    center_lon: 85.1376
+    zoom: 12
+    major_water_features:
+      - name: "Ganga River"
+        type: "river"
+      - name: "Punpun River"
+        type: "river"
+      - name: "Badshahi Nala"
+        type: "drain"
+
+sources:
+  open_meteo_rainfall:
+    name: "Open-Meteo Free Historical Weather API"
+    url: "https://archive-api.open-meteo.com/v1/archive"
+    format: "json"
+    cost: "FREE_OPEN_SOURCE"
+  open_meteo_forecast:
+    name: "Open-Meteo Free Live Weather Forecast API"
+    url: "https://api.open-meteo.com/v1/forecast"
+    format: "json"
+    cost: "FREE_OPEN_SOURCE"
+  srtm_dem:
+    name: "NASA SRTM 30m Digital Elevation Model"
+    cost: "FREE_OPEN_DATA"
+  osm_infrastructure:
+    name: "OpenStreetMap India Water Infrastructure"
+    cost: "FREE_OPEN_DATA"
+  india_flood_inventory:
+    name: "National Disaster Risk Reduction & Flood Inventory"
+    cost: "FREE_OPEN_DATA"
