@@ -143,11 +143,18 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
 
   // Initialize Map
   useEffect(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
+    if (!mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    if ((container as any)._leaflet_id) return; // Prevent double initialization
+
+    let isMounted = true;
 
     import("leaflet").then((L) => {
+      if (!isMounted || !mapContainerRef.current) return;
+      if ((mapContainerRef.current as any)._leaflet_id) return;
+
       const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
-      const map = L.map(mapContainerRef.current!, {
+      const map = L.map(mapContainerRef.current, {
         center: cityCfg.center,
         zoom: cityCfg.zoom,
         minZoom: 9,
@@ -163,9 +170,13 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     });
 
     return () => {
+      isMounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+      }
+      if (container && (container as any)._leaflet_id) {
+        delete (container as any)._leaflet_id;
       }
     };
   }, []);
