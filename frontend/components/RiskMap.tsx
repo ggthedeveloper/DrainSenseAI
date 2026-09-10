@@ -352,7 +352,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Map Control Bar (Base Map & Analysis Layer) */}
-      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-200px)]">
+      <div
+        className="absolute top-4 left-4 z-[1001] flex flex-wrap items-center gap-2 max-w-[calc(100%-200px)] pointer-events-auto"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
         {/* Base Map Selector (Satellite, Normal Street, Dark) */}
         <div className="bg-slate-900/95 backdrop-blur border border-slate-800 p-1.5 rounded-lg shadow-xl flex items-center gap-1.5 text-xs">
           <span className="text-slate-400 font-medium pl-1 text-[11px]">
@@ -362,7 +366,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setBaseMapMode("satellite")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 baseMapMode === "satellite"
                   ? "bg-blue-600 text-white font-medium shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -375,7 +379,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setBaseMapMode("normal")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 baseMapMode === "normal"
                   ? "bg-blue-600 text-white font-medium shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -388,7 +392,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setBaseMapMode("dark")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 baseMapMode === "dark"
                   ? "bg-blue-600 text-white font-medium shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -411,7 +415,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("risk")}
-              className={`px-2.5 py-1 rounded transition-all text-xs ${
+              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 colorMode === "risk"
                   ? "bg-blue-600 text-white font-medium"
                   : "text-slate-400 hover:text-slate-200"
@@ -422,7 +426,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("elevation")}
-              className={`px-2.5 py-1 rounded transition-all text-xs ${
+              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 colorMode === "elevation"
                   ? "bg-blue-600 text-white font-medium"
                   : "text-slate-400 hover:text-slate-200"
@@ -433,7 +437,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("flow")}
-              className={`px-2.5 py-1 rounded transition-all text-xs ${
+              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
                 colorMode === "flow"
                   ? "bg-blue-600 text-white font-medium"
                   : "text-slate-400 hover:text-slate-200"
@@ -446,7 +450,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       </div>
 
       {/* Bottom Map Legend */}
-      <div className="absolute bottom-4 left-4 z-20 bg-slate-900/95 backdrop-blur border border-slate-800 px-3.5 py-2.5 rounded-lg shadow-xl text-xs">
+      <div
+        className="absolute bottom-4 left-4 z-[1001] bg-slate-900/95 backdrop-blur border border-slate-800 px-3.5 py-2.5 rounded-lg shadow-xl text-xs pointer-events-auto"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
           {colorMode === "risk" ? "Risk Probability Scale" : colorMode === "elevation" ? "Topographic Elevation" : "Runoff Flow Index"}
         </div>
@@ -488,7 +495,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       </div>
 
       {/* Grid count badge */}
-      <div className="absolute top-4 right-4 z-20 bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-xs text-slate-300 flex items-center gap-2">
+      <div
+        className="absolute top-4 right-4 z-[1001] bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-xs text-slate-300 flex items-center gap-2 pointer-events-auto"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <Droplets className="w-3.5 h-3.5 text-blue-400" />
         <span>{cellCount} Grids (500m × 500m)</span>
       </div>
