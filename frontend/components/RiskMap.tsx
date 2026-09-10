@@ -300,8 +300,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const cellCount = mapData?.features?.length || 0;
 
   return (
-    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl z-0 isolation-auto">
-      <div ref={mapContainerRef} className="w-full h-full z-0" />
+    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl isolate">
+      <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Layer Controls Bar */}
       <div className="absolute top-4 left-4 z-20 bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg shadow-xl flex items-center gap-2 text-xs">
