@@ -158,6 +158,10 @@ export interface AICopilotResponse {
   critical_infrastructure_alerts: string[];
   evacuation_and_traffic_advisories: string[];
   model_confidence_score: number;
+  model_provider?: string;
+  model_name?: string;
+  conversational_answer?: string;
+  suggested_followups?: string[];
 }
 
 export interface DrainAsset {

@@ -112,6 +112,9 @@ class AICopilotRequest(BaseModel):
     city_id: str = Field("VJA", description="Target city code (VJA, CHE, BOM, BLR, DEL, etc.)")
     query: str = Field(..., description="Operational query, e.g. 'What is the pump deployment strategy for the next 6 hours?'")
     current_rainfall_24h_mm: Optional[float] = Field(145.0, description="Current 24h rainfall")
+    api_key: Optional[str] = Field(None, description="Optional Google Gemini or Groq API Key")
+    provider: Optional[str] = Field("auto", description="AI Provider: auto, gemini, groq, local_rag")
+    conversation_history: Optional[List[Dict[str, str]]] = Field(default=[], description="Prior messages in conversation")
 
 class AICopilotResponse(BaseModel):
     city_id: str
@@ -123,6 +126,10 @@ class AICopilotResponse(BaseModel):
     critical_infrastructure_alerts: List[str]
     evacuation_and_traffic_advisories: List[str]
     model_confidence_score: float
+    model_provider: Optional[str] = "DrainSense Neural RAG"
+    model_name: Optional[str] = "Hydrology-AI-v2.5"
+    conversational_answer: Optional[str] = None
+    suggested_followups: Optional[List[str]] = []
 
 class LoginRequest(BaseModel):
     username: str

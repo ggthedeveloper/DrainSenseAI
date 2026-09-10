@@ -6,7 +6,8 @@ import {
   PriorityZoneItem, 
   HistoricalEventItem,
   DrainAsset,
-  AlertItem
+  AlertItem,
+  AICopilotResponse
 } from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -226,7 +227,14 @@ export async function fetchEvaluationReport() {
   return await fallback.json();
 }
 
-export async function askAICopilot(cityId: string = "VJA", query: string, currentRain24h: number = 145.0) {
+export async function askAICopilot(
+  cityId: string = "VJA",
+  query: string,
+  currentRain24h: number = 145.0,
+  apiKey?: string,
+  provider: string = "auto",
+  conversationHistory: Array<{ role: string; content: string }> = []
+): Promise<AICopilotResponse> {
   const cid = cityId.toUpperCase();
   try {
     const res = await fetch(`${API_BASE_URL}/api/v1/ai/copilot`, {
@@ -235,11 +243,19 @@ export async function askAICopilot(cityId: string = "VJA", query: string, curren
       body: JSON.stringify({
         city_id: cid,
         query,
-        current_rainfall_24h_mm: currentRain24h
+        current_rainfall_24h_mm: currentRain24h,
+        api_key: apiKey || undefined,
+        provider: provider || "auto",
+        conversation_history: conversationHistory
       })
     });
     if (res.ok) return await res.json();
-  } catch (e) {
+    const errData = await res.json().catch(() => ({}));
+    if (errData.detail) {
+      throw new Error(errData.detail);
+    }
+  } catch (e: any) {
+    if (e.message) throw e;
     console.warn("AI copilot backend unavailable, using local synthesis.");
   }
 

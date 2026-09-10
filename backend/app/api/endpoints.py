@@ -402,16 +402,16 @@ def refresh_telemetry_admin(authorized: bool = Depends(verify_admin_token)):
 @api_router.post("/ai/copilot", response_model=AICopilotResponse, tags=["AI Copilot"])
 def ai_incident_copilot(req: AICopilotRequest):
     """
-    AI Urban Flood Incident Copilot — Query-Aware Intelligence:
-    Reads and parses the operator's actual question, routes to the correct
-    domain expert module (pump, underpass, evacuation, sluice, hospital,
-    electrical, police), then synthesises city-specific real-time guidance.
+    AI Urban Flood Incident Copilot:
+    Integrates Gemini / Groq LLMs and DrainSense Neural RAG Generative Engine.
     """
-    cid = req.city_id.upper()
-    query_lower = (req.query or "").strip().lower()
+    from backend.app.services.ai_copilot import run_ai_copilot
 
-    if not query_lower:
-        raise HTTPException(status_code=422, detail="Query cannot be empty. Please ask a specific operational question.")
+    cid = req.city_id.upper()
+    query_str = (req.query or "").strip()
+
+    if not query_str:
+        raise HTTPException(status_code=422, detail="Query cannot be empty. Please ask an operational question.")
 
     try:
         rain = req.current_rainfall_24h_mm or 145.0
@@ -421,244 +421,26 @@ def ai_incident_copilot(req: AICopilotRequest):
             rain_6h_mm=rain * 0.58
         )
         summary = risk_data["summary"]
-        city_name = summary.get("monitored_city", cid)
-        crit = summary.get("critical_zones", 0)
-        high = summary.get("high_risk_zones", 0)
-        elev = summary.get("elevated_zones", 0)
-        low  = summary.get("low_zones", 0)
-        peak_zone  = summary.get("highest_risk_zone", {})
-        peak_name  = peak_zone.get("zone_name", "primary lowland sector")
-        peak_score = peak_zone.get("risk_score", 90)
-
-        # Overall alert posture
-        if crit > 50 or (crit + high) > 200:
-            posture = "SEVERE ESCALATION / RED ALERT"
-        elif crit > 0 or high > 10:
-            posture = "ELEVATED VULNERABILITY / ORANGE ALERT"
-        else:
-            posture = "STABLE / GREEN MONITORING"
-
-        # Intent detection — scan query keywords
-        intent_pump      = any(k in query_lower for k in ["pump", "dewater", "suction", "discharge", "motor", "pumping"])
-        intent_underpass = any(k in query_lower for k in ["underpass", "subway", "tunnel", "culvert", "road closure", "traffic", "diversion", "vehicular"])
-        intent_evacuate  = any(k in query_lower for k in ["evacuati", "citizen", "advisory", "resident", "warning", "public notice", "civilian"])
-        intent_sluice    = any(k in query_lower for k in ["sluice", "gate", "backflow", "valve", "flap", "barrage", "weir", "regulator", "canal"])
-        intent_hospital  = any(k in query_lower for k in ["hospital", "health", "ambulance", "medical", "clinic"])
-        intent_electric  = any(k in query_lower for k in ["electric", "power", "transformer", "substation", "feeder", "grid"])
-        intent_police    = any(k in query_lower for k in ["police", "ndrf", "sdrf", "rescue", "force", "personnel"])
-
-        if intent_pump:
-            assessment = (
-                f"Pump deployment analysis for {city_name} under {rain}mm/24h rainfall: "
-                f"{crit} critical and {high} high-risk zones report hydraulic overload. "
-                f"Primary pumping priority is {peak_name} (Risk: {peak_score}%). "
-                f"Estimated combined discharge deficit exceeds 380 m³/s across low-lying basins. "
-                f"Existing municipal pump stations operating at 94% rated capacity — auxiliary units are mandatory."
-            )
-            tactical = [
-                f"Immediately deploy minimum 4x 100HP dewatering pump sets at {peak_name} — target 200 m3/hr combined discharge.",
-                f"Activate standby mobile super-sucker tankers (12,000-litre capacity) along top {min(10, crit+high)} drain-choked arterials.",
-                "Stage portable submersible pump units at all underpass sumps with auto-start on 30cm water depth trigger.",
-                "Fuel logistics: ensure 500-litre HSD reserve per pump station for minimum 24-hour autonomous operation.",
-                "Coordinate with State Irrigation Dept to open upstream surplus weir spillways to reduce hydraulic head on city drains.",
-            ]
-            infra = [
-                f"Municipal pumping station at {peak_name} approaching rated load — motor burnout risk if surge exceeds 20 minutes.",
-                "Secondary motor failure at any arterial sump station will cause rapid inundation of adjacent residential blocks.",
-                "Generator fuel supply to unmanned pump stations must be pre-topped — verify telemetry at all SCADA pump nodes.",
-            ]
-            traffic = [
-                f"Keep arterial access routes to {peak_name} clear for municipal pump truck convoys — enforce no-parking zones.",
-                "Vehicular advisory: avoid low-lying underpasses while active pump convoys are deployed.",
-                "Coordinate police escort for pump trucks on primary deployment corridors if traffic is congested.",
-            ]
-
-        elif intent_underpass:
-            assessment = (
-                f"Underpass and road network risk assessment for {city_name}: "
-                f"Rainfall of {rain}mm/24h generates significant storm runoff converging at grade-separated structures. "
-                f"{crit} zones in critical alert include multiple arterial underpasses at imminent flood risk. "
-                f"Estimated 8-14 major vehicular underpasses require immediate monitoring or pre-emptive closure."
-            )
-            tactical = [
-                f"Immediately close and barricade all vehicular underpasses adjacent to {peak_name} — erect flood barriers now.",
-                "Deploy traffic police at top 5 alternate routes to manage diverted commuter flows.",
-                "Activate digital Variable Message Signs (VMS) on national highways indicating underpass closure zones.",
-                "Position rescue rubber boats and rope-anchored lifelines at high-risk subway entry points.",
-                "Issue broadcast advisory through NDMA public alert system warning of sudden inundation at low-lying road junctions.",
-            ]
-            infra = [
-                f"Railway underpasses and metro station exits in {peak_name} corridor at flash-flooding risk within 45-90 minutes.",
-                "Arterial road stormwater grates and catch basins are likely clogged — clear before peak discharge arrives.",
-                "All road management electronic signs must be powered-on and displaying active diversion routes.",
-            ]
-            traffic = [
-                f"Divert all traffic away from {peak_name} underpasses via higher-elevation bypass routes immediately.",
-                "Emergency SMS broadcast to vehicles in affected wards: 'Avoid all underpasses — risk of sudden submersion.'",
-                "Metro rail operators: increase PA announcements warning passengers of flooded exit points at ground level.",
-            ]
-
-        elif intent_evacuate:
-            assessment = (
-                f"Citizen safety and evacuation advisory generation for {city_name}: "
-                f"Under {rain}mm/24h precipitation, an estimated 15,000-40,000 residents in {crit} critical-risk zones "
-                f"(concentrated in {peak_name}) face ground-floor inundation risk. "
-                f"Proactive evacuation of canal-adjacent and low-lying residential pockets is recommended before peak runoff."
-            )
-            tactical = [
-                f"Issue Tier-1 public advisory via WhatsApp, Telegram, and NDMA Sachet App for {peak_name} and adjacent wards.",
-                f"Deploy municipal PA announcement vehicles through streets of {peak_name} — repeat warning in local language.",
-                "Open emergency shelters in school buildings on higher ground — ensure capacity for 5,000+ residents.",
-                "Coordinate with ASHA/Anganwadi workers to assist elderly, disabled, and pregnant women relocate to safe shelters.",
-                "Pre-stock relief material (food, water, blankets) at all designated shelter points before rainfall intensifies.",
-            ]
-            infra = [
-                f"Identify and clear evacuation corridors for all canal-adjacent residential blocks near {peak_name}.",
-                "Ground-floor residents within 200m of primary canal channels must vacate before nightfall.",
-                "Establish a 24/7 helpline (1070) staffed for citizen queries on shelter locations and safe routes.",
-            ]
-            traffic = [
-                "Deploy directional signboards toward community shelter camps on all primary arterials.",
-                "Restrict incoming traffic into evacuation notice areas — inbound vehicles block outbound evacuees.",
-                "Request emergency bus deployment from transport corporations for non-ambulatory residents.",
-            ]
-
-        elif intent_sluice:
-            assessment = (
-                f"Sluice gate and hydraulic structure risk assessment for {city_name}: "
-                f"With {rain}mm antecedent rainfall, river/canal levels are within 0.8-1.2m of danger mark. "
-                f"Backflow reversal risk is active at {crit} low-elevation confluences — flap-valve verification is urgent. "
-                f"Primary concern: {peak_name} lies downstream of the main discharge barrage/weir structure."
-            )
-            tactical = [
-                f"Dispatch hydraulic crew to manually inspect all flap-valve closures and sluice gate seats at {peak_name} outfalls.",
-                "Close all backflow prevention flap gates along primary canal/river confluence channels — verify seal integrity.",
-                "If main barrage level approaches 0.5m below danger mark, open surplus weir sections immediately.",
-                "Coordinate with State Irrigation Dept Control Room for real-time barrage discharge telemetry every 30 minutes.",
-                "Station crew at all regulator gates — authorize emergency manual override if SCADA telemetry is lost.",
-            ]
-            infra = [
-                f"Regulator gate at {peak_name} must be closed at warning level — delay risks backflow into urban sewer network.",
-                "Check all flap-valve gate actuators for corrosion/jamming — ensure manual override cranks are accessible.",
-                "Silt accumulation at gate sills must be cleared by maintenance crew to ensure complete valve closure.",
-            ]
-            traffic = [
-                "Restrict public access to all barrage, canal weir, and regulator approach roads — enforce safety exclusion zones.",
-                f"Advisory: canal banks near {peak_name} are off-limits during active high-discharge operations.",
-                "Post warning boards at all canal cross-bridges within the affected catchment radius.",
-            ]
-
-        elif intent_hospital:
-            assessment = (
-                f"Hospital and medical emergency infrastructure protocol for {city_name} under {rain}mm/24h rainfall: "
-                f"Hospital access corridors in {peak_name} are at flood risk with {crit} zones in critical alert. "
-                f"Immediate coordination with District Medical Officer and hospital administrators is essential."
-            )
-            tactical = [
-                f"Pre-position ambulances on elevated ground near {peak_name} — avoid low-lying approach roads.",
-                "Hospital generators: fuel and test — expect 12-18h grid power interruption during peak flood.",
-                "Activate Mass Casualty Management (MCM) protocol if inundation exceeds 1m at critical zones.",
-                "Ensure emergency drug/vaccine cold-chain backup in case of prolonged power outage at hospital facilities.",
-                "Clear hospital parking lots for emergency vehicle access — remove non-critical vehicles from approach roads.",
-            ]
-            infra = [
-                f"Ground-floor patient wards in hospitals within {peak_name} must shift patients upward if water exceeds 40cm.",
-                "Medical oxygen supply pipelines must be raised off ground level in flood-prone wards.",
-                "Emergency blood bank and pharmacy stores: shift critical inventory to upper-floor vaults.",
-            ]
-            traffic = [
-                f"Designate a clear ambulance corridor through {peak_name} — police to enforce no-parking on arterials.",
-                "All emergency responders must use pre-cleared high-elevation approach roads only.",
-                "Coordinate with traffic management center for green-wave signal timing on ambulance routes.",
-            ]
-
-        elif intent_electric:
-            assessment = (
-                f"Electrical grid and power infrastructure risk for {city_name} under {rain}mm/24h rainfall: "
-                f"Ground-mounted electrical transformers and sub-stations near {peak_name} are at imminent flood risk. "
-                f"{crit} critical zones include residential areas where energized floodwater is a life-safety concern."
-            )
-            tactical = [
-                f"Issue isolation order for all ground-mounted distribution transformers in {peak_name} — coordinate with DISCOMs.",
-                "Pre-trip LT feeders serving flood-prone residential areas to prevent electrocution risk.",
-                "Identify and isolate underground cable ducts at risk of water seepage — prevent network short-circuit cascades.",
-                "Mobile DG sets to be pre-positioned at critical facilities (hospitals, pump stations, police HQ).",
-                "Plan post-flood restoration sequence: hospitals then pump stations then water treatment then residential.",
-            ]
-            infra = [
-                f"33kV feeder to {peak_name} sub-station may require emergency shutdown if predicted flood depth exceeds 50cm.",
-                "Underground cable trenches along canal banks at high risk of water ingress — prepare alternate routing.",
-                "Solar panel inverters at ground-level installations in flood-prone areas: disconnect proactively.",
-            ]
-            traffic = [
-                f"Emergency crew corridor to {peak_name} sub-station must be clear — unobstructed utility vehicle access required.",
-                "Public safety notice: do NOT approach flooded areas with downed or submerged power lines.",
-                "Coordinate with state load dispatch center for controlled load-shedding to reduce arc-flash risk in inundated feeders.",
-            ]
-
-        elif intent_police:
-            assessment = (
-                f"Police, NDRF/SDRF, and rescue operations protocol for {city_name}: "
-                f"Rescue operations must be pre-staged near {peak_name} ({crit} critical zones active). "
-                f"With {rain}mm/24h rainfall and {crit + high} high-vulnerability sectors, swift-water rescue capability is essential."
-            )
-            tactical = [
-                f"Deploy SDRF/NDRF rescue teams with rubber inflatable boats at {peak_name} — GPS trackers active on all units.",
-                f"Establish a forward rescue command post at the highest accessible point within 500m of {peak_name}.",
-                "Police traffic units: enforce road diversions around all flood-affected wards — no civilian entry to inundated zones.",
-                "Rescue swimmers with harness equipment stationed at high-flow canal crossing points.",
-                "Coordinate with Air Wing for aerial survey of inundated sectors if ground access is blocked.",
-            ]
-            infra = [
-                f"Rescue boat deployment route to {peak_name} must avoid live overhead electrical lines — pre-survey approach path.",
-                "All personnel must wear personal flotation devices (PFDs) at all waterlogged deployment sites.",
-                "VHF radio backup mandatory — mobile networks may fail in heavily inundated zones.",
-            ]
-            traffic = [
-                f"Police to enforce strict no-entry zone at {peak_name} inundated sectors — redirect civilians via high-ground detours.",
-                "Emergency vehicle green corridor: coordinate with traffic management center for signal prioritization.",
-                "Deploy motorcycle outriders ahead of rescue convoys to clear traffic on narrow approach lanes.",
-            ]
-
-        else:
-            # Comprehensive situational overview (default / catch-all)
-            assessment = (
-                f"Comprehensive urban flood situational assessment for {city_name} under {rain}mm/24h precipitation: "
-                f"Hydrological model detects {crit} critical-risk zones, {high} high-risk sectors, and {elev} elevated-risk grids. "
-                f"Peak vulnerability centred at {peak_name} (Risk Score: {peak_score}%). "
-                f"{low} upland safe-ground sectors remain passable for emergency ingress. "
-                f"Storm runoff is converging at primary arterial waterways — municipal drain capacity is under active hydraulic stress."
-            )
-            tactical = [
-                f"Pre-stage high-capacity dewatering pump sets (minimum 100 HP) at {peak_name}.",
-                "Verify flap-valve and sluice gate backflow closure along all primary river/canal discharge channels.",
-                "Deploy SDRF/NDRF quick-response rubber-inflatable reconnaissance units along designated low-lying corridors.",
-                f"Mobilize mobile suction super-suckers to clear arterial culvert grates across top {min(10, crit+high)} prioritized wards.",
-                "Issue Tier-1 public advisory through NDMA Sachet App and municipal broadcast channels.",
-            ]
-            infra = [
-                f"Arterial vehicular underpasses in {peak_name} at imminent rapid water accumulation risk.",
-                "Electrical sub-station transformers in low-lying sectors must be isolated on 30cm water level trigger.",
-                "Hospital approach corridors along primary watercourses require sandbag bund barrier reinforcement.",
-            ]
-            traffic = [
-                f"Issue immediate commuter diversion away from {peak_name} low-elevation underpasses.",
-                "Activate electronic VMS signs on ring roads — warn of localized stagnation zones.",
-                "Evacuate ground-floor residents living within 300m of unbunded canal channels before nightfall.",
-            ]
-
-        confidence = round(0.88 + min(0.10, crit / max(1, crit + high) * 0.10), 2)
-        return {
-            "city_id": cid,
-            "city_name": city_name,
-            "query": req.query,
-            "ai_situation_assessment": assessment,
-            "risk_level_summary": posture,
-            "tactical_recommendations": tactical,
-            "critical_infrastructure_alerts": infra,
-            "evacuation_and_traffic_advisories": traffic,
-            "model_confidence_score": confidence
-        }
+        peak_zone = summary.get("highest_risk_zone", {})
+        
+        # Pull city alerts and assets for real-time context
+        city_alerts = [a for a in globals().get("ALERTS_DATA", []) if a.get("city_id") == cid]
+        city_assets = [a for a in globals().get("DRAIN_ASSETS_DATA", []) if a.get("city_id") == cid]
+        
+        # Dispatch to multi-provider AI copilot engine
+        result = run_ai_copilot(
+            city_id=cid,
+            query=query_str,
+            rain_24h=rain,
+            summary=summary,
+            peak_zone=peak_zone,
+            api_key=req.api_key,
+            provider=req.provider or "auto",
+            history=req.conversation_history or [],
+            active_alerts=city_alerts,
+            assets=city_assets
+        )
+        return result
     except HTTPException:
         raise
     except Exception as e:
