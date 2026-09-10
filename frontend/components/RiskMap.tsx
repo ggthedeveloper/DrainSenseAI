@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { RiskMapGeoJSON, GridProperties } from "../types";
-import { Layers, Droplets, MapPin, Satellite, Map as MapIcon, Moon } from "lucide-react";
+import { Layers, Droplets, MapPin, Satellite, Map as MapIcon, Moon, Plus, Minus, RotateCcw } from "lucide-react";
 
 interface RiskMapProps {
   cityId: string;
@@ -137,11 +137,32 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const tileLayerRef = useRef<any>(null);
+  const labelsLayerRef = useRef<any>(null);
   const geojsonLayerRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
 
   const [colorMode, setColorMode] = useState<"risk" | "elevation" | "flow">("risk");
   const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark">("satellite");
+
+  // Zoom control handlers
+  const handleZoomIn = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomOut();
+    }
+  };
+
+  const handleResetView = () => {
+    if (mapInstanceRef.current) {
+      const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
+      mapInstanceRef.current.flyTo(cityCfg.center, cityCfg.zoom, { duration: 0.8 });
+    }
+  };
 
   // Initialize Map
   useEffect(() => {
@@ -159,16 +180,27 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       const map = L.map(mapContainerRef.current, {
         center: cityCfg.center,
         zoom: cityCfg.zoom,
-        minZoom: 9,
-        maxZoom: 18,
+        minZoom: 4,
+        maxZoom: 19,
+        scrollWheelZoom: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
         zoomControl: false
       });
+
+      // Dedicated pane for labels with zIndex 450 so city & region names show clearly over polygons
+      if (!map.getPane("labelsPane")) {
+        const lp = map.createPane("labelsPane");
+        lp.style.zIndex = "450";
+        lp.style.pointerEvents = "none";
+      }
 
       // Clean, unobtrusive attribution without third-party watermarks
       if (map.attributionControl) {
         map.attributionControl.setPrefix(false);
       }
-      L.control.zoom({ position: "bottomright" }).addTo(map);
 
       mapInstanceRef.current = map;
     });
@@ -185,7 +217,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     };
   }, []);
 
-  // Update Base Tile Layer (Satellite vs Normal Street vs Dark)
+  // Update Base Tile Layer (Satellite with Region/City Labels vs Normal Street vs Dark)
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -193,6 +225,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       const map = mapInstanceRef.current;
       if (tileLayerRef.current) {
         map.removeLayer(tileLayerRef.current);
+        tileLayerRef.current = null;
+      }
+      if (labelsLayerRef.current) {
+        map.removeLayer(labelsLayerRef.current);
+        labelsLayerRef.current = null;
       }
 
       let tileUrl = "";
@@ -202,12 +239,25 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         // High-resolution ESRI World Imagery (100% Free Open GIS Satellite - No API Key)
         tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
         tileOptions = {
-          attribution: "Tiles &copy; Esri World Imagery",
+          attribution: "Imagery &copy; Esri World Imagery",
           maxZoom: 19,
           className: "base-tile-satellite"
         };
+
+        // ESRI World Boundaries and Places Reference Layer:
+        // Overlays city names, district names, and region labels on top of the satellite imagery
+        const labelsLayer = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          {
+            pane: "labelsPane",
+            maxZoom: 19,
+            attribution: ""
+          }
+        );
+        labelsLayer.addTo(map);
+        labelsLayerRef.current = labelsLayer;
       } else if (baseMapMode === "normal") {
-        // Clean OpenStreetMap Daylight Street View (100% Free - No API Key)
+        // Clean OpenStreetMap Daylight Street View with full streets & city labels
         tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
         tileOptions = {
           attribution: "&copy; OpenStreetMap contributors",
@@ -254,7 +304,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         });
         L.marker([lm.lat, lm.lon], { icon: markerIcon })
           .addTo(markerGroup)
-          .bindTooltip(lm.title, { permanent: false, direction: "top" });
+          .bindTooltip(lm.title, { permanent: true, direction: "top", className: "drainsense-landmark-label" });
       });
 
       markerGroup.addTo(map);
@@ -501,6 +551,38 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       >
         <Droplets className="w-3.5 h-3.5 text-blue-400" />
         <span>{cellCount} Grids (500m × 500m)</span>
+      </div>
+
+      {/* Floating Zoom & Navigation Controls (Bottom-Right) */}
+      <div
+        className="absolute bottom-4 right-4 z-[1001] flex flex-col gap-1.5 pointer-events-auto"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="w-8 h-8 rounded-lg bg-slate-900/95 hover:bg-slate-800 active:scale-90 border border-slate-800 text-slate-200 hover:text-white shadow-xl flex items-center justify-center transition-all cursor-pointer"
+          title="Zoom In (+)"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="w-8 h-8 rounded-lg bg-slate-900/95 hover:bg-slate-800 active:scale-90 border border-slate-800 text-slate-200 hover:text-white shadow-xl flex items-center justify-center transition-all cursor-pointer"
+          title="Zoom Out (-)"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleResetView}
+          className="w-8 h-8 rounded-lg bg-slate-900/95 hover:bg-slate-800 active:scale-90 border border-slate-800 text-slate-300 hover:text-white shadow-xl flex items-center justify-center transition-all cursor-pointer"
+          title="Reset to City Extent (⟲)"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
