@@ -2,7 +2,22 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { RiskMapGeoJSON, GridProperties } from "../types";
-import { Layers, Droplets, Satellite, Map as MapIcon, Moon, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
+import { 
+  Layers, 
+  Droplets, 
+  Satellite, 
+  Map as MapIcon, 
+  Moon, 
+  Plus, 
+  Minus, 
+  RotateCcw, 
+  Loader2,
+  Maximize2,
+  Minimize2,
+  Focus,
+  ChevronDown,
+  ChevronUp
+} from "lucide-react";
 
 interface RiskMapProps {
   cityId: string;
@@ -149,6 +164,7 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
 };
 
 export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid, selectedGridId }) => {
+  const mapWrapperRef = useRef<HTMLDivElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const tileLayerRef = useRef<any>(null);
@@ -161,6 +177,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark">("satellite");
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [isDataRendering, setIsDataRendering] = useState<boolean>(true);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
 
   const cityName = CITY_NAME_LOOKUP[cityId] || cityId;
 
@@ -183,6 +201,46 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       mapInstanceRef.current.flyTo(cityCfg.center, cityCfg.zoom, { duration: 0.8 });
     }
   };
+
+  const handleFitBounds = () => {
+    if (mapInstanceRef.current && geojsonLayerRef.current) {
+      try {
+        const bounds = geojsonLayerRef.current.getBounds();
+        if (bounds && bounds.isValid()) {
+          mapInstanceRef.current.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
+          return;
+        }
+      } catch (e) {
+        console.warn("Bounds fit error:", e);
+      }
+    }
+    handleResetView();
+  };
+
+  const handleToggleFullscreen = () => {
+    if (!mapWrapperRef.current) return;
+    if (!document.fullscreenElement) {
+      mapWrapperRef.current.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+        setTimeout(() => mapInstanceRef.current?.invalidateSize({ pan: false }), 200);
+      }).catch((e) => console.warn(e));
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+        setTimeout(() => mapInstanceRef.current?.invalidateSize({ pan: false }), 200);
+      }).catch((e) => console.warn(e));
+    }
+  };
+
+  // Sync fullscreen state if exited via ESC key
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+      setTimeout(() => mapInstanceRef.current?.invalidateSize({ pan: false }), 150);
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+  }, []);
 
   // Initialize Map with Canvas Renderer for 60 FPS performance
   useEffect(() => {
@@ -381,6 +439,29 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     });
   }, [cityId]);
 
+  // Center on selected grid cell if selected from outside
+  useEffect(() => {
+    if (!selectedGridId || !mapData || !mapInstanceRef.current) return;
+    const feat = mapData.features?.find((f) => f.properties.grid_id === selectedGridId);
+    if (feat && feat.geometry && feat.geometry.coordinates) {
+      try {
+        const coords = feat.geometry.coordinates[0];
+        let latSum = 0, lonSum = 0;
+        coords.forEach((pt: number[]) => {
+          lonSum += pt[0];
+          latSum += pt[1];
+        });
+        const cLat = latSum / coords.length;
+        const cLon = lonSum / coords.length;
+        mapInstanceRef.current.flyTo([cLat, cLon], Math.max(mapInstanceRef.current.getZoom(), 13), {
+          duration: 0.7
+        });
+      } catch (e) {
+        console.warn("Center on selected grid error:", e);
+      }
+    }
+  }, [selectedGridId, mapData]);
+
   // Update GeoJSON layer using high-performance Canvas rendering
   useEffect(() => {
     if (!mapInstanceRef.current || !mapData) return;
@@ -470,7 +551,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const cellCount = mapData?.features?.length || 0;
 
   return (
-    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl isolate">
+    <div 
+      ref={mapWrapperRef}
+      className="relative w-full h-full min-h-[500px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl isolate"
+    >
       {/* Map DOM Element with smooth fade-in */}
       <div
         ref={mapContainerRef}
@@ -494,22 +578,22 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         </div>
       )}
 
-      {/* Map Control Bar (Base Map & Analysis Layer) */}
+      {/* Map Control Bar (Base Map & Analysis Layer) - Strictly Contained Within Top-Left */}
       <div
-        className="absolute top-4 left-4 z-[1001] flex flex-wrap items-center gap-2 max-w-[calc(100%-200px)] pointer-events-auto"
+        className="absolute top-3 left-3 z-[1001] flex flex-wrap items-center gap-2 max-w-[calc(100%-160px)] pointer-events-auto"
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       >
         {/* Base Map Selector (Satellite, Normal Street, Dark) */}
-        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl flex items-center gap-1.5 text-xs">
-          <span className="text-slate-400 font-semibold pl-1 text-[11px]">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl flex items-center gap-1 text-xs">
+          <span className="text-slate-400 font-semibold pl-1 text-[11px] hidden sm:inline">
             Base:
           </span>
           <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800">
             <button
               type="button"
               onClick={() => setBaseMapMode("satellite")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "satellite"
                   ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -517,12 +601,12 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
               title="Real Satellite Aerial View (ESRI World Imagery)"
             >
               <Satellite className="w-3.5 h-3.5" />
-              Satellite
+              <span className="hidden sm:inline">Satellite</span>
             </button>
             <button
               type="button"
               onClick={() => setBaseMapMode("normal")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "normal"
                   ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -530,12 +614,12 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
               title="Standard Normal Street View (OpenStreetMap)"
             >
               <MapIcon className="w-3.5 h-3.5" />
-              Normal
+              <span className="hidden sm:inline">Normal</span>
             </button>
             <button
               type="button"
               onClick={() => setBaseMapMode("dark")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "dark"
                   ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
@@ -543,14 +627,14 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
               title="Dark Mode Navigation Canvas"
             >
               <Moon className="w-3.5 h-3.5" />
-              Dark
+              <span className="hidden sm:inline">Dark</span>
             </button>
           </div>
         </div>
 
         {/* Data Layer Selector */}
-        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl flex items-center gap-1.5 text-xs">
-          <span className="text-slate-400 font-semibold flex items-center gap-1 pl-1 text-[11px]">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl flex items-center gap-1 text-xs">
+          <span className="text-slate-400 font-semibold flex items-center gap-1 pl-1 text-[11px] hidden sm:inline">
             <Layers className="w-3.5 h-3.5 text-blue-400" />
             Layer:
           </span>
@@ -558,18 +642,18 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("risk")}
-              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "risk"
                   ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Flood Risk
+              Risk
             </button>
             <button
               type="button"
               onClick={() => setColorMode("elevation")}
-              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "elevation"
                   ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
@@ -580,78 +664,114 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("flow")}
-              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
+              className={`px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "flow"
                   ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Flow Acc
+              Flow
             </button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Map Legend */}
+      {/* Bottom Map Legend - Collapsible to avoid blocking map surface */}
       <div
-        className="absolute bottom-4 left-4 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 px-3.5 py-2.5 rounded-xl shadow-xl text-xs pointer-events-auto"
+        className="absolute bottom-3 left-3 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-xl text-xs pointer-events-auto transition-all"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-          {colorMode === "risk" ? "Risk Probability Scale" : colorMode === "elevation" ? "Topographic Elevation" : "Runoff Flow Index"}
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-800/80 gap-3">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            {colorMode === "risk" ? "Risk Scale" : colorMode === "elevation" ? "Topography" : "Flow Index"}
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsLegendOpen(!isLegendOpen)}
+            className="text-slate-400 hover:text-white p-0.5 rounded"
+            title={isLegendOpen ? "Collapse Legend" : "Expand Legend"}
+          >
+            {isLegendOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+          </button>
         </div>
-        {colorMode === "risk" ? (
-          <div className="grid grid-cols-5 gap-2 text-center">
-            <div className="flex flex-col items-center">
-              <span className="w-7 h-2.5 rounded-sm bg-[#10b981] mb-1"></span>
-              <span className="text-[10px] text-slate-400 font-mono">0-20%</span>
-              <span className="text-[9px] font-bold text-emerald-400">LOW</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="w-7 h-2.5 rounded-sm bg-[#eab308] mb-1"></span>
-              <span className="text-[10px] text-slate-400 font-mono">20-40%</span>
-              <span className="text-[9px] font-bold text-yellow-400">MOD</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="w-7 h-2.5 rounded-sm bg-[#f97316] mb-1"></span>
-              <span className="text-[10px] text-slate-400 font-mono">40-60%</span>
-              <span className="text-[9px] font-bold text-orange-400">ELEV</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="w-7 h-2.5 rounded-sm bg-[#ef4444] mb-1"></span>
-              <span className="text-[10px] text-slate-400 font-mono">60-80%</span>
-              <span className="text-[9px] font-bold text-red-400">HIGH</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="w-7 h-2.5 rounded-sm bg-[#881337] mb-1"></span>
-              <span className="text-[10px] text-slate-400 font-mono">80-100%</span>
-              <span className="text-[9px] font-bold text-rose-400">CRIT</span>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 font-medium">
-            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0284c7]"></span> Lowland</div>
-            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#38bdf8]"></span> Plain</div>
-            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#a855f7]"></span> Ridge</div>
+
+        {isLegendOpen && (
+          <div className="p-2.5 animate-in fade-in duration-150">
+            {colorMode === "risk" ? (
+              <div className="grid grid-cols-5 gap-1.5 text-center">
+                <div className="flex flex-col items-center">
+                  <span className="w-6 h-2 rounded-sm bg-[#10b981] mb-1"></span>
+                  <span className="text-[9px] text-slate-400 font-mono">0-20%</span>
+                  <span className="text-[8px] font-bold text-emerald-400">LOW</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-6 h-2 rounded-sm bg-[#eab308] mb-1"></span>
+                  <span className="text-[9px] text-slate-400 font-mono">20-40%</span>
+                  <span className="text-[8px] font-bold text-yellow-400">MOD</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-6 h-2 rounded-sm bg-[#f97316] mb-1"></span>
+                  <span className="text-[9px] text-slate-400 font-mono">40-60%</span>
+                  <span className="text-[8px] font-bold text-orange-400">ELEV</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-6 h-2 rounded-sm bg-[#ef4444] mb-1"></span>
+                  <span className="text-[9px] text-slate-400 font-mono">60-80%</span>
+                  <span className="text-[8px] font-bold text-red-400">HIGH</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-6 h-2 rounded-sm bg-[#881337] mb-1"></span>
+                  <span className="text-[9px] text-slate-400 font-mono">80-100%</span>
+                  <span className="text-[8px] font-bold text-rose-400">CRIT</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5 text-[11px] font-medium">
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Lowland</div>
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]"></span> Plain</div>
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#a855f7]"></span> Ridge</div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Grid count badge */}
       <div
-        className="absolute top-4 right-4 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 px-3 py-1.5 rounded-xl shadow-xl text-xs text-slate-300 flex items-center gap-2 pointer-events-auto font-medium"
+        className="absolute top-3 right-3 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 px-2.5 py-1 rounded-xl shadow-xl text-xs text-slate-300 flex items-center gap-1.5 pointer-events-auto font-medium"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <Droplets className="w-3.5 h-3.5 text-blue-400" />
-        <span>{cellCount} Grids (500m × 500m)</span>
+        <span className="text-[11px] font-mono">{cellCount} Grids</span>
       </div>
 
-      {/* Floating Zoom & Navigation Controls (Bottom-Right) */}
+      {/* Floating Zoom & Navigation Controls (Bottom-Right Stack) */}
       <div
-        className="absolute bottom-4 right-4 z-[1001] flex flex-col gap-1.5 pointer-events-auto"
+        className="absolute bottom-3 right-3 z-[1001] flex flex-col gap-1.5 pointer-events-auto"
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       >
+        {/* Fullscreen Toggle */}
+        <button
+          type="button"
+          onClick={handleToggleFullscreen}
+          className="w-8 h-8 rounded-lg bg-slate-900/95 hover:bg-slate-800 active:scale-90 border border-slate-800 text-slate-200 hover:text-white shadow-xl flex items-center justify-center transition-all cursor-pointer"
+          title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4 text-blue-400" /> : <Maximize2 className="w-4 h-4" />}
+        </button>
+
+        {/* Fit Risk Bounds */}
+        <button
+          type="button"
+          onClick={handleFitBounds}
+          className="w-8 h-8 rounded-lg bg-slate-900/95 hover:bg-slate-800 active:scale-90 border border-slate-800 text-slate-200 hover:text-white shadow-xl flex items-center justify-center transition-all cursor-pointer"
+          title="Fit Risk Area Extent"
+        >
+          <Focus className="w-4 h-4 text-emerald-400" />
+        </button>
+
+        {/* Zoom In */}
         <button
           type="button"
           onClick={handleZoomIn}
@@ -660,6 +780,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         >
           <Plus className="w-4 h-4" />
         </button>
+
+        {/* Zoom Out */}
         <button
           type="button"
           onClick={handleZoomOut}
@@ -668,6 +790,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         >
           <Minus className="w-4 h-4" />
         </button>
+
+        {/* Reset View */}
         <button
           type="button"
           onClick={handleResetView}

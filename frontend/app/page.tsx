@@ -6,6 +6,7 @@ import { Sidebar } from "../components/Sidebar";
 import { LoginPage } from "../components/LoginPage";
 import { RiskMap } from "../components/RiskMap";
 import { ZoneDrawer } from "../components/ZoneDrawer";
+import { DashboardControlPanel } from "../components/DashboardControlPanel";
 import { WhatIfSimulator } from "../components/WhatIfSimulator";
 import { PriorityList } from "../components/PriorityList";
 import { HistoricalEvents } from "../components/HistoricalEvents";
@@ -31,15 +32,7 @@ import { UserSession, getStoredSession, clearStoredSession, isUserAuthenticated 
 
 import { 
   ShieldAlert, 
-  MapPin, 
-  CloudRain, 
-  Layers, 
-  AlertTriangle, 
-  Activity, 
-  Calendar,
-  Sparkles,
-  SlidersHorizontal,
-  RefreshCw
+  RefreshCw 
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -357,179 +350,47 @@ export default function DashboardPage() {
         />
 
         {/* Main Body View */}
-        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-          {/* KPI Overview Banner (Visible on Dashboard & Map) */}
-          {(activeTab === "dashboard" || activeTab === "map") && summary && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-slate-800 hover:border-slate-700 transition-all shadow-lg hover:shadow-blue-500/5">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500/80 to-blue-400"></div>
-                <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t.kpiMonitoredArea}</div>
-                <div className="text-xl font-extrabold text-slate-100 mt-1 font-mono tracking-tight">{summary.monitored_area_sqkm} <span className="text-xs text-slate-400 font-sans font-normal">km²</span></div>
-                <div className="text-[10px] text-blue-400 font-medium mt-1 flex items-center gap-1">
-                  <span>{summary.total_grids.toLocaleString()}</span> {t.gridsCount}
-                </div>
-              </div>
-
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-rose-900/40 hover:border-rose-700/60 transition-all shadow-lg hover:shadow-rose-500/5">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-rose-600 to-rose-400"></div>
-                <div className="text-[10px] text-rose-400 uppercase font-bold tracking-wider flex items-center justify-between">
-                  <span>{t.kpiCriticalRisk}</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                </div>
-                <div className="text-xl font-extrabold text-rose-300 mt-1 font-mono tracking-tight">{summary.critical_zones} <span className="text-xs text-rose-400/80 font-sans font-normal">Zones</span></div>
-                <div className="text-[10px] text-rose-400/80 font-medium mt-1">{t.scoreOver80}</div>
-              </div>
-
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-amber-900/40 hover:border-amber-700/60 transition-all shadow-lg hover:shadow-amber-500/5">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500 to-amber-400"></div>
-                <div className="text-[10px] text-amber-400 uppercase font-bold tracking-wider">{t.kpiElevatedHigh}</div>
-                <div className="text-xl font-extrabold text-amber-300 mt-1 font-mono tracking-tight">{summary.high_risk_zones + summary.elevated_zones} <span className="text-xs text-amber-400/80 font-sans font-normal">Zones</span></div>
-                <div className="text-[10px] text-amber-400/80 font-medium mt-1">Probability 40% – 80%</div>
-              </div>
-
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-emerald-900/40 hover:border-emerald-700/60 transition-all shadow-lg hover:shadow-emerald-500/5">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
-                <div className="text-[10px] text-emerald-400 uppercase font-bold tracking-wider">{t.kpiSafeGround}</div>
-                <div className="text-xl font-extrabold text-emerald-300 mt-1 font-mono tracking-tight">{summary.low_zones} <span className="text-xs text-emerald-400/80 font-sans font-normal">Zones</span></div>
-                <div className="text-[10px] text-emerald-400/80 font-medium mt-1">{t.uplandsRidges}</div>
-              </div>
-
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-blue-900/40 hover:border-blue-700/60 transition-all shadow-lg hover:shadow-blue-500/5">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
-                <div className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">{t.kpiCurrentRain}</div>
-                <div className="text-xl font-extrabold text-blue-300 mt-1 font-mono tracking-tight">{summary.current_rainfall_24h_mm} <span className="text-xs text-blue-400/80 font-sans font-normal">mm</span></div>
-                <div className="text-[10px] text-slate-400 font-medium mt-1 truncate">{currentMeta.rainRegion}</div>
-              </div>
-
-              <div className="group relative overflow-hidden bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-md p-3.5 rounded-xl border border-slate-800 hover:border-slate-700 transition-all shadow-lg">
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
-                <div className="text-[10px] text-purple-400 uppercase font-bold tracking-wider">{t.kpiPeakThreat}</div>
-                <div className="text-sm font-bold text-slate-200 mt-1 truncate tracking-tight">{currentMeta.threatSector}</div>
-                <div className="text-[10px] text-rose-400 font-semibold mt-1 truncate">{currentMeta.breachCorridor}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 1: Dashboard & Live Map */}
+        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-6 space-y-6">
+          {/* Tab 1: Dashboard & Live Risk Map (Strict Two-Part Layout) */}
           {(activeTab === "dashboard" || activeTab === "map") && (
-            <div className="space-y-3.5">
-              {/* Map Mission Sub-Bar */}
-              <div className="bg-slate-900/60 dark:bg-slate-900/60 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="font-bold text-slate-200">
-                    {currentMeta.rainRegion}
-                  </span>
-                  <span className="text-slate-500">•</span>
-                  <span className="text-slate-400 font-mono">
-                    {summary?.total_grids || 0} {t.gridsCount}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setActiveTab("whatif")}
-                    className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer border border-slate-700/60"
-                  >
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Test +25% Surge</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("copilot")}
-                    className="px-2.5 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-blue-100 transition-all text-xs flex items-center gap-1.5 cursor-pointer border border-blue-500/40"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                    <span>{t.navCopilot}</span>
-                  </button>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-[calc(100vh-6rem)] min-h-[640px]">
+              {/* Left Column: Leaflet Canvas Map (~60-65% Desktop Width, Zero Overlays) */}
+              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800/80 bg-slate-950 relative min-h-[500px]">
+                <RiskMap
+                  cityId={selectedCity}
+                  mapData={mapData}
+                  onSelectGrid={handleSelectGrid}
+                  selectedGridId={selectedGridId}
+                />
               </div>
 
-              {/* Map + Inspector Container */}
-              <div className="flex flex-col lg:flex-row gap-4 h-[650px]">
-                {/* Left Map View */}
-                <div className="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800/80">
-                  <RiskMap
-                    cityId={selectedCity}
-                    mapData={mapData}
-                    onSelectGrid={handleSelectGrid}
-                    selectedGridId={selectedGridId}
-                  />
-                </div>
-
-                {/* Right Side Quick Inspector (When no full drawer is opened) */}
-                {!zoneDetail && (
-                  <div className="hidden lg:flex w-84 bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-5 flex-col justify-between shadow-2xl relative overflow-hidden">
-                    <div className="absolute -top-12 -right-12 w-36 h-36 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
-                    <div>
-                      <div className="flex items-center gap-2 text-xs font-bold text-blue-400 uppercase tracking-wider">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        {t.inspectorTitle}
-                      </div>
-                      <h3 className="text-base font-extrabold text-slate-100 mt-1 tracking-tight">
-                        {cityIdToName(selectedCity)}
-                      </h3>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        {t.inspectorHelp}
-                      </p>
-
-                      {/* Quick Comparative Case Studies */}
-                      <div className="mt-5 space-y-2.5">
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                          {t.benchmarksTitle}
-                        </div>
-
-                        <button
-                          onClick={() => handleSelectGrid(currentMeta.sampleCritical)}
-                          className="w-full text-left p-3 rounded-xl bg-slate-950/80 border border-rose-900/40 hover:border-rose-600/70 hover:bg-slate-900/80 transition-all cursor-pointer group shadow-sm"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-white">
-                              {currentMeta.threatSector}
-                            </span>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20">
-                              CRITICAL
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-rose-400/90 mt-1 flex items-center justify-between font-medium">
-                            <span>{t.lowlandSump}</span>
-                            <span className="text-slate-500 font-mono">18m AMSL</span>
-                          </div>
-                        </button>
-
-                        <button
-                          onClick={() => handleSelectGrid(currentMeta.sampleLow)}
-                          className="w-full text-left p-3 rounded-xl bg-slate-950/80 border border-emerald-900/40 hover:border-emerald-600/70 hover:bg-slate-900/80 transition-all cursor-pointer group shadow-sm"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-white">
-                              High Elevation Ridge
-                            </span>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                              LOW RISK
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-emerald-400/90 mt-1 flex items-center justify-between font-medium">
-                            <span>{t.escarpment}</span>
-                            <span className="text-slate-500 font-mono">110m AMSL</span>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t border-slate-800/80">
-                      <button
-                        onClick={() => setActiveTab("copilot")}
-                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>{t.askCopilotBtn}</span>
-                      </button>
-                      <p className="text-[10px] text-slate-500 text-center mt-2.5 leading-relaxed">
-                        💡 {t.officialDisclaimer}
-                      </p>
-                    </div>
-                  </div>
-                )}
+              {/* Right Column: Consolidated Municipal Information & Control Panel (~35-40% Desktop Width) */}
+              <div className="lg:col-span-5 xl:col-span-4 h-full overflow-hidden flex flex-col">
+                <DashboardControlPanel
+                  cityId={selectedCity}
+                  cityName={cityIdToName(selectedCity)}
+                  summary={summary}
+                  selectedGridId={selectedGridId}
+                  zoneDetail={zoneDetail}
+                  priorityZones={priorityZones}
+                  currentLang={currentLang}
+                  onSelectGrid={handleSelectGrid}
+                  onClearSelectedGrid={() => {
+                    setSelectedGridId(null);
+                    setZoneDetail(null);
+                  }}
+                  onApplyScenarioToMap={(mult) => {
+                    if (summary) {
+                      fetchCurrentRiskMap(selectedCity, Math.round(summary.current_rainfall_24h_mm * mult))
+                        .then((res) => setMapData(res.geojson));
+                    }
+                  }}
+                  onResetScenarioOnMap={() => {
+                    fetchCurrentRiskMap(selectedCity)
+                      .then((res) => setMapData(res.geojson));
+                  }}
+                  healthStatus={healthStatus}
+                />
               </div>
             </div>
           )}
@@ -630,14 +491,16 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      {/* Zone Detail Sliding Drawer */}
-      <ZoneDrawer
-        zone={zoneDetail}
-        onClose={() => {
-          setZoneDetail(null);
-          setSelectedGridId(null);
-        }}
-      />
+      {/* Zone Detail Sliding Drawer - Mobile Only (on Desktop, details and TreeSHAP are embedded in DashboardControlPanel) */}
+      <div className="lg:hidden">
+        <ZoneDrawer
+          zone={zoneDetail}
+          onClose={() => {
+            setZoneDetail(null);
+            setSelectedGridId(null);
+          }}
+        />
+      </div>
 
       {/* Jury Demo Guided Walkthrough Modal */}
       <JuryDemoModal
