@@ -20,7 +20,10 @@ import {
   Globe,
   X,
   SlidersHorizontal,
-  Bot
+  Bot,
+  ListOrdered,
+  History,
+  Database
 } from "lucide-react";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
 import { UserSession } from "../lib/auth";
@@ -64,8 +67,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "copilot", label: t.navCopilot, icon: Bot },
     { id: "whatif", label: t.navWhatIf, icon: SlidersHorizontal },
     { id: "alerts", label: t.navAlerts, icon: AlertTriangle, badge: "3" },
+    { id: "priority", label: t.navPriority, icon: ListOrdered },
+    { id: "historical", label: t.navHistorical, icon: History },
     { id: "analytics", label: t.navAnalytics, icon: LineChart },
     { id: "reports", label: t.navReports, icon: FileText },
+    { id: "health", label: t.navHealth, icon: Database },
     { id: "settings", label: t.navSettings, icon: Settings },
   ];
 

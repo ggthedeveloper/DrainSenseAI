@@ -65,6 +65,14 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
               <option value="CHE">Chennai (TN)</option>
               <option value="BOM">Mumbai (MH)</option>
               <option value="BLR">Bengaluru (KA)</option>
+              <option value="DEL">Delhi NCR (DL)</option>
+              <option value="HYD">Hyderabad (TG)</option>
+              <option value="CCU">Kolkata (WB)</option>
+              <option value="AMD">Ahmedabad (GJ)</option>
+              <option value="PNQ">Pune (MH)</option>
+              <option value="COK">Kochi (KL)</option>
+              <option value="GAU">Guwahati (AS)</option>
+              <option value="PAT">Patna (BR)</option>
             </select>
           </div>
         </div>

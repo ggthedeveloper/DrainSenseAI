@@ -65,7 +65,8 @@ export const DataHealth: React.FC = () => {
     setIsRefreshing(true);
     setActionStatus(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/${endpoint}`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${baseUrl}/api/v1/admin/${endpoint}`, {
         method: "POST",
         headers: { "X-Admin-Token": adminToken }
       });

@@ -1,7 +1,7 @@
 {
   "model_version": "v1.0",
   "model_type": "XGBoost Classifier (Calibrated with Sigmoid)",
-  "training_timestamp": "2026-09-10T19:03:18.465334Z",
+  "training_timestamp": "2026-09-11T08:03:53.915616Z",
   "dataset_path": "data/processed/drainsense_train_dataset.csv",
   "total_samples": 776890,
   "test_samples": 155378,
@@ -56,7 +56,7 @@
       "pr_auc": 0.1865,
       "brier_score": 0.3037,
       "recall_at_high_risk": 0.1868,
-      "train_time_sec": 0.024,
+      "train_time_sec": 0.038,
       "confusion_matrix": [
         [
           102767,
@@ -76,7 +76,7 @@
       "pr_auc": 0.8861,
       "brier_score": 0.06,
       "recall_at_high_risk": 0.87,
-      "train_time_sec": 0.585,
+      "train_time_sec": 0.688,
       "confusion_matrix": [
         [
           115588,
@@ -96,7 +96,7 @@
       "pr_auc": 0.9224,
       "brier_score": 0.0593,
       "recall_at_high_risk": 0.8955,
-      "train_time_sec": 12.492,
+      "train_time_sec": 16.451,
       "confusion_matrix": [
         [
           114629,
@@ -116,7 +116,7 @@
       "pr_auc": 0.9303,
       "brier_score": 0.0567,
       "recall_at_high_risk": 0.902,
-      "train_time_sec": 1.161,
+      "train_time_sec": 1.487,
       "confusion_matrix": [
         [
           115354,

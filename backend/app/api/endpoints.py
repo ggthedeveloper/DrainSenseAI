@@ -4,6 +4,7 @@ Primary REST API endpoints for DrainSense India with Multi-City Support.
 
 import os
 import json
+import pandas as pd
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Header, Depends, Query
@@ -387,8 +388,12 @@ def retrain_model_admin(authorized: bool = Depends(verify_admin_token)):
 @api_router.post("/admin/refresh-data", response_model=AdminActionResponse, tags=["Admin"])
 def refresh_telemetry_admin(authorized: bool = Depends(verify_admin_token)):
     try:
-        from ml.src.ingestion.rainfall_loader import generate_multi_city_telemetry
-        df = generate_multi_city_telemetry()
+        csv_path = "data/raw/multi_city_hourly_rainfall.csv"
+        if os.path.exists(csv_path):
+            df = pd.read_csv(csv_path)
+        else:
+            from ml.src.ingestion.rainfall_loader import generate_multi_city_telemetry
+            df = generate_multi_city_telemetry()
         return {
             "success": True,
             "action": "DATA_REFRESH",
@@ -514,35 +519,66 @@ def get_current_user(authorization: Optional[str] = Header(None)):
 # ==========================================
 
 DRAIN_ASSETS_DATA: List[Dict[str, Any]] = [
-    # Vijayawada
+    # Vijayawada (AP)
     {"asset_id": "VJA-DR-001", "city_id": "VJA", "asset_name": "Budameru Inundation Diversion Weir", "asset_type": "Primary Spillway Canal", "location_desc": "Budameru Regulator, Singh Nagar", "latitude": 16.552, "longitude": 80.630, "capacity_discharge_m3s": 350.0, "siltation_level_pct": 42, "condition": "Degraded", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "VMC Zonal Drainage Squad A", "operational_status": "Heavy Flow — Emergency Pumping"},
     {"asset_id": "VJA-DR-002", "city_id": "VJA", "asset_name": "Prakasam Barrage Sluice Channel 4", "asset_type": "Riverine Outfall Sluice", "location_desc": "Krishna Riverfront Lock", "latitude": 16.507, "longitude": 80.605, "capacity_discharge_m3s": 850.0, "siltation_level_pct": 18, "condition": "Good", "risk_level": "MODERATE", "last_inspection_date": "2026-09-09", "assigned_team": "Irrigation Dept Barrage Unit", "operational_status": "Operational — Flap Open"},
     {"asset_id": "VJA-DR-003", "city_id": "VJA", "asset_name": "Ajit Singh Nagar High-Head Dewatering Unit", "asset_type": "High-Capacity Pump Station", "location_desc": "Ward 24 Lowland Sump", "latitude": 16.538, "longitude": 80.628, "capacity_discharge_m3s": 45.0, "siltation_level_pct": 65, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-07", "assigned_team": "VMC Emergency Pump Unit", "operational_status": "3 of 4 Pumps Running"},
     {"asset_id": "VJA-DR-004", "city_id": "VJA", "asset_name": "Eluru Canal Urban Culvert Bridge", "asset_type": "Box Culvert", "location_desc": "Governorpet / Gandhinagar Crossing", "latitude": 16.518, "longitude": 80.632, "capacity_discharge_m3s": 80.0, "siltation_level_pct": 28, "condition": "Moderate", "risk_level": "ELEVATED", "last_inspection_date": "2026-09-06", "assigned_team": "VMC Central Ward Division", "operational_status": "Operational"},
     {"asset_id": "VJA-DR-005", "city_id": "VJA", "asset_name": "Bhavanipuram Lowland Gravity Drain", "asset_type": "Open Masonry Conduit", "location_desc": "Bhavanipuram Sump Outfall", "latitude": 16.525, "longitude": 80.590, "capacity_discharge_m3s": 60.0, "siltation_level_pct": 35, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-05", "assigned_team": "VMC West Division", "operational_status": "Operational"},
 
-    # Chennai
+    # Chennai (TN)
     {"asset_id": "CHE-DR-001", "city_id": "CHE", "asset_name": "Adyar Estuary Flap Valve Barrier", "asset_type": "Tidal Barrier Sluice", "location_desc": "Foreshore Estate Outfall", "latitude": 13.008, "longitude": 80.274, "capacity_discharge_m3s": 600.0, "siltation_level_pct": 38, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "GCC Stormwater Division 4", "operational_status": "Operational — High Tide Watch"},
     {"asset_id": "CHE-DR-002", "city_id": "CHE", "asset_name": "Velachery Lake Surplus Drain Channel", "asset_type": "Primary Storm Canal", "location_desc": "Velachery Bypass Canal", "latitude": 12.978, "longitude": 80.218, "capacity_discharge_m3s": 120.0, "siltation_level_pct": 58, "condition": "Choked", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "GCC South Zone Crew", "operational_status": "Excavator Desilting in Progress"},
     {"asset_id": "CHE-DR-003", "city_id": "CHE", "asset_name": "Kotturpuram Dewatering Pump House", "asset_type": "High-Capacity Pump Station", "location_desc": "Adyar Riverbank Sump", "latitude": 13.018, "longitude": 80.240, "capacity_discharge_m3s": 50.0, "siltation_level_pct": 22, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-07", "assigned_team": "GCC Electrical & Mechanical", "operational_status": "Standby — Auto-trigger Ready"},
 
-    # Mumbai
+    # Mumbai (MH)
     {"asset_id": "BOM-DR-001", "city_id": "BOM", "asset_name": "Mithi River BKC Culvert Siphon", "asset_type": "Primary Spillway Canal", "location_desc": "BKC / Kurla Confluence", "latitude": 19.068, "longitude": 72.868, "capacity_discharge_m3s": 400.0, "siltation_level_pct": 72, "condition": "Critical Siltation", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "MCGM Stormwater Drain Dept", "operational_status": "Emergency Super-sucker Active"},
     {"asset_id": "BOM-DR-002", "city_id": "BOM", "asset_name": "Milan Subway Dewatering Station", "asset_type": "High-Capacity Pump Station", "location_desc": "Santacruz West Subway", "latitude": 19.088, "longitude": 72.842, "capacity_discharge_m3s": 35.0, "siltation_level_pct": 20, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "MCGM K-West Ward", "operational_status": "Subway Traffic Sensors Green"},
 
-    # Bengaluru
+    # Bengaluru (KA)
     {"asset_id": "BLR-DR-001", "city_id": "BLR", "asset_name": "Bellandur Valley Rajakaluve Primary Drain", "asset_type": "Primary Storm Canal", "location_desc": "Koramangala-Challaghatta Valley", "latitude": 12.935, "longitude": 77.672, "capacity_discharge_m3s": 180.0, "siltation_level_pct": 62, "condition": "Heavy Encroachment/Silt", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "BBMP SWD Wing", "operational_status": "High Alert — Trash Barriers Cleared"},
-    {"asset_id": "BLR-DR-002", "city_id": "BLR", "asset_name": "Outer Ring Road EcoSpace Bypass Culvert", "asset_type": "Box Culvert", "location_desc": "Bellandur EcoSpace Tech Corridor", "latitude": 12.926, "longitude": 77.684, "capacity_discharge_m3s": 65.0, "siltation_level_pct": 30, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "BBMP Mahadevapura Zone", "operational_status": "Operational"}
+    {"asset_id": "BLR-DR-002", "city_id": "BLR", "asset_name": "Outer Ring Road EcoSpace Bypass Culvert", "asset_type": "Box Culvert", "location_desc": "Bellandur EcoSpace Tech Corridor", "latitude": 12.926, "longitude": 77.684, "capacity_discharge_m3s": 65.0, "siltation_level_pct": 30, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "BBMP Mahadevapura Zone", "operational_status": "Operational"},
+
+    # Delhi NCR (DL)
+    {"asset_id": "DEL-DR-001", "city_id": "DEL", "asset_name": "Minto Bridge Chronic Subway Dewatering Sump", "asset_type": "High-Capacity Pump Station", "location_desc": "Connaught Place Underpass", "latitude": 28.634, "longitude": 77.224, "capacity_discharge_m3s": 40.0, "siltation_level_pct": 15, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-09", "assigned_team": "NDMC Drainage Cell", "operational_status": "Automatic Sensor Mode Active"},
+    {"asset_id": "DEL-DR-002", "city_id": "DEL", "asset_name": "Najafgarh Drain Outfall Regulator", "asset_type": "Primary Spillway Canal", "location_desc": "Yamuna River Outfall Point", "latitude": 28.712, "longitude": 77.228, "capacity_discharge_m3s": 550.0, "siltation_level_pct": 52, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-07", "assigned_team": "Delhi I&FC Dept", "operational_status": "Heavy Discharge Monitoring"},
+    {"asset_id": "DEL-DR-003", "city_id": "DEL", "asset_name": "ITO Ring Road Breach Barrier Sluice", "asset_type": "Riverine Outfall Sluice", "location_desc": "Vikas Marg Ring Road Lock", "latitude": 28.628, "longitude": 77.248, "capacity_discharge_m3s": 220.0, "siltation_level_pct": 25, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "MCD Central Zone", "operational_status": "Sandbag Reinforcement Deployed"},
+
+    # Hyderabad (TG)
+    {"asset_id": "HYD-DR-001", "city_id": "HYD", "asset_name": "Hussain Sagar Surplus Weir Sluice", "asset_type": "Weir & Sluice Gate", "location_desc": "Tank Bund Marriott Outfall", "latitude": 17.432, "longitude": 78.475, "capacity_discharge_m3s": 320.0, "siltation_level_pct": 24, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-09", "assigned_team": "GHMC Lakes & Nalas Wing", "operational_status": "Surplus Weir Discharging"},
+    {"asset_id": "HYD-DR-002", "city_id": "HYD", "asset_name": "Tolichowki / Nadeem Colony Lowland Sump", "asset_type": "High-Capacity Pump Station", "location_desc": "Shah Hatim Lake Inflow", "latitude": 17.398, "longitude": 78.412, "capacity_discharge_m3s": 48.0, "siltation_level_pct": 55, "condition": "Degraded", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "GHMC Khairatabad Zone", "operational_status": "Emergency Heavy Dewatering"},
+
+    # Kolkata (WB)
+    {"asset_id": "CCU-DR-001", "city_id": "CCU", "asset_name": "Palmer Bridge Drainage Pumping Station", "asset_type": "Primary Drainage Pumping Station", "location_desc": "Palmer Bazar, Entally", "latitude": 22.560, "longitude": 88.375, "capacity_discharge_m3s": 300.0, "siltation_level_pct": 45, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "KMC Drainage & Sewerage", "operational_status": "6 of 8 Heavy Turbines Active"},
+    {"asset_id": "CCU-DR-002", "city_id": "CCU", "asset_name": "Thanthania / Central Avenue Sump Lock", "asset_type": "Box Culvert & Lock", "location_desc": "North Kolkata Commercial Hub", "latitude": 22.582, "longitude": 88.362, "capacity_discharge_m3s": 75.0, "siltation_level_pct": 68, "condition": "Choked", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "KMC Borough IV", "operational_status": "High Tide Inundation Watch"},
+
+    # Ahmedabad (GJ)
+    {"asset_id": "AMD-DR-001", "city_id": "AMD", "asset_name": "Akhbarnagar Underpass Stormwater Sump", "asset_type": "High-Capacity Pump Station", "location_desc": "West Zone Rail Sump", "latitude": 23.065, "longitude": 72.552, "capacity_discharge_m3s": 35.0, "siltation_level_pct": 18, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "AMC West Zone Engineering", "operational_status": "Automatic High-Flow Pumps Standby"},
+    {"asset_id": "AMD-DR-002", "city_id": "AMD", "asset_name": "Kharicut Canal Outfall Sluice", "asset_type": "Primary Storm Canal", "location_desc": "Vatva Industrial Basin", "latitude": 22.980, "longitude": 72.620, "capacity_discharge_m3s": 160.0, "siltation_level_pct": 60, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-07", "assigned_team": "AMC South Zone Drainage", "operational_status": "Canal Overflow Warning Active"},
+
+    # Pune (MH)
+    {"asset_id": "PNQ-DR-001", "city_id": "PNQ", "asset_name": "Ambil Odha Primary Flood Channel", "asset_type": "Open Masonry Spillway", "location_desc": "Katraj to Mula-Mutha Confluence", "latitude": 18.495, "longitude": 73.848, "capacity_discharge_m3s": 210.0, "siltation_level_pct": 48, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "PMC Disaster Management Unit", "operational_status": "Culvert Debris Nets Monitored"},
+    {"asset_id": "PNQ-DR-002", "city_id": "PNQ", "asset_name": "Pulachi Wadi Riverfront Sump Lock", "asset_type": "Riverine Outfall Sluice", "location_desc": "Deccan Gymkhana Causeway", "latitude": 18.518, "longitude": 73.842, "capacity_discharge_m3s": 65.0, "siltation_level_pct": 32, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "PMC Drainage Wing", "operational_status": "Operational — River Stage Alert"},
+
+    # Kochi (KL)
+    {"asset_id": "COK-DR-001", "city_id": "COK", "asset_name": "Thevara-Perandoor Canal Outfall Regulator", "asset_type": "Tidal Canal Lock", "location_desc": "Vembanad Estuary Tail", "latitude": 9.942, "longitude": 76.295, "capacity_discharge_m3s": 140.0, "siltation_level_pct": 52, "condition": "Degraded", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "Kochi Corp Coastal Drainage", "operational_status": "Tidal Ingress Watch Active"},
+    {"asset_id": "COK-DR-002", "city_id": "COK", "asset_name": "Kaloor Jawaharlal Nehru Stadium Sump", "asset_type": "High-Capacity Pump Station", "location_desc": "Kaloor Lowland Junction", "latitude": 9.998, "longitude": 76.300, "capacity_discharge_m3s": 42.0, "siltation_level_pct": 26, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-07", "assigned_team": "Kochi Corp Central Division", "operational_status": "Pumping into Edappally Canal"},
+
+    # Guwahati (AS)
+    {"asset_id": "GAU-DR-001", "city_id": "GAU", "asset_name": "Bharalu Rivulet Sluice Gate Outfall", "asset_type": "Riverine Outfall Sluice", "location_desc": "Brahmaputra River Confluence", "latitude": 26.175, "longitude": 71.730, "capacity_discharge_m3s": 280.0, "siltation_level_pct": 64, "condition": "Heavy Siltation", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "GMC Riverfront Taskforce", "operational_status": "Brahmaputra Backflow Warning"},
+    {"asset_id": "GAU-DR-002", "city_id": "GAU", "asset_name": "Anil Nagar Lowland Dewatering Station", "asset_type": "High-Capacity Pump Station", "location_desc": "Rajgarh / Anil Nagar Sump", "latitude": 26.168, "longitude": 71.760, "capacity_discharge_m3s": 50.0, "siltation_level_pct": 40, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "GMC South Zone Squad", "operational_status": "Continuous Dewatering into Bharalu"},
+
+    # Patna (BR)
+    {"asset_id": "PAT-DR-001", "city_id": "PAT", "asset_name": "Rajendra Nagar Sump House Main Pumps", "asset_type": "Primary Drainage Pumping Station", "location_desc": "Saidpur / Rajendra Nagar Bowl", "latitude": 25.596, "longitude": 85.158, "capacity_discharge_m3s": 180.0, "siltation_level_pct": 56, "condition": "Needs Overhaul", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "BUIDCO Drainage Division", "operational_status": "3 Heavy Sump Motors Operational"},
+    {"asset_id": "PAT-DR-002", "city_id": "PAT", "asset_name": "Badshahi Nala Ganga River Outfall", "asset_type": "Primary Storm Canal", "location_desc": "Digha Outfall Regulator", "latitude": 25.630, "longitude": 85.105, "capacity_discharge_m3s": 240.0, "siltation_level_pct": 35, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "PMC Drainage Wing", "operational_status": "Ganga Water Level Lock Active"}
 ]
 
 @api_router.get("/assets", response_model=List[DrainAsset], tags=["Assets"])
 def get_drain_assets(city_id: Optional[str] = Query(None, description="Optional city code filter")):
     """List municipal storm drainage infrastructure assets with conditions and live operational statuses."""
-    if city_id:
+    if city_id and city_id.upper() != "ALL":
         cid = city_id.upper()
-        res = [a for a in DRAIN_ASSETS_DATA if a["city_id"] == cid]
-        if res:
-            return res
+        return [a for a in DRAIN_ASSETS_DATA if a["city_id"] == cid]
     return DRAIN_ASSETS_DATA
 
 # ==========================================
@@ -559,7 +595,7 @@ ALERTS_DATA: List[Dict[str, Any]] = [
         "title": "Severe Lowland Backflow Risk",
         "message": "Budameru rivulet stage exceeds 18.5m AMSL. High-density runoff converging in Ward 24 sump.",
         "trigger_metric": "24h Rain: 145mm | Flow Acc: 82/100",
-        "timestamp": "2026-09-10T08:15:00Z",
+        "timestamp": "2026-09-11T02:15:00Z",
         "status": "ACTIVE",
         "acknowledged_by": None,
         "acknowledged_at": None
@@ -573,7 +609,7 @@ ALERTS_DATA: List[Dict[str, Any]] = [
         "title": "Lake Surplus Sluice Choking",
         "message": "Heavy antecedent precipitation leading to marshland tailback across residential culverts.",
         "trigger_metric": "6h Burst: 82mm | Lowland Basin",
-        "timestamp": "2026-09-10T07:45:00Z",
+        "timestamp": "2026-09-11T02:45:00Z",
         "status": "ACTIVE",
         "acknowledged_by": None,
         "acknowledged_at": None
@@ -587,21 +623,145 @@ ALERTS_DATA: List[Dict[str, Any]] = [
         "title": "Subway Sump Waterlogging Threat",
         "message": "Mithi river high-tide synchronization risk. Dewatering pump stations on mandatory auto-run.",
         "trigger_metric": "Tide 4.2m + 150mm Rainfall",
-        "timestamp": "2026-09-10T08:30:00Z",
+        "timestamp": "2026-09-11T03:30:00Z",
         "status": "ACKNOWLEDGED",
         "acknowledged_by": "Gaurav (Administrator)",
-        "acknowledged_at": "2026-09-10T08:35:00Z"
+        "acknowledged_at": "2026-09-11T03:35:00Z"
+    },
+    {
+        "alert_id": "ALT-BLR-2026-04",
+        "city_id": "BLR",
+        "zone_name": "Bellandur EcoSpace / Outer Ring Road",
+        "grid_id": "BLR_0140",
+        "severity": "CRITICAL",
+        "title": "Rajakaluve Choke & Tech Park Inundation",
+        "message": "Lake spillway buffer breached. Arterial tech corridor road submerged up to 45cm.",
+        "trigger_metric": "3h Convective Burst: 68mm",
+        "timestamp": "2026-09-11T04:00:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-DEL-2026-05",
+        "city_id": "DEL",
+        "zone_name": "Minto Bridge & Yamuna Bazar",
+        "grid_id": "DEL_0050",
+        "severity": "CRITICAL",
+        "title": "Subway Closure & Riverbank Inundation",
+        "message": "Yamuna stage approaching warning level 205.33m. Low-lying subway portals barricaded.",
+        "trigger_metric": "24h Rain: 160mm | Sump Accumulation",
+        "timestamp": "2026-09-11T04:10:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-HYD-2026-06",
+        "city_id": "HYD",
+        "zone_name": "Tolichowki / Nadeem Colony Sump",
+        "grid_id": "HYD_0045",
+        "severity": "HIGH",
+        "title": "Lowland Colony Flash Ponding",
+        "message": "Musi river discharge rising. Sluice gate flaps closed to prevent trunk sewer backflow.",
+        "trigger_metric": "6h Rain: 92mm | Low Elevation Basin",
+        "timestamp": "2026-09-11T04:20:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-CCU-2026-07",
+        "city_id": "CCU",
+        "zone_name": "Thanthania / Central Avenue Sump",
+        "grid_id": "CCU_0035",
+        "severity": "CRITICAL",
+        "title": "Tidal Lock & Street Waterlogging",
+        "message": "High tide in Hooghly synchronizing with torrential rainfall. Palmer Bridge station running at max load.",
+        "trigger_metric": "24h Rain: 175mm | High Tide Peak",
+        "timestamp": "2026-09-11T04:30:00Z",
+        "status": "ACKNOWLEDGED",
+        "acknowledged_by": "Gaurav (Administrator)",
+        "acknowledged_at": "2026-09-11T04:35:00Z"
+    },
+    {
+        "alert_id": "ALT-AMD-2026-08",
+        "city_id": "AMD",
+        "zone_name": "Akhbarnagar Underpass Sump",
+        "grid_id": "AMD_0040",
+        "severity": "HIGH",
+        "title": "Underpass Ponding & Traffic Diverted",
+        "message": "Kharicut canal tailback detected. Automatic submersible pump sensors triggering alarms.",
+        "trigger_metric": "24h Rain: 130mm | Sump Runoff",
+        "timestamp": "2026-09-11T04:40:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-PNQ-2026-09",
+        "city_id": "PNQ",
+        "zone_name": "Ambil Odha / Sinhagad Road Sump",
+        "grid_id": "PNQ_0030",
+        "severity": "CRITICAL",
+        "title": "Flash Surge in Urban Rivulet",
+        "message": "Katraj hills runoff causing torrential flow along Ambil Odha. Ground floor evacuations underway.",
+        "trigger_metric": "3h Cloudburst: 85mm",
+        "timestamp": "2026-09-11T04:50:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-COK-2026-10",
+        "city_id": "COK",
+        "zone_name": "Kaloor Stadium / Thevara Canal Basin",
+        "grid_id": "COK_0025",
+        "severity": "HIGH",
+        "title": "Estuary High Tide Backwash Alert",
+        "message": "Vembanad lake water level high. Thevara canal culvert gates operating under tidal watch.",
+        "trigger_metric": "24h Rain: 190mm | Coastal Runoff",
+        "timestamp": "2026-09-11T05:00:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-GAU-2026-11",
+        "city_id": "GAU",
+        "zone_name": "Anil Nagar & Bharalu Confluence",
+        "grid_id": "GAU_0020",
+        "severity": "CRITICAL",
+        "title": "Brahmaputra Backflow & Basin Sump Choking",
+        "message": "Brahmaputra river stage dangerously high. Bharalu sluice gates closed, pumps on 24h duty.",
+        "trigger_metric": "24h Rain: 155mm | Foothill Runoff",
+        "timestamp": "2026-09-11T05:10:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
+    },
+    {
+        "alert_id": "ALT-PAT-2026-12",
+        "city_id": "PAT",
+        "zone_name": "Rajendra Nagar & Kankarbagh Bowl",
+        "grid_id": "PAT_0030",
+        "severity": "CRITICAL",
+        "title": "Chronic Sump Stagnation Alert",
+        "message": "Saidpur drainage basin overflow. Saidpur sump motors operating with auxiliary generator support.",
+        "trigger_metric": "24h Rain: 140mm | Topographic Depression",
+        "timestamp": "2026-09-11T05:20:00Z",
+        "status": "ACTIVE",
+        "acknowledged_by": None,
+        "acknowledged_at": None
     }
 ]
 
 @api_router.get("/alerts", response_model=List[AlertItem], tags=["Alerts"])
 def get_alerts(city_id: Optional[str] = Query(None)):
     """List operational waterlogging emergency alerts."""
-    if city_id:
+    if city_id and city_id.upper() != "ALL":
         cid = city_id.upper()
-        res = [a for a in ALERTS_DATA if a["city_id"] == cid]
-        if res:
-            return res
+        return [a for a in ALERTS_DATA if a["city_id"] == cid]
     return ALERTS_DATA
 
 @api_router.post("/alerts/{alert_id}/acknowledge", response_model=AlertItem, tags=["Alerts"])
