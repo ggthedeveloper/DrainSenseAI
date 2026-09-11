@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { RiskMapGeoJSON, GridProperties } from "../types";
-import { Layers, Droplets, MapPin, Satellite, Map as MapIcon, Moon, Plus, Minus, RotateCcw } from "lucide-react";
+import { Layers, Droplets, Satellite, Map as MapIcon, Moon, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
 
 interface RiskMapProps {
   cityId: string;
@@ -10,6 +10,21 @@ interface RiskMapProps {
   onSelectGrid: (gridId: string) => void;
   selectedGridId?: string | null;
 }
+
+const CITY_NAME_LOOKUP: Record<string, string> = {
+  VJA: "Vijayawada / Amaravati",
+  CHE: "Chennai",
+  BOM: "Mumbai",
+  BLR: "Bengaluru",
+  DEL: "Delhi NCR",
+  HYD: "Hyderabad",
+  CCU: "Kolkata",
+  AMD: "Ahmedabad",
+  PNQ: "Pune",
+  COK: "Kochi",
+  GAU: "Guwahati",
+  PAT: "Patna",
+};
 
 const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; landmarks: Array<{ lat: number; lon: number; title: string; color: string }> }> = {
   VJA: {
@@ -36,7 +51,7 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
     zoom: 11,
     landmarks: [
       { lat: 19.065, lon: 72.865, title: "Mithi River & BKC Discharge", color: "#3b82f6" },
-      { lat: 19.015, lon: 80.220, title: "Hindmata Chronic Waterlogging Sump", color: "#f43f5e" },
+      { lat: 19.015, lon: 72.840, title: "Hindmata Chronic Waterlogging Sump", color: "#f43f5e" },
       { lat: 19.080, lon: 72.840, title: "Milan Subway", color: "#eab308" },
       { lat: 18.960, lon: 72.805, title: "Malabar Hill (South Mumbai Ridge)", color: "#a855f7" }
     ]
@@ -140,9 +155,14 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const labelsLayerRef = useRef<any>(null);
   const geojsonLayerRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [colorMode, setColorMode] = useState<"risk" | "elevation" | "flow">("risk");
   const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark">("satellite");
+  const [isMapReady, setIsMapReady] = useState<boolean>(false);
+  const [isDataRendering, setIsDataRendering] = useState<boolean>(true);
+
+  const cityName = CITY_NAME_LOOKUP[cityId] || cityId;
 
   // Zoom control handlers
   const handleZoomIn = () => {
@@ -164,7 +184,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     }
   };
 
-  // Initialize Map
+  // Initialize Map with Canvas Renderer for 60 FPS performance
   useEffect(() => {
     if (!mapContainerRef.current) return;
     const container = mapContainerRef.current;
@@ -177,6 +197,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       if ((mapContainerRef.current as any)._leaflet_id) return;
 
       const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
+
+      // Initialize Leaflet with GPU-accelerated HTML5 Canvas renderer
       const map = L.map(mapContainerRef.current, {
         center: cityCfg.center,
         zoom: cityCfg.zoom,
@@ -187,7 +209,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         doubleClickZoom: true,
         boxZoom: true,
         keyboard: true,
-        zoomControl: false
+        zoomControl: false,
+        preferCanvas: true, // Crucial for smooth rendering of 2,000+ polygons without DOM lag
+        fadeAnimation: true,
+        zoomAnimation: true,
+        markerZoomAnimation: true
       });
 
       // Dedicated pane for labels with zIndex 450 so city & region names show clearly over polygons
@@ -197,16 +223,45 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         lp.style.pointerEvents = "none";
       }
 
-      // Clean, unobtrusive attribution without third-party watermarks
+      // Clean, unobtrusive attribution
       if (map.attributionControl) {
         map.attributionControl.setPrefix(false);
       }
 
       mapInstanceRef.current = map;
+
+      // Stabilization: Invalidate size after layout settles to guarantee zero tile clipping or grey borders
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize({ pan: false });
+          setIsMapReady(true);
+        }
+      }, 150);
+
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize({ pan: false });
+        }
+      }, 400);
+
+      // Auto-resize whenever container or parent grid dimensions change
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize({ pan: false });
+          }
+        });
+        ro.observe(container);
+        resizeObserverRef.current = ro;
+      }
     });
 
     return () => {
       isMounted = false;
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -241,17 +296,22 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         tileOptions = {
           attribution: "Imagery &copy; Esri World Imagery",
           maxZoom: 19,
-          className: "base-tile-satellite"
+          className: "base-tile-satellite",
+          keepBuffer: 6,
+          updateWhenIdle: true,
+          updateWhenZooming: false
         };
 
-        // ESRI World Boundaries and Places Reference Layer:
-        // Overlays city names, district names, and region labels on top of the satellite imagery
+        // ESRI World Boundaries and Places Reference Layer: Overlays city & district names
         const labelsLayer = L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
           {
             pane: "labelsPane",
             maxZoom: 19,
-            attribution: ""
+            attribution: "",
+            keepBuffer: 6,
+            updateWhenIdle: true,
+            updateWhenZooming: false
           }
         );
         labelsLayer.addTo(map);
@@ -262,7 +322,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         tileOptions = {
           attribution: "&copy; OpenStreetMap contributors",
           maxZoom: 19,
-          className: "base-tile-normal"
+          className: "base-tile-normal",
+          keepBuffer: 6,
+          updateWhenIdle: true,
+          updateWhenZooming: false
         };
       } else {
         // Dark Canvas View using OSM with CSS Dark Palette filter (Zero Watermarks - No API Key)
@@ -270,7 +333,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         tileOptions = {
           attribution: "&copy; OpenStreetMap contributors",
           maxZoom: 19,
-          className: "base-tile-dark"
+          className: "base-tile-dark",
+          keepBuffer: 6,
+          updateWhenIdle: true,
+          updateWhenZooming: false
         };
       }
 
@@ -281,14 +347,17 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     });
   }, [baseMapMode]);
 
-  // Update center, landmarks and layer when cityId changes
+  // Smooth fly transition when cityId changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
     import("leaflet").then((L) => {
       const map = mapInstanceRef.current;
       const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
-      map.flyTo(cityCfg.center, cityCfg.zoom, { duration: 1.2 });
+      map.flyTo(cityCfg.center, cityCfg.zoom, {
+        duration: 0.9,
+        easeLinearity: 0.25
+      });
 
       // Clean existing markers
       if (markersLayerRef.current) {
@@ -312,9 +381,11 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     });
   }, [cityId]);
 
-  // Update GeoJSON layer when mapData, colorMode, or selectedGridId changes
+  // Update GeoJSON layer using high-performance Canvas rendering
   useEffect(() => {
     if (!mapInstanceRef.current || !mapData) return;
+
+    setIsDataRendering(true);
 
     import("leaflet").then((L) => {
       const map = mapInstanceRef.current;
@@ -386,20 +457,42 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
               Elevation: ${p.elevation_m}m AMSL<br/>
               Flow Acc: ${p.flow_accumulation}/100
             </div>
-          `, { sticky: true, className: "drainsense-map-tooltip" });
+          `, { sticky: true, className: "drainsense-map-tooltip", opacity: 0.95 });
         }
       });
 
       geojsonLayer.addTo(map);
       geojsonLayerRef.current = geojsonLayer;
+      setIsDataRendering(false);
     });
   }, [mapData, colorMode, selectedGridId, cityId, baseMapMode]);
 
   const cellCount = mapData?.features?.length || 0;
 
   return (
-    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl isolate">
-      <div ref={mapContainerRef} className="w-full h-full" />
+    <div className="relative w-full h-full min-h-[550px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl isolate">
+      {/* Map DOM Element with smooth fade-in */}
+      <div
+        ref={mapContainerRef}
+        className={`w-full h-full transition-opacity duration-500 ${isMapReady ? "opacity-100" : "opacity-0"}`}
+      />
+
+      {/* Smooth Loading HUD Overlay */}
+      {(!isMapReady || isDataRendering) && (
+        <div className="absolute inset-0 z-[1500] flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-md transition-opacity duration-300 pointer-events-none">
+          <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl">
+            <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+            <div>
+              <div className="text-xs font-bold text-white tracking-wide">
+                Rendering {cityName} Inundation Mesh
+              </div>
+              <div className="text-[10px] text-slate-400">
+                Calibrating {cellCount > 0 ? `${cellCount} spatial sectors` : "terrain elevations"}...
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Map Control Bar (Base Map & Analysis Layer) */}
       <div
@@ -408,17 +501,17 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         onTouchStart={(e) => e.stopPropagation()}
       >
         {/* Base Map Selector (Satellite, Normal Street, Dark) */}
-        <div className="bg-slate-900/95 backdrop-blur border border-slate-800 p-1.5 rounded-lg shadow-xl flex items-center gap-1.5 text-xs">
-          <span className="text-slate-400 font-medium pl-1 text-[11px]">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl flex items-center gap-1.5 text-xs">
+          <span className="text-slate-400 font-semibold pl-1 text-[11px]">
             Base:
           </span>
-          <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800">
+          <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800">
             <button
               type="button"
               onClick={() => setBaseMapMode("satellite")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "satellite"
-                  ? "bg-blue-600 text-white font-medium shadow"
+                  ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
               }`}
               title="Real Satellite Aerial View (ESRI World Imagery)"
@@ -429,9 +522,9 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setBaseMapMode("normal")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "normal"
-                  ? "bg-blue-600 text-white font-medium shadow"
+                  ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
               }`}
               title="Standard Normal Street View (OpenStreetMap)"
@@ -442,9 +535,9 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setBaseMapMode("dark")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 baseMapMode === "dark"
-                  ? "bg-blue-600 text-white font-medium shadow"
+                  ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
               }`}
               title="Dark Mode Navigation Canvas"
@@ -456,18 +549,18 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         </div>
 
         {/* Data Layer Selector */}
-        <div className="bg-slate-900/95 backdrop-blur border border-slate-800 p-1.5 rounded-lg shadow-xl flex items-center gap-1.5 text-xs">
-          <span className="text-slate-400 font-medium flex items-center gap-1 pl-1 text-[11px]">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl flex items-center gap-1.5 text-xs">
+          <span className="text-slate-400 font-semibold flex items-center gap-1 pl-1 text-[11px]">
             <Layers className="w-3.5 h-3.5 text-blue-400" />
             Layer:
           </span>
-          <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800">
+          <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800">
             <button
               type="button"
               onClick={() => setColorMode("risk")}
-              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "risk"
-                  ? "bg-blue-600 text-white font-medium"
+                  ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -476,9 +569,9 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("elevation")}
-              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "elevation"
-                  ? "bg-blue-600 text-white font-medium"
+                  ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -487,9 +580,9 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
             <button
               type="button"
               onClick={() => setColorMode("flow")}
-              className={`px-2.5 py-1 rounded transition-all text-xs cursor-pointer ${
+              className={`px-2.5 py-1 rounded-md transition-all text-xs cursor-pointer ${
                 colorMode === "flow"
-                  ? "bg-blue-600 text-white font-medium"
+                  ? "bg-blue-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -501,42 +594,42 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
 
       {/* Bottom Map Legend */}
       <div
-        className="absolute bottom-4 left-4 z-[1001] bg-slate-900/95 backdrop-blur border border-slate-800 px-3.5 py-2.5 rounded-lg shadow-xl text-xs pointer-events-auto"
+        className="absolute bottom-4 left-4 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 px-3.5 py-2.5 rounded-xl shadow-xl text-xs pointer-events-auto"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
           {colorMode === "risk" ? "Risk Probability Scale" : colorMode === "elevation" ? "Topographic Elevation" : "Runoff Flow Index"}
         </div>
         {colorMode === "risk" ? (
           <div className="grid grid-cols-5 gap-2 text-center">
             <div className="flex flex-col items-center">
               <span className="w-7 h-2.5 rounded-sm bg-[#10b981] mb-1"></span>
-              <span className="text-[10px] text-slate-400">0-20%</span>
+              <span className="text-[10px] text-slate-400 font-mono">0-20%</span>
               <span className="text-[9px] font-bold text-emerald-400">LOW</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="w-7 h-2.5 rounded-sm bg-[#eab308] mb-1"></span>
-              <span className="text-[10px] text-slate-400">20-40%</span>
+              <span className="text-[10px] text-slate-400 font-mono">20-40%</span>
               <span className="text-[9px] font-bold text-yellow-400">MOD</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="w-7 h-2.5 rounded-sm bg-[#f97316] mb-1"></span>
-              <span className="text-[10px] text-slate-400">40-60%</span>
+              <span className="text-[10px] text-slate-400 font-mono">40-60%</span>
               <span className="text-[9px] font-bold text-orange-400">ELEV</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="w-7 h-2.5 rounded-sm bg-[#ef4444] mb-1"></span>
-              <span className="text-[10px] text-slate-400">60-80%</span>
+              <span className="text-[10px] text-slate-400 font-mono">60-80%</span>
               <span className="text-[9px] font-bold text-red-400">HIGH</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="w-7 h-2.5 rounded-sm bg-[#881337] mb-1"></span>
-              <span className="text-[10px] text-slate-400">80-100%</span>
+              <span className="text-[10px] text-slate-400 font-mono">80-100%</span>
               <span className="text-[9px] font-bold text-rose-400">CRIT</span>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 font-medium">
             <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0284c7]"></span> Lowland</div>
             <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#38bdf8]"></span> Plain</div>
             <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#a855f7]"></span> Ridge</div>
@@ -546,7 +639,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
 
       {/* Grid count badge */}
       <div
-        className="absolute top-4 right-4 z-[1001] bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-xs text-slate-300 flex items-center gap-2 pointer-events-auto"
+        className="absolute top-4 right-4 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 px-3 py-1.5 rounded-xl shadow-xl text-xs text-slate-300 flex items-center gap-2 pointer-events-auto font-medium"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <Droplets className="w-3.5 h-3.5 text-blue-400" />
