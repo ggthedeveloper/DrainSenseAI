@@ -219,6 +219,8 @@ docker-compose up --build
 - **Future Enhancements:** GNN-based flood routing networks, temporal fusion transformers for multi-day precipitation forecasts, and drone aerial imagery segmentation.
 
 ---
+## 10. Developer
+**Gaurav Gautam**
 
 ## 10. License
 MIT License. Developed for research, academic, and municipal decision-support applications.
