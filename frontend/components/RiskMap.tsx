@@ -163,6 +163,8 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
   }
 };
 
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCubQwLYG5L59LJawYmwhbSnYqCf70fT2s";
+
 export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid, selectedGridId }) => {
   const mapWrapperRef = useRef<HTMLDivElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -174,13 +176,67 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [colorMode, setColorMode] = useState<"risk" | "elevation" | "flow">("risk");
-  const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark">("satellite");
+  const [baseMapMode, setBaseMapMode] = useState<"satellite" | "normal" | "dark" | "terrain">("satellite");
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [isDataRendering, setIsDataRendering] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
 
   const cityName = CITY_NAME_LOOKUP[cityId] || cityId;
+
+  // Helper function to build high-performance base tile layer (Google Maps + CartoDB)
+  const getBaseTileLayer = (L: any, mode: "satellite" | "normal" | "dark" | "terrain") => {
+    let tileUrl = "";
+    let tileOptions: any = {};
+
+    if (mode === "satellite") {
+      // Real High-Resolution Google Maps Hybrid (Satellite Imagery + Roads & City Labels)
+      tileUrl = `https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_API_KEY}`;
+      tileOptions = {
+        attribution: "&copy; Google Maps",
+        subdomains: ["0", "1", "2", "3"],
+        maxZoom: 20,
+        className: "base-tile-satellite",
+        keepBuffer: 6,
+        updateWhenIdle: true
+      };
+    } else if (mode === "normal") {
+      // Real Google Maps Streets / Road Network
+      tileUrl = `https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_API_KEY}`;
+      tileOptions = {
+        attribution: "&copy; Google Maps",
+        subdomains: ["0", "1", "2", "3"],
+        maxZoom: 20,
+        className: "base-tile-normal",
+        keepBuffer: 6,
+        updateWhenIdle: true
+      };
+    } else if (mode === "terrain") {
+      // Real Google Maps Topographic Terrain
+      tileUrl = `https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_API_KEY}`;
+      tileOptions = {
+        attribution: "&copy; Google Maps Terrain",
+        subdomains: ["0", "1", "2", "3"],
+        maxZoom: 20,
+        className: "base-tile-terrain",
+        keepBuffer: 6,
+        updateWhenIdle: true
+      };
+    } else {
+      // High-performance CartoDB Dark Matter
+      tileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      tileOptions = {
+        attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+        subdomains: "abcd",
+        maxZoom: 19,
+        className: "base-tile-dark",
+        keepBuffer: 6,
+        updateWhenIdle: true
+      };
+    }
+
+    return L.tileLayer(tileUrl, tileOptions);
+  };
 
   // Zoom control handlers
   const handleZoomIn = () => {
@@ -261,7 +317,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         center: cityCfg.center,
         zoom: cityCfg.zoom,
         minZoom: 4,
-        maxZoom: 19,
+        maxZoom: 20,
         scrollWheelZoom: true,
         touchZoom: true,
         doubleClickZoom: true,
@@ -286,21 +342,48 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         map.attributionControl.setPrefix(false);
       }
 
+      // Add base tile layer immediately on initialization
+      const initialTileLayer = getBaseTileLayer(L, baseMapMode);
+      initialTileLayer.addTo(map);
+      initialTileLayer.bringToBack();
+      tileLayerRef.current = initialTileLayer;
+
+      // Add city landmark markers immediately
+      const markerGroup = L.layerGroup();
+      cityCfg.landmarks.forEach((lm) => {
+        const markerIcon = L.divIcon({
+          className: "custom-map-pin",
+          html: `<div style="background:${lm.color};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px rgba(0,0,0,0.6);"></div>`,
+          iconSize: [10, 10]
+        });
+        L.marker([lm.lat, lm.lon], { icon: markerIcon })
+          .addTo(markerGroup)
+          .bindTooltip(lm.title, { permanent: true, direction: "top", className: "drainsense-landmark-label" });
+      });
+      markerGroup.addTo(map);
+      markersLayerRef.current = markerGroup;
+
       mapInstanceRef.current = map;
+      setIsMapReady(true);
 
       // Stabilization: Invalidate size after layout settles to guarantee zero tile clipping or grey borders
       setTimeout(() => {
         if (mapInstanceRef.current) {
           mapInstanceRef.current.invalidateSize({ pan: false });
-          setIsMapReady(true);
         }
-      }, 150);
+      }, 60);
 
       setTimeout(() => {
         if (mapInstanceRef.current) {
           mapInstanceRef.current.invalidateSize({ pan: false });
         }
-      }, 400);
+      }, 250);
+
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize({ pan: false });
+        }
+      }, 600);
 
       // Auto-resize whenever container or parent grid dimensions change
       if (window.ResizeObserver) {
@@ -310,6 +393,9 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
           }
         });
         ro.observe(container);
+        if (mapWrapperRef.current) {
+          ro.observe(mapWrapperRef.current);
+        }
         resizeObserverRef.current = ro;
       }
     });
@@ -330,12 +416,13 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
     };
   }, []);
 
-  // Update Base Tile Layer (Satellite with Region/City Labels vs Normal Street vs Dark)
+  // Update Base Tile Layer (Google Satellite vs Google Streets vs Dark Canvas vs Google Terrain)
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstanceRef.current || !isMapReady) return;
 
     import("leaflet").then((L) => {
       const map = mapInstanceRef.current;
+      if (!map) return;
       if (tileLayerRef.current) {
         map.removeLayer(tileLayerRef.current);
         tileLayerRef.current = null;
@@ -345,72 +432,20 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         labelsLayerRef.current = null;
       }
 
-      let tileUrl = "";
-      let tileOptions: any = {};
-
-      if (baseMapMode === "satellite") {
-        // High-resolution ESRI World Imagery (100% Free Open GIS Satellite - No API Key)
-        tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-        tileOptions = {
-          attribution: "Imagery &copy; Esri World Imagery",
-          maxZoom: 19,
-          className: "base-tile-satellite",
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false
-        };
-
-        // ESRI World Boundaries and Places Reference Layer: Overlays city & district names
-        const labelsLayer = L.tileLayer(
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-          {
-            pane: "labelsPane",
-            maxZoom: 19,
-            attribution: "",
-            keepBuffer: 6,
-            updateWhenIdle: true,
-            updateWhenZooming: false
-          }
-        );
-        labelsLayer.addTo(map);
-        labelsLayerRef.current = labelsLayer;
-      } else if (baseMapMode === "normal") {
-        // Clean OpenStreetMap Daylight Street View with full streets & city labels
-        tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-        tileOptions = {
-          attribution: "&copy; OpenStreetMap contributors",
-          maxZoom: 19,
-          className: "base-tile-normal",
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false
-        };
-      } else {
-        // Dark Canvas View using OSM with CSS Dark Palette filter (Zero Watermarks - No API Key)
-        tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-        tileOptions = {
-          attribution: "&copy; OpenStreetMap contributors",
-          maxZoom: 19,
-          className: "base-tile-dark",
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false
-        };
-      }
-
-      const layer = L.tileLayer(tileUrl, tileOptions);
+      const layer = getBaseTileLayer(L, baseMapMode);
       layer.addTo(map);
       layer.bringToBack();
       tileLayerRef.current = layer;
     });
-  }, [baseMapMode]);
+  }, [baseMapMode, isMapReady]);
 
   // Smooth fly transition when cityId changes
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstanceRef.current || !isMapReady) return;
 
     import("leaflet").then((L) => {
       const map = mapInstanceRef.current;
+      if (!map) return;
       const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
       map.flyTo(cityCfg.center, cityCfg.zoom, {
         duration: 0.9,
@@ -437,7 +472,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       markerGroup.addTo(map);
       markersLayerRef.current = markerGroup;
     });
-  }, [cityId]);
+  }, [cityId, isMapReady]);
 
   // Center on selected grid cell if selected from outside
   useEffect(() => {
@@ -464,12 +499,13 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
 
   // Update GeoJSON layer using high-performance Canvas rendering
   useEffect(() => {
-    if (!mapInstanceRef.current || !mapData) return;
+    if (!mapInstanceRef.current || !mapData || !isMapReady) return;
 
     setIsDataRendering(true);
 
     import("leaflet").then((L) => {
       const map = mapInstanceRef.current;
+      if (!map) return;
       if (geojsonLayerRef.current) {
         map.removeLayer(geojsonLayerRef.current);
       }
@@ -546,7 +582,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
       geojsonLayerRef.current = geojsonLayer;
       setIsDataRendering(false);
     });
-  }, [mapData, colorMode, selectedGridId, cityId, baseMapMode]);
+  }, [mapData, colorMode, selectedGridId, cityId, baseMapMode, isMapReady]);
 
   const cellCount = mapData?.features?.length || 0;
 
@@ -561,17 +597,17 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         className={`w-full h-full transition-opacity duration-500 ${isMapReady ? "opacity-100" : "opacity-0"}`}
       />
 
-      {/* Smooth Loading HUD Overlay */}
-      {(!isMapReady || isDataRendering) && (
+      {/* Loading overlay - only while Leaflet initializes */}
+      {!isMapReady && (
         <div className="absolute inset-0 z-[1500] flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-md transition-opacity duration-300 pointer-events-none">
           <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl">
             <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
             <div>
               <div className="text-xs font-bold text-white tracking-wide">
-                Rendering {cityName} Inundation Mesh
+                Initializing Google Map Engine
               </div>
               <div className="text-[10px] text-slate-400">
-                Calibrating {cellCount > 0 ? `${cellCount} spatial sectors` : "terrain elevations"}...
+                Loading satellite tiles and spatial boundaries...
               </div>
             </div>
           </div>
@@ -584,10 +620,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       >
-        {/* Base Map Selector (Satellite, Normal Street, Dark) */}
+        {/* Base Map Selector (Google Satellite, Google Streets, Terrain, Dark) */}
         <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl flex items-center gap-1 text-xs">
           <span className="text-slate-400 font-semibold pl-1 text-[11px] hidden sm:inline">
-            Base:
+            Google Maps:
           </span>
           <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800">
             <button
@@ -598,7 +634,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
                   ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-              title="Real Satellite Aerial View (ESRI World Imagery)"
+              title="Google Satellite Aerial View with Place & Road Labels"
             >
               <Satellite className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Satellite</span>
@@ -611,10 +647,23 @@ export const RiskMap: React.FC<RiskMapProps> = ({ cityId, mapData, onSelectGrid,
                   ? "bg-blue-600 text-white font-semibold shadow"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-              title="Standard Normal Street View (OpenStreetMap)"
+              title="Google Maps Street View"
             >
               <MapIcon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Normal</span>
+              <span className="hidden sm:inline">Streets</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setBaseMapMode("terrain")}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-xs cursor-pointer ${
+                baseMapMode === "terrain"
+                  ? "bg-blue-600 text-white font-semibold shadow"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Google Maps Topographic Terrain View"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Terrain</span>
             </button>
             <button
               type="button"

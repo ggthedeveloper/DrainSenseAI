@@ -107,9 +107,9 @@ body {
   z-index: 2000 !important;
 }
 
-/* Base tile styling for dark mode without external API key or watermark */
-.base-tile-dark img.leaflet-tile {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+/* Base tile styling for dark mode */
+.base-tile-dark {
+  background-color: #090d16 !important;
 }
 
 /* Landmark permanent badge styling */
