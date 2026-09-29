@@ -328,16 +328,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen flex bg-[#070b14] dark:bg-[#070b14] text-slate-100 selection:bg-cyan-500 selection:text-white relative overflow-x-hidden ${theme === "light" ? "theme-light" : ""}`}>
-      {/* Subtle Atmospheric Backdrop Layer */}
+    <div className={`min-h-screen flex bg-[#070E1B] text-slate-100 selection:bg-blue-600 selection:text-white relative overflow-x-hidden ${theme === "light" ? "theme-light" : ""}`}>
+      {/* 1. Cinematic Full-Bleed Atmospheric Monsoon Backdrop across Dashboard */}
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-20 z-0"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-35 z-0"
         style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
       />
-      {/* Subtle dark gradient vignette for clean contrast and zero clutter */}
-      <div className="fixed inset-0 bg-gradient-to-b from-[#070b14]/75 via-[#070b14]/90 to-[#070b14] pointer-events-none z-0" />
-      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none z-0" />
-      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      {/* 2. Atmospheric Dark Vignette & Ambient Radial Lighting */}
+      <div className="fixed inset-0 bg-gradient-to-b from-[#070E1B]/80 via-[#070E1B]/70 to-[#070E1B]/90 pointer-events-none z-0" />
+      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/15 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/15 rounded-full blur-[170px] pointer-events-none z-0" />
 
       {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
       <div className="relative z-20">
@@ -361,7 +361,7 @@ export default function DashboardPage() {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${
         sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
       }`}>
-        {/* Top Header Navigation */}
+        {/* Streamlined Top Header Navigation (No Redundant Tabs) */}
         <Navbar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -379,12 +379,12 @@ export default function DashboardPage() {
         />
 
         {/* Main Body View */}
-        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-6 space-y-6 relative z-10">
+        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-5 space-y-5 relative z-10">
           {/* Tab 1: Dashboard & Live Risk Map (Strict Two-Part Layout) */}
           {(activeTab === "dashboard" || activeTab === "map") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-[calc(100vh-6rem)] min-h-[640px]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 h-[calc(100vh-5.25rem)] min-h-[640px]">
               {/* Left Column: Google Maps Surface (~60-65% Desktop Width) */}
-              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-cyan-500/20 bg-slate-950/90 relative min-h-[500px]">
+              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-cyan-500/20 bg-slate-950/75 backdrop-blur-xl relative min-h-[500px]">
                 <RiskMap
                   cityId={selectedCity}
                   mapData={mapData}
