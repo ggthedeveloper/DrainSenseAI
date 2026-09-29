@@ -174,13 +174,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <section className="relative min-h-[calc(100vh-4.5rem)] flex items-center overflow-hidden">
         {/* Full-bleed high-res urban monsoon deluge backdrop */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none scale-100 opacity-55 z-0"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none scale-100 opacity-85 brightness-110 contrast-105 z-0"
           style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
         />
 
         {/* Left-side dark gradient overlay for optimal high contrast text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070E1B] via-[#070E1B]/85 to-transparent pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070E1B] via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070E1B] via-[#070E1B]/75 to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070E1B]/80 via-transparent to-transparent pointer-events-none z-0" />
 
         {/* Content Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10 w-full">

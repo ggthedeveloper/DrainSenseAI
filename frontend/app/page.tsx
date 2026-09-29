@@ -331,13 +331,13 @@ export default function DashboardPage() {
     <div className={`min-h-screen flex bg-[#070E1B] text-slate-100 selection:bg-blue-600 selection:text-white relative overflow-x-hidden ${theme === "light" ? "theme-light" : ""}`}>
       {/* 1. Cinematic Full-Bleed Atmospheric Monsoon Backdrop across Dashboard */}
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-35 z-0"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-65 brightness-110 contrast-105 z-0"
         style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
       />
       {/* 2. Atmospheric Dark Vignette & Ambient Radial Lighting */}
-      <div className="fixed inset-0 bg-gradient-to-b from-[#070E1B]/80 via-[#070E1B]/70 to-[#070E1B]/90 pointer-events-none z-0" />
-      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/15 rounded-full blur-[160px] pointer-events-none z-0" />
-      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/15 rounded-full blur-[170px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-[#070E1B]/60 via-[#070E1B]/45 to-[#070E1B]/75 pointer-events-none z-0" />
+      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/20 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/20 rounded-full blur-[170px] pointer-events-none z-0" />
 
       {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
       <div className="relative z-20">
