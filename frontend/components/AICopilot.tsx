@@ -63,12 +63,12 @@ const CITY_NAME_LOOKUP: Record<string, string> = {
 };
 
 const SAMPLE_PROMPTS = [
-  { label: "Pump Staging", query: "What is the emergency pump deployment plan for the next 6 hours?", icon: Waves },
+  { label: "Topological Cascade Routing", query: "Analyze downhill inundation cascade paths and lag arrival times for terminal outfalls.", icon: Waves },
+  { label: "Physics SCS-CN Audit", query: "Audit soil Curve Numbers, retention capacity, and check for structural backwater chokes.", icon: Activity },
+  { label: "Fleet Optimization & Pumps", query: "What is the emergency pump and super-sucker deployment plan for the next 6 hours?", icon: Truck },
   { label: "Road & Underpass Closures", query: "Which critical underpasses and arterial roads must be barricaded right now?", icon: Construction },
   { label: "Citizen Safety Advisory", query: "Draft an urgent citizen safety and evacuation notice for low-lying residential wards.", icon: Users },
-  { label: "Sluice & Backflow Risk", query: "Evaluate backflow vulnerability and flap valve closures along primary river outfalls.", icon: Radio },
   { label: "Hospital Corridors", query: "What emergency protocols are required for hospitals and ambulance approach corridors?", icon: Hospital },
-  { label: "Power Grid Isolation", query: "Electrical grid safety — should ground-mounted transformers in flooded sectors be isolated?", icon: Zap },
 ];
 
 export const AICopilot: React.FC<AICopilotProps> = ({ cityId, currentRainfall24h = 145.0 }) => {
@@ -418,7 +418,7 @@ export const AICopilot: React.FC<AICopilotProps> = ({ cityId, currentRainfall24h
       )}
 
       {/* Query Dispatch Bar */}
-      <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 backdrop-blur-xl shadow-lg">
+      <div className="bg-slate-900/70 p-4 rounded-2xl border border-white/10 backdrop-blur-2xl shadow-2xl">
         <form
           onSubmit={(e) => {
             e.preventDefault();
