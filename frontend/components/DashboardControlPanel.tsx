@@ -159,7 +159,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
   return (
     <div className="w-full h-full flex flex-col space-y-4 text-slate-100 overflow-y-auto pr-1 select-text scroll-smooth">
       {/* SECTION A: Live Status & Incident Posture */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl relative overflow-hidden shrink-0">
+      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden shrink-0">
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600" />
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -274,7 +274,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       )}
 
       {/* SECTION C: Selected Zone Details & TreeSHAP (In-Panel Inspection) */}
-      <div className="zone-inspection-panel bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl shrink-0">
+      <div className="zone-inspection-panel bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-blue-400" />
@@ -527,7 +527,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       </div>
 
       {/* SECTION D: What-If Rainfall Scenario Simulator */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl shrink-0 space-y-3">
+      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-amber-400" />
@@ -626,7 +626,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       </div>
 
       {/* SECTION E: Municipal Priority Response Queue */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl shrink-0 space-y-3">
+      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0 space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-rose-400" />

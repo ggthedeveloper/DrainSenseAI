@@ -322,25 +322,37 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen flex bg-[#090d16] dark:bg-[#090d16] text-slate-100 selection:bg-blue-500 selection:text-white ${theme === "light" ? "theme-light" : ""}`}>
-      {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isCollapsed={sidebarCollapsed}
-        setIsCollapsed={handleToggleSidebar}
-        isMobileOpen={isMobileMenuOpen}
-        setIsMobileOpen={setIsMobileMenuOpen}
-        currentLang={currentLang}
-        onLanguageChange={handleLanguageChange}
-        currentTheme={theme}
-        onThemeToggle={handleThemeToggle}
-        currentUser={currentUser}
-        onLogout={handleLogout}
+    <div className={`min-h-screen flex bg-[#070b14] dark:bg-[#070b14] text-slate-100 selection:bg-cyan-500 selection:text-white relative overflow-x-hidden ${theme === "light" ? "theme-light" : ""}`}>
+      {/* Subtle Atmospheric Backdrop Layer */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-20 z-0"
+        style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
       />
+      {/* Subtle dark gradient vignette for clean contrast and zero clutter */}
+      <div className="fixed inset-0 bg-gradient-to-b from-[#070b14]/75 via-[#070b14]/90 to-[#070b14] pointer-events-none z-0" />
+      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none z-0" />
+      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
+
+      {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
+      <div className="relative z-20">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isCollapsed={sidebarCollapsed}
+          setIsCollapsed={handleToggleSidebar}
+          isMobileOpen={isMobileMenuOpen}
+          setIsMobileOpen={setIsMobileMenuOpen}
+          currentLang={currentLang}
+          onLanguageChange={handleLanguageChange}
+          currentTheme={theme}
+          onThemeToggle={handleThemeToggle}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+        />
+      </div>
 
       {/* Main Layout Area with responsive sidebar offset */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${
         sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
       }`}>
         {/* Top Header Navigation */}
@@ -360,12 +372,12 @@ export default function DashboardPage() {
         />
 
         {/* Main Body View */}
-        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-6 space-y-6">
+        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-6 space-y-6 relative z-10">
           {/* Tab 1: Dashboard & Live Risk Map (Strict Two-Part Layout) */}
           {(activeTab === "dashboard" || activeTab === "map") && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-[calc(100vh-6rem)] min-h-[640px]">
               {/* Left Column: Google Maps Surface (~60-65% Desktop Width) */}
-              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800/80 bg-slate-950 relative min-h-[500px]">
+              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-cyan-500/20 bg-slate-950/90 relative min-h-[500px]">
                 <RiskMap
                   cityId={selectedCity}
                   mapData={mapData}

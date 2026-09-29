@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentCityObj = CITIES.find((c) => c.id === selectedCity) || CITIES[0];
 
   return (
-    <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+    <header className="border-b border-white/10 bg-slate-950/75 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-xl shadow-black/25">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand & City Selector */}
@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
 
             <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-cyan-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-500/25 ring-1 ring-white/20">
                 <ShieldAlert className="w-5 h-5 text-white" />
               </div>
               <span className="absolute -top-1 -right-1 flex h-3 w-3">

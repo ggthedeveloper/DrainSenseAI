@@ -9,11 +9,27 @@
 
 body {
   color: var(--foreground);
-  background: radial-gradient(circle at 50% 0%, #172554 0%, #0a0e1a 45%, #05070f 100%);
-  background-attachment: fixed;
+  background-color: #070b14;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
   letter-spacing: -0.01em;
+  position: relative;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.14) 0%, transparent 65%),
+    linear-gradient(to bottom, rgba(7, 11, 20, 0.74) 0%, rgba(7, 11, 20, 0.88) 50%, rgba(7, 11, 20, 0.98) 100%),
+    url('/monsoon_backdrop.jpg');
+  background-size: cover;
+  background-position: center 25%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Light theme overrides. Most of the command-center UI uses dark utility
