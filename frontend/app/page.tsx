@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/Navbar";
 import { Sidebar } from "../components/Sidebar";
 import { LoginPage } from "../components/LoginPage";
+import { LandingPage } from "../components/LandingPage";
 import { RiskMap } from "../components/RiskMap";
 import { ZoneDrawer } from "../components/ZoneDrawer";
 import { DashboardControlPanel } from "../components/DashboardControlPanel";
@@ -41,7 +42,8 @@ export default function DashboardPage() {
   // Auth state
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authChecking, setAuthChecking] = useState<boolean>(true);
+  const [showLanding, setShowLanding] = useState<boolean>(true);
+  const [authChecking, setAuthChecking] = useState<boolean>(false);
 
   // Layout & Theme state
   const [currentLang, setCurrentLang] = useState<SupportedLanguage>("en");
@@ -74,8 +76,10 @@ export default function DashboardPage() {
     if (user && isUserAuthenticated()) {
       setCurrentUser(user);
       setIsAuthenticated(true);
+      setShowLanding(false);
     } else {
       setIsAuthenticated(false);
+      setShowLanding(true);
     }
     setAuthChecking(false);
   }, []);
@@ -126,6 +130,7 @@ export default function DashboardPage() {
       clearStoredSession();
       setCurrentUser(null);
       setIsAuthenticated(false);
+      setShowLanding(true);
     }
   };
 
@@ -305,13 +310,14 @@ export default function DashboardPage() {
     );
   }
 
-  // If not authenticated, display full civic authentication portal
-  if (!isAuthenticated) {
+  // If not authenticated or showLanding is true, display the cinematic landing page
+  if (!isAuthenticated || showLanding) {
     return (
-      <LoginPage
-        onLoginSuccess={(user) => {
+      <LandingPage
+        onEnterDashboard={(user) => {
           setCurrentUser(user);
           setIsAuthenticated(true);
+          setShowLanding(false);
         }}
         currentLang={currentLang}
         onLanguageChange={handleLanguageChange}
@@ -369,6 +375,7 @@ export default function DashboardPage() {
           onLaunchDemo={() => setIsDemoModalOpen(true)}
           healthStatus={healthStatus}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
+          onOpenLanding={() => setShowLanding(true)}
         />
 
         {/* Main Body View */}

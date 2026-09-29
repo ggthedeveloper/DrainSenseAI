@@ -12,7 +12,8 @@ import {
   Presentation,
   Activity,
   Building2,
-  Menu
+  Menu,
+  Sparkles
 } from "lucide-react";
 
 interface NavbarProps {
@@ -26,6 +27,7 @@ interface NavbarProps {
     model_version: string;
   };
   onToggleMobileMenu?: () => void;
+  onOpenLanding?: () => void;
 }
 
 const CITIES = [
@@ -50,7 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedCity,
   onSelectCity,
   healthStatus,
-  onToggleMobileMenu
+  onToggleMobileMenu,
+  onOpenLanding
 }) => {
   const [cityMenuOpen, setCityMenuOpen] = React.useState(false);
 
@@ -83,8 +86,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-cyan-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-500/25 ring-1 ring-white/20">
+            <div 
+              onClick={onOpenLanding}
+              className={`relative flex items-center justify-center ${onOpenLanding ? "cursor-pointer group" : ""}`}
+              title="Return to Cinematic Landing Overview"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-cyan-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 group-hover:scale-105 transition-transform">
                 <ShieldAlert className="w-5 h-5 text-white" />
               </div>
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -94,9 +101,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg text-slate-100 tracking-tight">DrainSense</span>
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 font-bold">
+              <div 
+                onClick={onOpenLanding}
+                className={`flex items-center gap-2 ${onOpenLanding ? "cursor-pointer group" : ""}`}
+                title="Return to Cinematic Landing Overview"
+              >
+                <span className="font-extrabold text-lg text-slate-100 tracking-tight group-hover:text-cyan-300 transition-colors">DrainSense</span>
+                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-bold">
                   India AI
                 </span>
               </div>
@@ -189,6 +200,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[11px] text-slate-400 font-mono">XGBoost {healthStatus.model_version}</span>
             </div>
+
+            {onOpenLanding && (
+              <button
+                type="button"
+                onClick={onOpenLanding}
+                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+                title="Open Cinematic Landing Page"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Overview</span>
+              </button>
+            )}
 
             <button
               onClick={onLaunchDemo}
