@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 
 from ml.src.explainability.explainer import explain_prediction
+from ml.src.hydrology.cascade_graph import HydrologicalCascadeGraph
+from ml.src.hydrology.scs_cn_engine import audit_physics_ml_concordance, calculate_scs_cn_runoff
 
 logger = logging.getLogger("DrainSense.Predictor")
 
@@ -49,11 +51,13 @@ class RiskInferenceService:
         self.metadata = None
         self.all_grid_features_df = None
         self.city_geojsons = {}
+        self.cascade_graphs = {}
         
         self.reload()
 
     def reload(self):
         """Loads model artifacts and spatial grids for all cities."""
+        self.cascade_graphs.clear()
         try:
             if os.path.exists(self.model_path):
                 self.model = joblib.load(self.model_path)
@@ -397,6 +401,101 @@ class RiskInferenceService:
                 "newly_escalated_grid_ids": newly_escalated_ids[:15]
             },
             "scientific_note": "Model-derived scenario simulation. Physical flood depths depend on dynamic hydraulic drainage flows."
+        }
+
+    def get_cascade_graph(self, city_id: str) -> Optional[HydrologicalCascadeGraph]:
+        cid = city_id.upper()
+        if cid not in self.cascade_graphs:
+            if self.all_grid_features_df is None or self.all_grid_features_df.empty:
+                return None
+            city_df = self.all_grid_features_df[self.all_grid_features_df["city_id"] == cid]
+            if city_df.empty:
+                city_df = self.all_grid_features_df
+            self.cascade_graphs[cid] = HydrologicalCascadeGraph(city_df)
+        return self.cascade_graphs[cid]
+
+    def trace_cascade(self, grid_id: str, rain_24h_mm: float = 145.0) -> dict:
+        gid = str(grid_id).strip()
+        cid = "VJA"
+        if "_" in gid:
+            prefix = gid.split("_")[0].upper()
+            if prefix in CITY_NAMES:
+                cid = prefix
+        elif self.all_grid_features_df is not None:
+            match = self.all_grid_features_df[self.all_grid_features_df["grid_id"] == gid]
+            if not match.empty:
+                cid = match.iloc[0].get("city_id", "VJA")
+
+        graph = self.get_cascade_graph(cid)
+        if not graph:
+            raise ValueError(f"Could not build cascade graph for city '{cid}'.")
+        return graph.trace_cascade_path(start_grid_id=gid, current_rain_mm=rain_24h_mm)
+
+    def get_physics_audit(self, grid_id: str, rain_24h_mm: float = 145.0) -> dict:
+        pred = self.predict_grid(grid_id=grid_id, rain_24h_mm=rain_24h_mm)
+        terrain = pred.get("terrain", {})
+        elev = float(terrain.get("elevation_m", 15.0))
+        slope = float(terrain.get("slope", 1.5))
+        flow_acc = float(terrain.get("flow_accumulation", 30.0))
+        risk_score = float(pred.get("risk_score", 50.0))
+
+        audit = audit_physics_ml_concordance(
+            ml_risk_score=risk_score,
+            rainfall_mm=rain_24h_mm,
+            elevation_m=elev,
+            slope_degrees=slope,
+            flow_accumulation=flow_acc
+        )
+        audit["grid_id"] = grid_id
+        audit["zone_name"] = pred.get("zone_name", grid_id)
+        audit["risk_level"] = pred.get("risk_level", "MODERATE")
+        return audit
+
+    def get_temporal_nowcast(self, city_id: str = "VJA", base_rain_24h_mm: float = 145.0) -> dict:
+        cid = city_id.upper()
+        horizons_config = [
+            {"horizon_hours": 0, "label": "T+0h (Current Telemetry)", "multiplier": 1.0, "stage": "Baseline Telemetry", "desc": "Current observed ERA5/IMD antecedent moisture."},
+            {"horizon_hours": 1, "label": "T+1h (Convective Onset)", "multiplier": 1.35, "stage": "Surge Initiation", "desc": "Rapid surface pooling along tertiary masonry drains."},
+            {"horizon_hours": 2, "label": "T+2h (Peak Cloudburst Wave)", "multiplier": 1.90, "stage": "Peak Inundation", "desc": "Maximum hydrological breach; arterial subway and culvert surcharging."},
+            {"horizon_hours": 3, "label": "T+3h (Backwater Stall)", "multiplier": 1.55, "stage": "Channel Stagnation", "desc": "Canal backflow preventing gravity drainage into primary water bodies."},
+            {"horizon_hours": 6, "label": "T+6h (Drainage Recession)", "multiplier": 0.85, "stage": "Recession & Ponding", "desc": "Gradual tailback recession; chronic sump depressions remain submerged."}
+        ]
+
+        nowcast_timeline = []
+        for h in horizons_config:
+            rain_val = round(base_rain_24h_mm * h["multiplier"], 1)
+            h_map = self.get_current_risk_map(
+                city_id=cid,
+                rain_24h_mm=rain_val,
+                rain_6h_mm=round(rain_val * 0.58, 1)
+            )
+            h_summary = h_map["summary"]
+            
+            cells_risk = {}
+            for feat in h_map["geojson"]["features"]:
+                p = feat["properties"]
+                cells_risk[p["grid_id"]] = {
+                    "risk_score": p["risk_score"],
+                    "risk_level": p["risk_level"]
+                }
+
+            nowcast_timeline.append({
+                "horizon_hours": h["horizon_hours"],
+                "label": h["label"],
+                "stage": h["stage"],
+                "description": h["desc"],
+                "rainfall_24h_mm": rain_val,
+                "summary": h_summary,
+                "cell_states": cells_risk
+            })
+
+        return {
+            "city_id": cid,
+            "monitored_city": CITY_NAMES.get(cid, cid),
+            "generated_at": "2026-09-29T10:30:00Z",
+            "base_rainfall_24h_mm": base_rain_24h_mm,
+            "total_horizons": len(nowcast_timeline),
+            "timeline": nowcast_timeline
         }
 
 predictor_service = RiskInferenceService()

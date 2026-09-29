@@ -19,13 +19,15 @@ import { AlertsManager } from "../components/AlertsManager";
 import { ReportsGenerator } from "../components/ReportsGenerator";
 import { SettingsPage } from "../components/SettingsPage";
 import { PredictionView } from "../components/PredictionView";
+import { ResourceOptimizerModal } from "../components/ResourceOptimizerModal";
 
-import { RiskMapGeoJSON, RiskSummary, ZoneDetail, PriorityZoneItem } from "../types";
+import { RiskMapGeoJSON, RiskSummary, ZoneDetail, PriorityZoneItem, CascadeTraceResponse } from "../types";
 import { 
   fetchCurrentRiskMap, 
   fetchZoneDetail, 
   fetchHealthStatus,
-  fetchPriorityZones 
+  fetchPriorityZones,
+  fetchCascadeTrace
 } from "../lib/api";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
 import { UserSession, getStoredSession, clearStoredSession, isUserAuthenticated } from "../lib/auth";
@@ -55,6 +57,9 @@ export default function DashboardPage() {
   const [priorityZones, setPriorityZones] = useState<PriorityZoneItem[]>([]);
   const [selectedGridId, setSelectedGridId] = useState<string | null>(null);
   const [zoneDetail, setZoneDetail] = useState<ZoneDetail | null>(null);
+  const [cascadePath, setCascadePath] = useState<CascadeTraceResponse | null>(null);
+  const [isFleetOptimizerOpen, setIsFleetOptimizerOpen] = useState<boolean>(false);
+  const [isCascadeLoading, setIsCascadeLoading] = useState<boolean>(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
   const [healthStatus, setHealthStatus] = useState<{ status: string; model_version: string }>({
     status: "HEALTHY",
@@ -78,16 +83,10 @@ export default function DashboardPage() {
   // Initialize Theme and Language
   useEffect(() => {
     const savedTheme = localStorage.getItem("drainsense_theme") as "dark" | "light" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      if (savedTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    } else {
-      document.documentElement.classList.add("dark");
-    }
+    const activeTheme = savedTheme || "dark";
+    setTheme(activeTheme);
+    document.documentElement.dataset.theme = activeTheme;
+    document.documentElement.classList.toggle("dark", activeTheme === "dark");
 
     const savedLang = localStorage.getItem("drainsense_lang") as SupportedLanguage | null;
     if (savedLang && (savedLang === "en" || savedLang === "hi" || savedLang === "te")) {
@@ -105,11 +104,8 @@ export default function DashboardPage() {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     localStorage.setItem("drainsense_theme", nextTheme);
-    if (nextTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.classList.toggle("dark", nextTheme === "dark");
   };
 
   // Language change handler
@@ -171,6 +167,19 @@ export default function DashboardPage() {
       setZoneDetail(detail);
     } catch (e) {
       console.error("Error loading zone detail:", e);
+    }
+  };
+
+  // Novelty 1: Trigger topological flood cascade trace
+  const handleTriggerCascade = async (gridId: string) => {
+    setIsCascadeLoading(true);
+    try {
+      const trace = await fetchCascadeTrace(gridId);
+      setCascadePath(trace);
+    } catch (e) {
+      console.error("Error loading cascade trace:", e);
+    } finally {
+      setIsCascadeLoading(false);
     }
   };
 
@@ -313,7 +322,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen flex bg-[#090d16] dark:bg-[#090d16] text-slate-100 selection:bg-blue-500 selection:text-white`}>
+    <div className={`min-h-screen flex bg-[#090d16] dark:bg-[#090d16] text-slate-100 selection:bg-blue-500 selection:text-white ${theme === "light" ? "theme-light" : ""}`}>
       {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
       <Sidebar
         activeTab={activeTab}
@@ -343,6 +352,7 @@ export default function DashboardPage() {
             setSelectedCity(cityId);
             setSelectedGridId(null);
             setZoneDetail(null);
+            setCascadePath(null);
           }}
           onLaunchDemo={() => setIsDemoModalOpen(true)}
           healthStatus={healthStatus}
@@ -354,13 +364,15 @@ export default function DashboardPage() {
           {/* Tab 1: Dashboard & Live Risk Map (Strict Two-Part Layout) */}
           {(activeTab === "dashboard" || activeTab === "map") && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-[calc(100vh-6rem)] min-h-[640px]">
-              {/* Left Column: Leaflet Canvas Map (~60-65% Desktop Width, Zero Overlays) */}
+              {/* Left Column: Google Maps Surface (~60-65% Desktop Width) */}
               <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800/80 bg-slate-950 relative min-h-[500px]">
                 <RiskMap
                   cityId={selectedCity}
                   mapData={mapData}
                   onSelectGrid={handleSelectGrid}
                   selectedGridId={selectedGridId}
+                  cascadePath={cascadePath}
+                  onClearCascade={() => setCascadePath(null)}
                 />
               </div>
 
@@ -390,6 +402,10 @@ export default function DashboardPage() {
                       .then((res) => setMapData(res.geojson));
                   }}
                   healthStatus={healthStatus}
+                  onTriggerCascade={handleTriggerCascade}
+                  onOpenFleetOptimizer={() => setIsFleetOptimizerOpen(true)}
+                  activeCascadePath={cascadePath}
+                  onClearCascade={() => setCascadePath(null)}
                 />
               </div>
             </div>
@@ -508,6 +524,14 @@ export default function DashboardPage() {
         onClose={() => setIsDemoModalOpen(false)}
         setActiveTab={setActiveTab}
         onSelectGrid={handleSelectGrid}
+      />
+
+      {/* Novelty 4: Autonomous Operations-Research Municipal Dispatch Optimizer Modal */}
+      <ResourceOptimizerModal
+        isOpen={isFleetOptimizerOpen}
+        onClose={() => setIsFleetOptimizerOpen(false)}
+        cityId={selectedCity}
+        cityName={cityIdToName(selectedCity)}
       />
     </div>
   );

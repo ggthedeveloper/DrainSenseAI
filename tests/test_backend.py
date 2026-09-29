@@ -196,3 +196,43 @@ def test_alerts_lifecycle():
     assert res_res.status_code == 200
     assert res_res.json()["status"] == "RESOLVED"
 
+def test_novel_hydrology_cascade():
+    res = client.get("/api/v1/hydrology/cascade/VJA_0036?rain_24h=145.0")
+    assert res.status_code == 200
+    data = res.json()
+    assert "cascade_path" in data
+    assert len(data["cascade_path"]) >= 1
+    assert "terminal_sink" in data
+    assert "initial_spillover_volume_m3" in data
+
+def test_novel_hydrology_physics_audit():
+    res = client.get("/api/v1/hydrology/physics-audit/VJA_0036?rain_24h=145.0")
+    assert res.status_code == 200
+    data = res.json()
+    assert "concordance_pct" in data
+    assert "scs_metrics" in data
+    assert "curve_number" in data["scs_metrics"]
+    assert "runoff_volume_m3" in data["scs_metrics"]
+
+def test_novel_hydrology_nowcast():
+    res = client.get("/api/v1/hydrology/nowcast/VJA?rain_24h=145.0")
+    assert res.status_code == 200
+    data = res.json()
+    assert "timeline" in data
+    assert len(data["timeline"]) == 5
+    first_step = data["timeline"][0]
+    assert "horizon_hours" in first_step
+    assert "cell_states" in first_step
+
+def test_novel_operations_dispatch_optimizer():
+    res = client.post("/api/v1/operations/optimize-dispatch", json={"city_id": "VJA"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "OPTIMIZATION_SUCCESS"
+    assert "memorandum_id" in data
+    assert "summary" in data
+    assert "ndma_memo_text" in data
+    assert "allocations" in data
+    assert len(data["allocations"]) >= 1
+
+

@@ -7,7 +7,11 @@ import {
   HistoricalEventItem,
   DrainAsset,
   AlertItem,
-  AICopilotResponse
+  AICopilotResponse,
+  CascadeTraceResponse,
+  PhysicsAuditResponse,
+  TemporalNowcastResponse,
+  DispatchOptimizationResponse
 } from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -344,4 +348,58 @@ export async function resolveAlert(alertId: string): Promise<{ success: boolean;
     console.warn("Error resolving alert:", e);
   }
   return { success: false, message: "Failed to resolve alert" };
+}
+
+export async function fetchCascadeTrace(gridId: string, rain24h: number = 145.0): Promise<CascadeTraceResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/cascade/${gridId}?rain_24h=${rain24h}`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn("Cascade API unavailable:", e);
+  }
+  return null;
+}
+
+export async function fetchPhysicsAudit(gridId: string, rain24h: number = 145.0): Promise<PhysicsAuditResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/physics-audit/${gridId}?rain_24h=${rain24h}`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn("Physics audit API unavailable:", e);
+  }
+  return null;
+}
+
+export async function fetchTemporalNowcast(cityId: string = "VJA", rain24h: number = 145.0): Promise<TemporalNowcastResponse | null> {
+  try {
+    const cid = cityId.toUpperCase();
+    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/nowcast/${cid}?rain_24h=${rain24h}`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn("Nowcast API unavailable:", e);
+  }
+  return null;
+}
+
+export async function fetchOptimizeDispatch(
+  cityId: string = "VJA",
+  availableFleet?: Record<string, number>,
+  officerName: string = "Gaurav (Administrator)"
+): Promise<DispatchOptimizationResponse | null> {
+  try {
+    const cid = cityId.toUpperCase();
+    const res = await fetch(`${API_BASE_URL}/api/v1/operations/optimize-dispatch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        city_id: cid,
+        available_fleet: availableFleet,
+        officer_name: officerName
+      })
+    });
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn("Dispatch optimizer API unavailable:", e);
+  }
+  return null;
 }

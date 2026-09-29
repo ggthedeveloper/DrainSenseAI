@@ -196,3 +196,112 @@ export interface AlertItem {
   acknowledged_at?: string | null;
 }
 
+export interface CascadeWaypoint {
+  step: number;
+  grid_id: string;
+  zone_name: string;
+  latitude: number;
+  longitude: number;
+  elevation_m: number;
+  risk_score: number;
+  risk_level: RiskLevel;
+  cumulative_dist_m: number;
+  arrival_time_min: number;
+  arrival_label: string;
+  pulse_volume_m3: number;
+}
+
+export interface CascadeTraceResponse {
+  origin_grid_id: string;
+  origin_zone_name: string;
+  city_id: string;
+  initial_spillover_volume_m3: number;
+  total_cascade_hops: number;
+  total_corridor_length_m: number;
+  terminal_arrival_minutes: number;
+  terminal_sink: string;
+  cascade_path: CascadeWaypoint[];
+}
+
+export interface SCSMetrics {
+  curve_number: number;
+  soil_hydrologic_group: string;
+  imperviousness_pct: number;
+  potential_retention_mm: number;
+  initial_abstraction_mm: number;
+  rainfall_depth_mm: number;
+  runoff_depth_mm: number;
+  runoff_volume_m3: number;
+  time_of_concentration_hours: number;
+  time_to_peak_hours: number;
+  peak_discharge_m3s: number;
+  drainage_conveyance_m3s: number;
+  drainage_deficit_m3s: number;
+  drainage_overloaded: boolean;
+}
+
+export interface PhysicsAuditResponse {
+  grid_id: string;
+  zone_name: string;
+  risk_level: RiskLevel;
+  concordance_pct: number;
+  concordance_class: "STRONG_CONCORDANCE" | "ML_ELEVATED_ANOMALY" | "HIGH_INFILTRATION_BUFFER";
+  concordance_label: string;
+  diagnosis: string;
+  ml_risk_score: number;
+  physical_runoff_ratio_pct: number;
+  scs_metrics: SCSMetrics;
+}
+
+export interface NowcastTimelineStep {
+  horizon_hours: number;
+  label: string;
+  stage: string;
+  description: string;
+  rainfall_24h_mm: number;
+  summary: RiskSummary;
+  cell_states: Record<string, { risk_score: number; risk_level: RiskLevel }>;
+}
+
+export interface TemporalNowcastResponse {
+  city_id: string;
+  monitored_city: string;
+  generated_at: string;
+  base_rainfall_24h_mm: number;
+  total_horizons: number;
+  timeline: NowcastTimelineStep[];
+}
+
+export interface DispatchAllocationItem {
+  grid_id: string;
+  zone_name: string;
+  risk_score: number;
+  risk_level: RiskLevel;
+  elevation_m: number;
+  assigned_assets: string[];
+  dewatering_capacity_m3h: number;
+  personnel_deployed: number;
+  fuel_consumption_lph: number;
+  estimated_population_shielded: number;
+  dispatch_priority: string;
+}
+
+export interface DispatchOptimizationResponse {
+  status: string;
+  memorandum_id: string;
+  city_id: string;
+  generated_at: string;
+  authorized_by: string;
+  summary: {
+    total_sectors_covered: number;
+    total_dewatering_capacity_m3h: number;
+    total_personnel_deployed: number;
+    total_fuel_lph: number;
+    total_population_protected: number;
+    remaining_unallocated_fleet: Record<string, number>;
+  };
+  allocations: DispatchAllocationItem[];
+  ndma_memo_text: string;
+}
+
+

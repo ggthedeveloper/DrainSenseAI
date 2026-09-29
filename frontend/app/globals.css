@@ -16,6 +16,99 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Light theme overrides. Most of the command-center UI uses dark utility
+   classes for its default palette; these variables and targeted overrides
+   make the existing panels genuinely switch when the root theme changes. */
+html[data-theme="light"] {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+  color-scheme: light;
+}
+
+html[data-theme="light"] body {
+  color: #0f172a;
+  background: radial-gradient(circle at 50% 0%, #dbeafe 0%, #f8fafc 48%, #e2e8f0 100%);
+}
+
+html[data-theme="light"] .bg-\[\#090d16\],
+html[data-theme="light"] .bg-\[\#080c15\] {
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="light"] .bg-slate-950\/90,
+html[data-theme="light"] .bg-slate-950\/95,
+html[data-theme="light"] .bg-slate-950\/60,
+html[data-theme="light"] .bg-slate-950\/70,
+html[data-theme="light"] .bg-slate-950\/80 {
+  background-color: rgba(226, 232, 240, 0.92) !important;
+}
+
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-slate-900\/60,
+html[data-theme="light"] .bg-slate-900\/70,
+html[data-theme="light"] .bg-slate-900\/80,
+html[data-theme="light"] .bg-slate-900\/90,
+html[data-theme="light"] .bg-slate-900\/95,
+html[data-theme="light"] .bg-slate-900\/98 {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+}
+
+html[data-theme="light"] .bg-slate-800,
+html[data-theme="light"] .bg-slate-800\/50,
+html[data-theme="light"] .bg-slate-800\/70 {
+  background-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .border-slate-800,
+html[data-theme="light"] .border-slate-800\/80,
+html[data-theme="light"] .border-slate-800\/90,
+html[data-theme="light"] .border-slate-700,
+html[data-theme="light"] .border-slate-700\/80 {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-slate-200,
+html[data-theme="light"] .text-slate-300 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .text-slate-400,
+html[data-theme="light"] .text-slate-500 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .text-slate-600 {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .hover\:bg-slate-800:hover,
+html[data-theme="light"] .hover\:bg-slate-800\/50:hover,
+html[data-theme="light"] .hover\:bg-slate-800\/70:hover {
+  background-color: #cbd5e1 !important;
+}
+
+/* Selected-zone inspection panel: keep all values readable against the
+   light cards, including the white heading and compact metric matrix. */
+html[data-theme="light"] .zone-inspection-panel .text-white {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .zone-inspection-panel .bg-blue-950\/30 {
+  background-color: #eff6ff !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .zone-inspection-panel .text-slate-300,
+html[data-theme="light"] .zone-inspection-panel .text-slate-400 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .leaflet-container {
+  background: #e2e8f0 !important;
+}
+
 /* Glassmorphic UI utilities */
 .glass-panel {
   background: rgba(15, 23, 42, 0.75);
@@ -128,5 +221,3 @@ body {
 .drainsense-landmark-label::before {
   border-top-color: #334155 !important;
 }
-
-

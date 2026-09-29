@@ -170,3 +170,8 @@ class AlertItem(BaseModel):
     status: str
     acknowledged_by: Optional[str] = None
     acknowledged_at: Optional[str] = None
+
+class DispatchOptimizationRequest(BaseModel):
+    city_id: str = "VJA"
+    available_fleet: Optional[Dict[str, int]] = None
+    officer_name: Optional[str] = "Gaurav (Administrator)"

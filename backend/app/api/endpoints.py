@@ -15,8 +15,9 @@ from backend.app.schemas.risk import (
     HealthResponse, CityItem, PredictionRequest, PredictionResponse,
     SimulationRequest, SimulationResponse, HistoricalEvent,
     PriorityZone, AdminActionResponse, AICopilotRequest, AICopilotResponse,
-    LoginRequest, LoginResponse, DrainAsset, AlertItem
+    LoginRequest, LoginResponse, DrainAsset, AlertItem, DispatchOptimizationRequest
 )
+from backend.app.services.resource_optimizer import optimize_municipal_dispatch
 from ml.src.inference.predictor import predictor_service
 
 api_router = APIRouter()
@@ -783,4 +784,77 @@ def resolve_alert(alert_id: str):
             alert["status"] = "RESOLVED"
             return alert
     raise HTTPException(status_code=404, detail="Alert not found")
+
+
+# ==============================================================================
+# NOVEL RESEARCH & OPERATIONAL INTELLIGENCE ENDPOINTS
+# ==============================================================================
+
+@api_router.get("/hydrology/cascade/{grid_id}", tags=["Novel Hydrology"])
+def trace_downstream_cascade(grid_id: str, rain_24h: float = Query(145.0, description="Rainfall depth in mm")):
+    """
+    NOVELTY 1: Directed Acyclic Hydrological Flow Graph (DAHG) Cascade Engine.
+    Traces downstream flood pulse propagation, Manning's flow velocity, and arrival lag times (tau_lag)
+    from the origin cell through terrain depressions down to primary water outfalls.
+    """
+    try:
+        cascade_data = predictor_service.trace_cascade(grid_id=grid_id, rain_24h_mm=rain_24h)
+        return cascade_data
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cascade calculation error: {str(e)}")
+
+
+@api_router.get("/hydrology/physics-audit/{grid_id}", tags=["Novel Hydrology"])
+def audit_physics_concordance(grid_id: str, rain_24h: float = Query(145.0, description="Rainfall depth in mm")):
+    """
+    NOVELTY 2: Physics-Informed SCS-CN Mass-Balance Guardrail (PIML).
+    Evaluates USDA-NRCS Curve Number runoff physics equations against machine learning risk inferences
+    to compute the Hydrological Concordance Index (HCI) and flag structural choke anomalies.
+    """
+    try:
+        audit_data = predictor_service.get_physics_audit(grid_id=grid_id, rain_24h_mm=rain_24h)
+        return audit_data
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Physics audit error: {str(e)}")
+
+
+@api_router.get("/hydrology/nowcast/{city_id}", tags=["Novel Hydrology"])
+def get_temporal_nowcast(city_id: str = "VJA", rain_24h: float = Query(145.0, description="Base 24h rainfall in mm")):
+    """
+    NOVELTY 3: Dynamic Multi-Horizon Temporal Nowcaster (T+0 to T+6h).
+    Generates forward temporal risk trajectories based on convective storm hyetograph profiles,
+    allowing municipal commanders to scrub through the surge, peak, and recession of the flood wave.
+    """
+    try:
+        nowcast_data = predictor_service.get_temporal_nowcast(city_id=city_id, base_rain_24h_mm=rain_24h)
+        return nowcast_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Nowcast calculation error: {str(e)}")
+
+
+@api_router.post("/operations/optimize-dispatch", tags=["Operations Research"])
+def optimize_fleet_dispatch(req: DispatchOptimizationRequest):
+    """
+    NOVELTY 4: Autonomous Operations-Research Municipal Dispatch Optimizer.
+    Solves a multi-objective integer resource allocation problem for high-capacity dewatering pumps,
+    super-suckers, and rescue squads. Generates an official NDMA-format Disaster Incident Action Memorandum.
+    """
+    try:
+        cid = req.city_id.upper()
+        # Retrieve prioritized zones for the city
+        p_res = get_priority_zones(city_id=cid, limit=15)
+        priority_zones = p_res.get("zones", [])
+
+        dispatch_result = optimize_municipal_dispatch(
+            city_id=cid,
+            priority_zones=priority_zones,
+            available_fleet=req.available_fleet,
+            officer_name=req.officer_name or "Gaurav (Administrator)"
+        )
+        return dispatch_result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Fleet optimization error: {str(e)}")
+
 

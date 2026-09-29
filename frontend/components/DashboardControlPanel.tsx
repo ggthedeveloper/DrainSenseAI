@@ -5,10 +5,12 @@ import {
   RiskSummary, 
   ZoneDetail, 
   PriorityZoneItem, 
-  SimulationResult 
+  SimulationResult,
+  PhysicsAuditResponse,
+  CascadeTraceResponse
 } from "../types";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
-import { runSimulation } from "../lib/api";
+import { runSimulation, fetchPhysicsAudit } from "../lib/api";
 import {
   ShieldAlert,
   Activity,
@@ -31,7 +33,12 @@ import {
   Maximize2,
   RotateCcw,
   Zap,
-  ChevronRight
+  ChevronRight,
+  Truck,
+  CornerDownRight,
+  Atom,
+  Scale,
+  Loader2
 } from "lucide-react";
 
 interface DashboardControlPanelProps {
@@ -47,6 +54,10 @@ interface DashboardControlPanelProps {
   onApplyScenarioToMap?: (multiplier: number) => void;
   onResetScenarioOnMap?: () => void;
   healthStatus?: { status: string; model_version: string };
+  onTriggerCascade?: (gridId: string) => void;
+  onOpenFleetOptimizer?: () => void;
+  activeCascadePath?: CascadeTraceResponse | null;
+  onClearCascade?: () => void;
 }
 
 export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
@@ -61,7 +72,11 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
   onClearSelectedGrid,
   onApplyScenarioToMap,
   onResetScenarioOnMap,
-  healthStatus
+  healthStatus,
+  onTriggerCascade,
+  onOpenFleetOptimizer,
+  activeCascadePath,
+  onClearCascade
 }) => {
   const t = getTranslation(currentLang);
 
@@ -71,6 +86,24 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
   const [simLoading, setSimLoading] = useState<boolean>(false);
   const [scenarioActive, setScenarioActive] = useState<boolean>(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Novelty state: Physics SCS-CN audit
+  const [physicsAudit, setPhysicsAudit] = useState<PhysicsAuditResponse | null>(null);
+  const [physicsLoading, setPhysicsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (selectedGridId) {
+      setPhysicsLoading(true);
+      fetchPhysicsAudit(selectedGridId, summary?.current_rainfall_24h_mm)
+        .then((res) => {
+          setPhysicsAudit(res);
+          setPhysicsLoading(false);
+        })
+        .catch(() => setPhysicsLoading(false));
+    } else {
+      setPhysicsAudit(null);
+    }
+  }, [selectedGridId, summary?.current_rainfall_24h_mm]);
 
   // Run simulation on multiplier change
   const handleMultiplierChange = (val: number) => {
@@ -218,8 +251,30 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
         </div>
       )}
 
+      {/* Autonomous Fleet Optimizer Trigger Banner (Novelty 4) */}
+      {onOpenFleetOptimizer && (
+        <button
+          onClick={onOpenFleetOptimizer}
+          className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-950/60 via-indigo-950/40 to-slate-900 border border-blue-500/40 hover:border-blue-400 text-xs font-bold text-blue-200 transition-all shadow-lg hover:shadow-blue-500/10 group cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center text-blue-300 shadow-inner">
+              <Truck className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <div className="text-white text-xs font-bold flex items-center gap-1.5">
+                Autonomous Fleet Optimizer
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-mono">OR Solver</span>
+              </div>
+              <div className="text-[10px] text-slate-400 font-normal mt-0.5">Solve constrained pump routing & NDMA directive</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      )}
+
       {/* SECTION C: Selected Zone Details & TreeSHAP (In-Panel Inspection) */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl shrink-0">
+      <div className="zone-inspection-panel bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl shrink-0">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-blue-400" />
@@ -320,6 +375,102 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
                 )}
               </div>
             </div>
+
+            {/* Physics-Informed SCS-CN Mass-Balance Audit (Novelty 2) */}
+            <div className="p-3 rounded-xl bg-slate-950/80 border border-indigo-900/50 space-y-2">
+              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+                <span className="text-indigo-400 flex items-center gap-1.5">
+                  <Atom className="w-3.5 h-3.5" /> Physics-Informed SCS-CN Audit
+                </span>
+                {physicsLoading ? (
+                  <span className="text-slate-400 font-mono text-[9px] flex items-center gap-1">
+                    <Loader2 className="w-2.5 h-2.5 animate-spin" /> Verifying...
+                  </span>
+                ) : physicsAudit ? (
+                  <span className={`px-2 py-0.5 rounded font-mono text-[9px] font-bold border ${
+                    physicsAudit.concordance_pct >= 75
+                      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                      : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                  }`}>
+                    HCI: {physicsAudit.concordance_pct}%
+                  </span>
+                ) : null}
+              </div>
+
+              {physicsAudit && (
+                <>
+                  <div className="grid grid-cols-4 gap-1.5 text-center font-mono">
+                    <div className="p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                      <div className="text-[8px] text-slate-400 uppercase font-sans">Curve No</div>
+                      <div className="text-[11px] font-bold text-slate-200">{physicsAudit.scs_metrics.curve_number}</div>
+                    </div>
+                    <div className="p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                      <div className="text-[8px] text-slate-400 uppercase font-sans">Ret. S</div>
+                      <div className="text-[11px] font-bold text-slate-200">{physicsAudit.scs_metrics.potential_retention_mm}mm</div>
+                    </div>
+                    <div className="p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                      <div className="text-[8px] text-slate-400 uppercase font-sans">Runoff Q</div>
+                      <div className="text-[11px] font-bold text-blue-300">{physicsAudit.scs_metrics.runoff_depth_mm}mm</div>
+                    </div>
+                    <div className="p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                      <div className="text-[8px] text-slate-400 uppercase font-sans">Peak qp</div>
+                      <div className="text-[11px] font-bold text-purple-300">{physicsAudit.scs_metrics.peak_discharge_m3s}m³/s</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-snug">
+                    <span className="text-slate-300 font-semibold">{physicsAudit.concordance_label}: </span>
+                    {physicsAudit.diagnosis}
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Topological Inundation Cascade Tracer (Novelty 1) */}
+            {onTriggerCascade && (
+              <div className="p-3 rounded-xl bg-slate-950/80 border border-cyan-900/50 space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                  <span className="flex items-center gap-1.5">
+                    <CornerDownRight className="w-3.5 h-3.5" /> Topological Cascade (DAHG)
+                  </span>
+                  <span className="text-[9px] text-slate-400 font-mono">D8 Routing</span>
+                </div>
+
+                {activeCascadePath && activeCascadePath.origin_grid_id === zoneDetail.grid_id ? (
+                  <div className="space-y-1.5">
+                    <div className="p-2 rounded-lg bg-cyan-950/40 border border-cyan-500/40 text-xs text-cyan-200">
+                      <div className="font-semibold flex items-center justify-between">
+                        <span>Cascade Corridor Active</span>
+                        <span className="font-mono text-cyan-400 text-[10px]">
+                          {activeCascadePath.total_cascade_hops} hops • {activeCascadePath.total_corridor_length_m}m
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-300 mt-1">
+                        Outfall: <span className="font-semibold text-white">{activeCascadePath.terminal_sink}</span>
+                      </div>
+                      <div className="text-[10px] text-cyan-400 font-mono mt-0.5">
+                        Pulse Arrival: +{activeCascadePath.terminal_arrival_minutes} min ({activeCascadePath.initial_spillover_volume_m3.toLocaleString()} m³)
+                      </div>
+                    </div>
+                    {onClearCascade && (
+                      <button
+                        onClick={onClearCascade}
+                        className="w-full py-1 text-[10px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer"
+                      >
+                        Clear Cascade Trace
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => onTriggerCascade(zoneDetail.grid_id)}
+                    className="w-full py-1.5 px-3 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <CornerDownRight className="w-3.5 h-3.5" />
+                    Simulate Downstream Cascade Trace
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Tactical Recommended Action */}
             {zoneDetail.recommended_actions && zoneDetail.recommended_actions.length > 0 && (
