@@ -152,7 +152,7 @@ def create_document():
     # --- 2.3 Feasibility Analysis ---
     add_p("2.3 Technical & Operational Feasibility", font_size=10.5, bold=True, space_after=1.0)
     add_bullet("Computational Feasibility:", "Achieves an inference latency of < 15 ms per grid cell on standard commodity multi-core CPUs, bypassing the multi-hour computational bottlenecks of 2D shallow-water numerical models and enabling real-time municipal execution.", font_size=9.0, space_after=0.6)
-    add_bullet("Data & Sensor Feasibility:", "Relies entirely on verified, open-access public data streams (Open-Meteo, NASA GPM IMERG, India-WRIS river gauges, Copernicus DEM, OpenStreetMap), eliminating dependencies on expensive or non-existent proprietary telemetry hardware.", font_size=9.0, space_after=0.6)
+    add_bullet("Data & Sensor Feasibility:", "Verified on real empirical data for Vijayawada (810 cells) and Chennai (1,485 cells) using 30m Copernicus DEM elevations, true finite-difference gradient slopes, and Open-Meteo ERA5 hourly precipitation series (August 2024 Budameru and December 2023 Michaung deluges), eliminating synthetic proxies.", font_size=9.0, space_after=0.6)
     add_bullet("Validation Feasibility:", "Ground-truth flood labels are derived from all-weather Sentinel-1 SAR backscatter change detection, providing objective spatial calibration across cloud-covered monsoon deluges.", font_size=9.0, space_after=0.6)
     add_bullet("Operational Scalability:", "Tested across 18,304 cells spanning 12 Indian river basins (Vijayawada, Chennai, Mumbai, Bengaluru, Delhi, Hyderabad, etc.), demonstrating seamless zero-re-architecture transferability.", font_size=9.0, space_after=0.6)
     add_p("", font_size=4.0, space_after=1.0)
