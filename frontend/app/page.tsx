@@ -328,16 +328,28 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen flex bg-[#070E1B] text-slate-100 selection:bg-blue-600 selection:text-white relative overflow-x-hidden ${theme === "light" ? "theme-light" : ""}`}>
-      {/* 1. Cinematic Full-Bleed Atmospheric Monsoon Backdrop across Dashboard */}
+    <div className={`min-h-screen flex selection:bg-blue-600 selection:text-white relative overflow-x-hidden ${
+      theme === "light" ? "theme-light bg-slate-50 text-slate-900" : "bg-[#070E1B] text-slate-100"
+    }`}>
+      {/* 1. Cinematic Atmospheric Monsoon Backdrop across Dashboard */}
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-65 brightness-110 contrast-105 z-0"
+        className={`fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0 transition-opacity duration-300 ${
+          theme === "light" ? "opacity-30 brightness-105" : "opacity-65 brightness-110 contrast-105"
+        }`}
         style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
       />
-      {/* 2. Atmospheric Dark Vignette & Ambient Radial Lighting */}
-      <div className="fixed inset-0 bg-gradient-to-b from-[#070E1B]/60 via-[#070E1B]/45 to-[#070E1B]/75 pointer-events-none z-0" />
-      <div className="fixed top-0 left-1/3 w-[650px] h-[350px] bg-cyan-500/20 rounded-full blur-[160px] pointer-events-none z-0" />
-      <div className="fixed bottom-0 right-1/4 w-[600px] h-[350px] bg-blue-600/20 rounded-full blur-[170px] pointer-events-none z-0" />
+      {/* 2. Atmospheric Daylight/Deluge Vignette & Ambient Radial Lighting */}
+      <div className={`fixed inset-0 pointer-events-none z-0 transition-all duration-300 ${
+        theme === "light"
+          ? "bg-gradient-to-b from-slate-100/85 via-white/80 to-slate-200/90"
+          : "bg-gradient-to-b from-[#070E1B]/60 via-[#070E1B]/45 to-[#070E1B]/75"
+      }`} />
+      <div className={`fixed top-0 left-1/3 w-[650px] h-[350px] rounded-full blur-[160px] pointer-events-none z-0 ${
+        theme === "light" ? "bg-sky-400/10" : "bg-cyan-500/20"
+      }`} />
+      <div className={`fixed bottom-0 right-1/4 w-[600px] h-[350px] rounded-full blur-[170px] pointer-events-none z-0 ${
+        theme === "light" ? "bg-blue-400/10" : "bg-blue-600/20"
+      }`} />
 
       {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
       <div className="relative z-20">
