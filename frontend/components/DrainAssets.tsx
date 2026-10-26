@@ -135,21 +135,11 @@ export const DrainAssets: React.FC<DrainAssetsProps> = ({
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="w-full bg-slate-950/70 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none transition-all"
+              className="w-full bg-slate-950/70 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none transition-all cursor-pointer"
             >
-              <option value="ALL">{t.allCities}</option>
-              <option value="VJA">Vijayawada (AP)</option>
+              <option value="ALL">All Catchments (Vijayawada & Chennai)</option>
+              <option value="VJA">Vijayawada / Amaravati (AP)</option>
               <option value="CHE">Chennai (TN)</option>
-              <option value="BOM">Mumbai (MH)</option>
-              <option value="BLR">Bengaluru (KA)</option>
-              <option value="DEL">Delhi NCR (DL)</option>
-              <option value="HYD">Hyderabad (TG)</option>
-              <option value="CCU">Kolkata (WB)</option>
-              <option value="AMD">Ahmedabad (GJ)</option>
-              <option value="PNQ">Pune (MH)</option>
-              <option value="COK">Kochi (KL)</option>
-              <option value="GAU">Guwahati (AS)</option>
-              <option value="PAT">Patna (BR)</option>
             </select>
           </div>
 

@@ -26,18 +26,20 @@ interface NavbarProps {
 }
 
 const CITIES = [
-  { id: "VJA", name: "Vijayawada / Amaravati", state: "AP", river: "Krishna / Budameru" },
-  { id: "CHE", name: "Chennai", state: "TN", river: "Adyar / Cooum / Buckingham" },
-  { id: "BOM", name: "Mumbai", state: "MH", river: "Mithi River / Subways" },
-  { id: "BLR", name: "Bengaluru", state: "KA", river: "Bellandur / Varthur Valley" },
-  { id: "DEL", name: "Delhi NCR", state: "DL", river: "Yamuna / Najafgarh Drain" },
-  { id: "HYD", name: "Hyderabad", state: "TG", river: "Musi River / Hussain Sagar" },
-  { id: "CCU", name: "Kolkata", state: "WB", river: "Hooghly / Circular Canal" },
-  { id: "AMD", name: "Ahmedabad", state: "GJ", river: "Sabarmati / Kharicut Canal" },
-  { id: "PNQ", name: "Pune", state: "MH", river: "Mula-Mutha / Ambil Odha" },
-  { id: "COK", name: "Kochi", state: "KL", river: "Periyar / Vembanad Lake" },
-  { id: "GAU", name: "Guwahati", state: "AS", river: "Brahmaputra / Bharalu" },
-  { id: "PAT", name: "Patna", state: "BR", river: "Ganga / Punpun River" }
+  { 
+    id: "VJA", 
+    name: "Vijayawada / Amaravati", 
+    state: "AP", 
+    river: "Krishna & Budameru Corridor",
+    dataset: "Copernicus 30m DEM • ERA5 513.7mm 2024 Deluge"
+  },
+  { 
+    id: "CHE", 
+    name: "Chennai", 
+    state: "TN", 
+    river: "Adyar, Cooum & Buckingham Canal",
+    dataset: "Copernicus 30m DEM • Cyclone Michaung 434.8mm"
+  }
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -90,14 +92,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* City Selection Modal Dropdown */}
               {cityMenuOpen && (
                 <div
-                  className="absolute left-0 top-full mt-2 w-72 sm:w-80 bg-slate-900/98 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl p-2 z-[9999] animate-in fade-in slide-in-from-top-2 duration-150"
+                  className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[#0c1322] dark:bg-[#0c1322] border border-slate-700/90 rounded-2xl shadow-2xl shadow-black/90 p-2.5 z-[9999] city-dropdown-menu animate-in fade-in slide-in-from-top-2 duration-150"
                   onMouseLeave={() => setCityMenuOpen(false)}
                 >
                   <div className="px-3 py-2 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span>Monitored River Basins (12 Cities)</span>
-                    <span className="text-emerald-400 font-mono text-[10px]">● Live Telemetry</span>
+                    <span>Verified Real-Data Catchments (2 Cities)</span>
+                    <span className="text-emerald-400 font-mono text-[10px] flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Live Telemetry
+                    </span>
                   </div>
-                  <div className="max-h-80 overflow-y-auto space-y-1 p-1">
+                  <div className="space-y-1.5 p-1 pt-2">
                     {CITIES.map((c) => {
                       const isSel = c.id === selectedCity;
                       return (
@@ -108,22 +112,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                             onSelectCity(c.id);
                             setCityMenuOpen(false);
                           }}
-                          className={`w-full text-left p-2 rounded-lg flex items-start justify-between transition-all ${
+                          className={`w-full text-left p-3 rounded-xl flex items-start justify-between transition-all cursor-pointer ${
                             isSel
-                              ? "bg-blue-600/20 border border-blue-500/40 text-blue-200"
-                              : "hover:bg-slate-800/70 text-slate-300 hover:text-white border border-transparent"
+                              ? "bg-blue-600/25 border border-blue-500/60 text-white shadow-md shadow-blue-500/10"
+                              : "bg-slate-900/90 hover:bg-slate-800/90 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700"
                           }`}
                         >
-                          <div>
-                            <div className="text-xs font-semibold flex items-center gap-1.5">
-                              <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-blue-400 font-bold">
+                          <div className="space-y-1">
+                            <div className="text-xs font-bold flex items-center gap-2">
+                              <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">
                                 {c.state}
                               </span>
-                              {c.name}
+                              <span className="text-slate-100 font-bold">{c.name}</span>
                             </div>
-                            <div className="text-[10px] text-slate-500 mt-0.5">{c.river}</div>
+                            <div className="text-[11px] text-slate-400 font-medium">{c.river}</div>
+                            <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                              <span>✓ {c.dataset}</span>
+                            </div>
                           </div>
-                          {isSel && <Check className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />}
+                          {isSel && <Check className="w-4 h-4 text-blue-400 shrink-0 mt-1" />}
                         </button>
                       );
                     })}

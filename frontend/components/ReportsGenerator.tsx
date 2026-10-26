@@ -40,17 +40,7 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
 
   const cityNameMap: Record<string, string> = {
     VJA: "Vijayawada Municipal Corporation (Andhra Pradesh)",
-    CHE: "Greater Chennai Corporation (Tamil Nadu)",
-    BOM: "Brihanmumbai Municipal Corporation (Maharashtra)",
-    BLR: "Bruhat Bengaluru Mahanagara Palike (Karnataka)",
-    DEL: "Municipal Corporation of Delhi (National Capital)",
-    HYD: "Greater Hyderabad Municipal Corporation (Telangana)",
-    CCU: "Kolkata Municipal Corporation (West Bengal)",
-    AMD: "Amdavad Municipal Corporation (Gujarat)",
-    PNQ: "Pune Municipal Corporation (Maharashtra)",
-    COK: "Kochi Municipal Corporation (Kerala)",
-    GAU: "Guwahati Municipal Corporation (Assam)",
-    PAT: "Patna Municipal Corporation (Bihar)"
+    CHE: "Greater Chennai Corporation (Tamil Nadu)"
   };
 
   const currentCityName = cityNameMap[currentCityId] || currentCityId;

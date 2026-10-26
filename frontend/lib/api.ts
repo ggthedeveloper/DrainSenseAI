@@ -28,7 +28,7 @@ export async function fetchHealthStatus() {
     database: "DISCONNECTED",
     model_loaded: true,
     model_version: "v1.0 (Calibrated XGBoost)",
-    total_grids: 5827,
+    total_grids: 2295,
     latest_data_timestamp: "2026-09-10T08:30:00Z"
   };
 }

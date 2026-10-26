@@ -45,34 +45,24 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
               <History className="w-4 h-4" />
-              India Flood Inventory (IFI) Major Disaster Records
+              Verified Disaster Ground Truth (Kaggle & IMD Records)
             </div>
-            <h2 className="text-xl font-bold text-slate-100">Documented Historical Flood & Inundation Events</h2>
+            <h2 className="text-xl font-bold text-slate-100">Documented Historical Cloudbursts & Deluges</h2>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Chronological flood case studies from Vijayawada (Budameru), Chennai (Michaung & 2015 Deluge), Mumbai (July 26 Cloudburst), and Bengaluru (Bellandur/EcoSpace).
+              Chronological flood case studies from Vijayawada (Budameru Flash Cloudburst) and Chennai (Cyclone Michaung & 2015 Deluge), cross-referenced with Kaggle flood datasets and IMD radar archives.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">Filter City:</span>
+            <span className="text-xs text-slate-400">Filter Catchment:</span>
             <select
               value={filterCity}
               onChange={(e) => setFilterCity(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium"
+              className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
             >
-              <option value="ALL">All Indian Cities</option>
+              <option value="ALL">All Catchments (VJA & CHE)</option>
               <option value="VJA">Vijayawada / Amaravati (AP)</option>
               <option value="CHE">Chennai (TN)</option>
-              <option value="BOM">Mumbai (MH)</option>
-              <option value="BLR">Bengaluru (KA)</option>
-              <option value="DEL">Delhi NCR (DL)</option>
-              <option value="HYD">Hyderabad (TG)</option>
-              <option value="CCU">Kolkata (WB)</option>
-              <option value="AMD">Ahmedabad (GJ)</option>
-              <option value="PNQ">Pune (MH)</option>
-              <option value="COK">Kochi (KL)</option>
-              <option value="GAU">Guwahati (AS)</option>
-              <option value="PAT">Patna (BR)</option>
             </select>
           </div>
         </div>
@@ -138,6 +128,18 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
             <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400">
               <strong className="text-slate-300">Deployment:</strong> {evt.response_summary}
             </div>
+
+            {(evt as any).kaggle_dataset_ref && (
+              <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
+                <span className="text-emerald-400 font-semibold font-mono flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  Kaggle &amp; IMD Benchmark
+                </span>
+                <span className="text-slate-400 text-[9px] truncate max-w-[180px]">
+                  {(evt as any).kaggle_dataset_ref.split('(')[0]}
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>

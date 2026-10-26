@@ -37,12 +37,26 @@ interface LandingPageProps {
 }
 
 const METRO_BASINS = [
-  { id: "VJA", name: "Vijayawada / Amaravati", state: "Andhra Pradesh", river: "Krishna & Budameru Corridor", grids: 810, risk: "CRITICAL", realData: true },
-  { id: "CHE", name: "Chennai", state: "Tamil Nadu", river: "Adyar, Cooum & Buckingham Canal", grids: 1485, risk: "HIGH", realData: true },
-  { id: "BOM", name: "Mumbai", state: "Maharashtra", river: "Mithi River & Coastal Subways", grids: 2480, risk: "HIGH", realData: false },
-  { id: "BLR", name: "Bengaluru", state: "Karnataka", river: "Bellandur & Varthur Lake Valley", grids: 1980, risk: "ELEVATED", realData: false },
-  { id: "DEL", name: "Delhi NCR", state: "Delhi", river: "Yamuna Floodplain & Najafgarh Drain", grids: 2890, risk: "HIGH", realData: false },
-  { id: "HYD", name: "Hyderabad", state: "Telangana", river: "Musi River & Hussain Sagar Weir", grids: 1840, risk: "ELEVATED", realData: false }
+  { 
+    id: "VJA", 
+    name: "Vijayawada / Amaravati", 
+    state: "Andhra Pradesh", 
+    river: "Krishna & Budameru Corridor", 
+    grids: 810, 
+    risk: "CRITICAL", 
+    dataset: "Copernicus 30m DEM • ERA5 513.7mm 2024 Cloudburst",
+    realData: true 
+  },
+  { 
+    id: "CHE", 
+    name: "Chennai", 
+    state: "Tamil Nadu", 
+    river: "Adyar, Cooum & Buckingham Canal", 
+    grids: 1485, 
+    risk: "HIGH", 
+    dataset: "Copernicus 30m DEM • Cyclone Michaung 434.8mm (2023)",
+    realData: true 
+  }
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -308,7 +322,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               The Four Scientific Hydro-AI Novelties
             </h2>
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Evaluated on 18,304 spatial grid cells across 12 Indian river basins with sub-15ms inference latency.
+              Evaluated on 2,295 high-resolution spatial grid cells across Vijayawada &amp; Chennai river basins with sub-15ms inference latency.
             </p>
           </div>
 
@@ -439,56 +453,56 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-              Coverage & Deployment
+              Verified Real Data Deployments
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
-              12 Monitored Indian Metro Basins
+              Real-World River Basin Deployments
             </h2>
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Standardized across 500m × 500m spatial grids with calibrated elevation, drain slope, and soil infiltration profiles.
+              Standardized across 2,295 deterministic 500m × 500m spatial cells with Copernicus 30m Global DEM elevation, finite-difference gradient slopes, and real ERA5 hourly cloudburst telemetry.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {METRO_BASINS.map((b) => (
               <div 
                 key={b.id} 
-                className="p-5 rounded-2xl bg-slate-900/60 border border-white/10 hover:border-blue-500/30 transition-all flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-blue-500/40 transition-all flex flex-col justify-between shadow-xl"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
+                      <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
                         {b.id}
                       </span>
-                      {b.realData && (
-                        <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
-                          Real Data
-                        </span>
-                      )}
+                      <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Real Earth Data
+                      </span>
                     </div>
                     <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${
                       b.risk === "CRITICAL" ? "bg-red-500/20 text-red-400 border border-red-500/30" :
-                      b.risk === "HIGH" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
-                      "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                     }`}>
                       {b.risk}
                     </span>
                   </div>
-                  <h4 className="text-base font-bold text-white mb-1">{b.name}</h4>
-                  <div className="text-xs text-slate-400 mb-3">{b.river}</div>
+                  <h4 className="text-lg font-bold text-white mb-1">{b.name}</h4>
+                  <div className="text-xs text-slate-400 mb-2">{b.river}</div>
+                  <div className="text-[11px] text-slate-300 font-mono bg-slate-950/80 p-2 rounded-lg border border-slate-800 mb-3">
+                    {b.dataset}
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-mono">{b.grids.toLocaleString()} Grid Cells</span>
+                  <span className="text-slate-400 font-mono font-semibold">{b.grids.toLocaleString()} Cells (500m²)</span>
                   <button
                     onClick={() => {
                       setError(null);
                       setIsLoginModalOpen(true);
                     }}
-                    className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
                   >
-                    <span>View Basin</span>
+                    <span>Inspect Basin</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -517,9 +531,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">
-              <div className="text-3xl font-extrabold text-blue-400 mb-1">18,304</div>
+              <div className="text-3xl font-extrabold text-blue-400 mb-1">2,295</div>
               <div className="text-xs font-semibold text-white mb-1">Spatial Grid Cells</div>
-              <div className="text-[11px] text-slate-400">500m × 500m resolution across 12 Indian river basins</div>
+              <div className="text-[11px] text-slate-400">500m × 500m resolution across Vijayawada &amp; Chennai river basins</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">

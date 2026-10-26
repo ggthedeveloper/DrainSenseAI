@@ -23,17 +23,7 @@ logger = logging.getLogger("DrainSense.Predictor")
 
 CITY_NAMES = {
     "VJA": "Vijayawada / Amaravati",
-    "CHE": "Chennai",
-    "BOM": "Mumbai",
-    "BLR": "Bengaluru",
-    "DEL": "Delhi NCR",
-    "HYD": "Hyderabad",
-    "CCU": "Kolkata",
-    "AMD": "Ahmedabad",
-    "PNQ": "Pune",
-    "COK": "Kochi",
-    "GAU": "Guwahati",
-    "PAT": "Patna"
+    "CHE": "Chennai"
 }
 
 class RiskInferenceService:

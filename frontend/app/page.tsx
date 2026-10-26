@@ -8,18 +8,14 @@ import { LandingPage } from "../components/LandingPage";
 import { RiskMap } from "../components/RiskMap";
 import { ZoneDrawer } from "../components/ZoneDrawer";
 import { DashboardControlPanel } from "../components/DashboardControlPanel";
-import { WhatIfSimulator } from "../components/WhatIfSimulator";
 import { PriorityList } from "../components/PriorityList";
 import { HistoricalEvents } from "../components/HistoricalEvents";
 import { ModelAnalytics } from "../components/ModelAnalytics";
-import { DataHealth } from "../components/DataHealth";
 import { JuryDemoModal } from "../components/JuryDemoModal";
-import { AICopilot } from "../components/AICopilot";
 import { DrainAssets } from "../components/DrainAssets";
 import { AlertsManager } from "../components/AlertsManager";
 import { ReportsGenerator } from "../components/ReportsGenerator";
 import { SettingsPage } from "../components/SettingsPage";
-import { PredictionView } from "../components/PredictionView";
 import { ResourceOptimizerModal } from "../components/ResourceOptimizerModal";
 
 import { RiskMapGeoJSON, RiskSummary, ZoneDetail, PriorityZoneItem, CascadeTraceResponse } from "../types";
@@ -450,36 +446,7 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Tab 3: Dedicated AI Risk Prediction Tab */}
-          {activeTab === "prediction" && (
-            <PredictionView
-              currentCityId={selectedCity}
-              currentLang={currentLang}
-            />
-          )}
-
-          {/* Tab 4: AI Copilot */}
-          {activeTab === "copilot" && (
-            <AICopilot
-              cityId={selectedCity}
-              currentRainfall24h={summary?.current_rainfall_24h_mm || 145.0}
-            />
-          )}
-
-          {/* Tab 5: What-If Simulator */}
-          {activeTab === "whatif" && (
-            <WhatIfSimulator
-              cityId={selectedCity}
-              onApplyScenarioToMap={(mult) => {
-                if (summary) {
-                  fetchCurrentRiskMap(selectedCity, Math.round(summary.current_rainfall_24h_mm * mult))
-                    .then((res) => setMapData(res.geojson));
-                }
-              }}
-            />
-          )}
-
-          {/* Tab 6: Alerts & Dispatches */}
+          {/* Tab 3: Alerts & Dispatches */}
           {activeTab === "alerts" && (
             <AlertsManager
               currentCityId={selectedCity}
@@ -492,7 +459,7 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Tab 7: Priority Response List */}
+          {/* Tab 4: Priority Response List */}
           {activeTab === "priority" && (
             <PriorityList
               cityId={selectedCity}
@@ -503,13 +470,13 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Tab 8: Historical Deluges */}
+          {/* Tab 5: Historical Deluges */}
           {activeTab === "historical" && <HistoricalEvents cityId={selectedCity} />}
 
-          {/* Tab 9: Model Analytics */}
+          {/* Tab 6: Model Analytics */}
           {activeTab === "analytics" && <ModelAnalytics />}
 
-          {/* Tab 10: Municipal Reports */}
+          {/* Tab 7: Municipal Reports */}
           {activeTab === "reports" && (
             <ReportsGenerator
               currentCityId={selectedCity}
@@ -520,10 +487,7 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Tab 11: Data & System Health */}
-          {activeTab === "health" && <DataHealth />}
-
-          {/* Tab 12: Settings & Admin Profile */}
+          {/* Tab 8: Settings & Admin Profile */}
           {activeTab === "settings" && (
             <SettingsPage
               currentLang={currentLang}

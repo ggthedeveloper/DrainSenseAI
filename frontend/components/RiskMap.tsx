@@ -39,17 +39,7 @@ interface RiskMapProps {
 
 const CITY_NAME_LOOKUP: Record<string, string> = {
   VJA: "Vijayawada / Amaravati",
-  CHE: "Chennai",
-  BOM: "Mumbai",
-  BLR: "Bengaluru",
-  DEL: "Delhi NCR",
-  HYD: "Hyderabad",
-  CCU: "Kolkata",
-  AMD: "Ahmedabad",
-  PNQ: "Pune",
-  COK: "Kochi",
-  GAU: "Guwahati",
-  PAT: "Patna",
+  CHE: "Chennai"
 };
 
 const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; landmarks: Array<{ lat: number; lon: number; title: string; color: string }> }> = {
@@ -70,106 +60,6 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
       { lat: 13.070, lon: 80.250, title: "Cooum River Basin", color: "#06b6d4" },
       { lat: 12.940, lon: 80.210, title: "Pallikaranai Marshland Reserve", color: "#10b981" },
       { lat: 12.980, lon: 80.220, title: "Velachery Lowland Sump", color: "#f43f5e" }
-    ]
-  },
-  BOM: {
-    center: [19.076, 72.877],
-    zoom: 11,
-    landmarks: [
-      { lat: 19.065, lon: 72.865, title: "Mithi River & BKC Discharge", color: "#3b82f6" },
-      { lat: 19.015, lon: 72.840, title: "Hindmata Chronic Waterlogging Sump", color: "#f43f5e" },
-      { lat: 19.080, lon: 72.840, title: "Milan Subway", color: "#eab308" },
-      { lat: 18.960, lon: 72.805, title: "Malabar Hill (South Mumbai Ridge)", color: "#a855f7" }
-    ]
-  },
-  BLR: {
-    center: [12.9716, 77.620],
-    zoom: 11,
-    landmarks: [
-      { lat: 12.935, lon: 77.675, title: "Bellandur Lake & EcoSpace Overflow", color: "#3b82f6" },
-      { lat: 12.940, lon: 77.710, title: "Varthur Lake Basin", color: "#06b6d4" },
-      { lat: 12.905, lon: 77.690, title: "Rainbow Drive Lowland Sump", color: "#f43f5e" },
-      { lat: 13.045, lon: 77.620, title: "Manyata Tech Park (Hebbal Valley)", color: "#a855f7" }
-    ]
-  },
-  DEL: {
-    center: [28.6139, 77.2090],
-    zoom: 11,
-    landmarks: [
-      { lat: 28.665, lon: 77.235, title: "Yamuna Bazar & Kashmere Gate Riverbed", color: "#3b82f6" },
-      { lat: 28.625, lon: 77.245, title: "ITO Ring Road Breach Regulator", color: "#f43f5e" },
-      { lat: 28.635, lon: 77.225, title: "Minto Bridge Chronic Subway Sump", color: "#eab308" },
-      { lat: 28.590, lon: 77.160, title: "Delhi Ridge (Highland Uplands)", color: "#10b981" }
-    ]
-  },
-  HYD: {
-    center: [17.3850, 78.4867],
-    zoom: 11,
-    landmarks: [
-      { lat: 17.370, lon: 78.500, title: "Musi River Moosarambagh Causeway", color: "#3b82f6" },
-      { lat: 17.430, lon: 78.475, title: "Hussain Sagar Surplus Weir", color: "#06b6d4" },
-      { lat: 17.400, lon: 78.410, title: "Nadeem Colony / Tolichowki Sump", color: "#f43f5e" },
-      { lat: 17.440, lon: 78.360, title: "HITEC City & Gachibowli Ridge", color: "#a855f7" }
-    ]
-  },
-  CCU: {
-    center: [22.5726, 88.3639],
-    zoom: 11,
-    landmarks: [
-      { lat: 22.580, lon: 88.350, title: "Hooghly River & Howrah Bridge", color: "#3b82f6" },
-      { lat: 22.580, lon: 88.360, title: "Thanthania / Central Avenue Sump", color: "#f43f5e" },
-      { lat: 22.500, lon: 88.310, title: "Behala & Taratala Waterlogging Bowl", color: "#eab308" },
-      { lat: 22.530, lon: 88.430, title: "East Kolkata Wetlands Natural Sponge", color: "#10b981" }
-    ]
-  },
-  AMD: {
-    center: [23.0225, 72.5714],
-    zoom: 11,
-    landmarks: [
-      { lat: 23.010, lon: 72.560, title: "Vasna Barrage & Sabarmati Riverfront", color: "#3b82f6" },
-      { lat: 23.060, lon: 72.560, title: "Akhbarnagar Underpass Sump", color: "#f43f5e" },
-      { lat: 22.970, lon: 72.610, title: "Kharicut Canal Vatva Lowland", color: "#eab308" },
-      { lat: 23.040, lon: 72.510, title: "SG Highway & Bodakdev Ridge", color: "#10b981" }
-    ]
-  },
-  PNQ: {
-    center: [18.5204, 73.8567],
-    zoom: 11,
-    landmarks: [
-      { lat: 18.480, lon: 73.835, title: "Ambil Odha Stream Breach Corridor", color: "#f43f5e" },
-      { lat: 18.530, lon: 73.850, title: "Mula-Mutha Confluence (Sangam)", color: "#3b82f6" },
-      { lat: 18.515, lon: 73.845, title: "Pulachi Wadi / Deccan Gymkhana", color: "#eab308" },
-      { lat: 18.505, lon: 73.805, title: "Kothrud Hills (High Ground)", color: "#10b981" }
-    ]
-  },
-  COK: {
-    center: [9.9312, 76.2673],
-    zoom: 12,
-    landmarks: [
-      { lat: 10.070, lon: 76.350, title: "Periyar River Aluva Floodplain", color: "#3b82f6" },
-      { lat: 9.990, lon: 76.290, title: "Kaloor Stadium Canal Sump", color: "#f43f5e" },
-      { lat: 10.025, lon: 76.310, title: "Edappally Canal Choke Point", color: "#eab308" },
-      { lat: 10.010, lon: 76.360, title: "Kakkanad InfoPark Uplands", color: "#10b981" }
-    ]
-  },
-  GAU: {
-    center: [26.1445, 91.7362],
-    zoom: 12,
-    landmarks: [
-      { lat: 26.190, lon: 91.750, title: "Brahmaputra Riverfront (Fancy Bazar)", color: "#3b82f6" },
-      { lat: 26.160, lon: 91.770, title: "Bharalu River Anil Nagar Sump", color: "#f43f5e" },
-      { lat: 26.115, lon: 91.665, title: "Deepor Beel Wetland Sump", color: "#06b6d4" },
-      { lat: 26.165, lon: 91.705, title: "Kamakhya Foothills / Nilachal Hill", color: "#10b981" }
-    ]
-  },
-  PAT: {
-    center: [25.5941, 85.1376],
-    zoom: 12,
-    landmarks: [
-      { lat: 25.620, lon: 85.150, title: "Ganga Riverfront & Gandhi Ghat", color: "#3b82f6" },
-      { lat: 25.595, lon: 85.155, title: "Rajendra Nagar Low-Lying Bowl", color: "#f43f5e" },
-      { lat: 25.585, lon: 85.145, title: "Kankarbagh Sump House Area", color: "#eab308" },
-      { lat: 25.605, lon: 85.070, title: "Bailey Road Higher Terrace", color: "#10b981" }
     ]
   }
 };
@@ -511,17 +401,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({
       const getFillColor = (props: GridProperties) => {
         if (colorMode === "elevation") {
           const e = props.elevation_m;
-          if (cityId === "BLR") {
-            if (e < 878) return "#0284c7"; // lowest valley
-            if (e < 890) return "#38bdf8";
-            if (e < 905) return "#eab308";
-            return "#a855f7"; // high plateau
-          } else {
-            if (e < 10) return "#0284c7"; // coastal lowland
-            if (e < 20) return "#38bdf8";
-            if (e < 35) return "#eab308";
-            return "#a855f7"; // hill ridge
-          }
+          if (e < 10) return "#0284c7"; // coastal lowland
+          if (e < 20) return "#38bdf8";
+          if (e < 35) return "#eab308";
+          return "#a855f7"; // hill ridge
         } else if (colorMode === "flow") {
           const flow = props.flow_accumulation;
           if (flow > 60) return "#881337";

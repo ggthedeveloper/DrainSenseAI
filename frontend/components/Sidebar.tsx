@@ -61,17 +61,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navigationItems = [
     { id: "dashboard", label: t.navDashboard, icon: LayoutDashboard },
-    { id: "map", label: t.navMap, icon: MapIcon },
     { id: "assets", label: t.navAssets, icon: Droplets },
-    { id: "prediction", label: t.navPrediction, icon: Cpu },
-    { id: "copilot", label: t.navCopilot, icon: Bot },
-    { id: "whatif", label: t.navWhatIf, icon: SlidersHorizontal },
-    { id: "alerts", label: t.navAlerts, icon: AlertTriangle, badge: "3" },
+    { id: "alerts", label: t.navAlerts, icon: AlertTriangle, badge: "2" },
     { id: "priority", label: t.navPriority, icon: ListOrdered },
     { id: "historical", label: t.navHistorical, icon: History },
     { id: "analytics", label: t.navAnalytics, icon: LineChart },
     { id: "reports", label: t.navReports, icon: FileText },
-    { id: "health", label: t.navHealth, icon: Database },
     { id: "settings", label: t.navSettings, icon: Settings },
   ];
 

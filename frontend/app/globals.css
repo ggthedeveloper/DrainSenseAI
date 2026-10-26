@@ -735,6 +735,20 @@ html[data-theme="light"] .leaflet-container,
   background: #e2e8f0 !important;
 }
 
+/* Solid Non-Transparent City Selection Menu */
+.city-dropdown-menu {
+  background-color: #0c1322 !important;
+  border-color: #334155 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(51, 65, 85, 0.5) !important;
+}
+
+html[data-theme="light"] .city-dropdown-menu,
+.theme-light .city-dropdown-menu {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(226, 232, 240, 1) !important;
+}
+
 html[data-theme="light"] .drainsense-map-tooltip,
 .theme-light .drainsense-map-tooltip {
   background-color: #ffffff !important;

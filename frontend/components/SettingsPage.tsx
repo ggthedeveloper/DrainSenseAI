@@ -109,7 +109,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               </div>
               <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
                 <span className="text-slate-400">Jurisdiction</span>
-                <span className="text-slate-200">12 Flood-Prone Indian Catchments</span>
+                <span className="text-slate-200">2 Verified Catchments (VJA &amp; CHE)</span>
               </div>
             </div>
 
@@ -251,9 +251,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
                 <div className="text-[10px] uppercase font-bold text-slate-400">Grid Discretization</div>
-                <div className="text-slate-200 font-mono font-bold">{t.totalMonitoredCells}</div>
+                <div className="text-slate-200 font-mono font-bold">2,295 Cells (500m²)</div>
                 <div className="text-[10px] text-slate-400 font-medium">
-                  Across 12 Flood-Prone Indian Catchments
+                  810 Vijayawada + 1,485 Chennai (Copernicus 30m DEM)
                 </div>
               </div>
 

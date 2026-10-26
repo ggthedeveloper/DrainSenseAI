@@ -157,7 +157,7 @@ export const TRANSLATIONS = {
     systemDiagnostics: "System & Model Diagnostics",
     modelStatus: "Active ML Model",
     modelEngine: "Calibrated XGBoost Classifier v1.0",
-    totalMonitoredCells: "18,304 Deterministic 500m Grids",
+    totalMonitoredCells: "2,295 Verified 500m Grids",
     telemetrySource: "Open-Meteo ERA5 Hourly Telemetry",
     demSource: "NASA SRTM 30m Digital Elevation Model",
 
@@ -325,7 +325,7 @@ export const TRANSLATIONS = {
     systemDiagnostics: "सिस्टम और मॉडल निदान",
     modelStatus: "सक्रिय ML मॉडल",
     modelEngine: "कैलिब्रेटेड XGBoost क्लासिफायर v1.0",
-    totalMonitoredCells: "18,304 निर्धारक 500 मीटर ग्रिड",
+    totalMonitoredCells: "2,295 सत्यापित 500 मीटर ग्रिड",
     telemetrySource: "ओपन-मेटियो ERA5 प्रति घंटा टेलीमेट्री",
     demSource: "नासा SRTM 30m डिजिटल एलिवेशन मॉडल",
 
@@ -493,7 +493,7 @@ export const TRANSLATIONS = {
     systemDiagnostics: "సిస్టమ్ & మోడల్ వివరాలు",
     modelStatus: "సక్రియ ML మోడల్",
     modelEngine: "క్యాలిబ్రేటెడ్ XGBoost క్లాసిఫైయర్ v1.0",
-    totalMonitoredCells: "18,304 ప్రామాణిక 500 మీటర్ల గ్రిడ్లు",
+    totalMonitoredCells: "2,295 ధృవీకరించబడిన 500 మీటర్ల గ్రిడ్లు",
     telemetrySource: "ఓపెన్-మెటియో గంటవారీ వర్షపాతం",
     demSource: "నాసా SRTM 30m డిజిటల్ ఎలివేషన్ మోడల్",
 
