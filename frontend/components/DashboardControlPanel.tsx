@@ -194,6 +194,16 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
             </div>
           </div>
         </div>
+
+        {(cityId === "VJA" || cityId === "CHE") && (
+          <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px]">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Verified Real Earth Data
+            </span>
+            <span className="text-slate-400 font-mono text-[9px]">Copernicus DEM & ERA5 Telemetry</span>
+          </div>
+        )}
       </div>
 
       {/* SECTION B: Municipal Flood KPIs */}

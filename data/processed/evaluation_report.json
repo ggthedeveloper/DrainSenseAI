@@ -1,63 +1,59 @@
 {
   "model_version": "v1.0",
-  "evaluation_samples": 51749,
-  "positive_ground_truth": 13560,
-  "roc_auc": 0.9854,
-  "pr_auc": 0.9647,
-  "brier_score": 0.0435,
+  "evaluation_samples": 155378,
+  "positive_ground_truth": 30747,
+  "roc_auc": 0.9823,
+  "pr_auc": 0.9346,
+  "brier_score": 0.0446,
   "confusion_matrix": {
-    "true_negatives": 36505,
-    "false_positives": 1684,
-    "false_negatives": 1390,
-    "true_positives": 12170
+    "true_negatives": 118402,
+    "false_positives": 6229,
+    "false_negatives": 3373,
+    "true_positives": 27374
   },
   "rates": {
-    "false_positive_rate": 0.0441,
-    "false_negative_rate": 0.1025,
-    "sensitivity_recall": 0.8975,
-    "specificity": 0.9559,
-    "precision": 0.8784
+    "false_positive_rate": 0.05,
+    "false_negative_rate": 0.1097,
+    "sensitivity_recall": 0.8903,
+    "specificity": 0.95,
+    "precision": 0.8146
   },
   "calibration_curve": [
     {
-      "predicted_mean_prob": 0.0116,
-      "observed_positive_rate": 0.016
+      "predicted_mean_prob": 0.0072,
+      "observed_positive_rate": 0.0107
     },
     {
-      "predicted_mean_prob": 0.1452,
-      "observed_positive_rate": 0.2004
+      "predicted_mean_prob": 0.1454,
+      "observed_positive_rate": 0.1989
     },
     {
-      "predicted_mean_prob": 0.2469,
-      "observed_positive_rate": 0.2902
+      "predicted_mean_prob": 0.2485,
+      "observed_positive_rate": 0.2378
     },
     {
-      "predicted_mean_prob": 0.347,
-      "observed_positive_rate": 0.2957
+      "predicted_mean_prob": 0.3486,
+      "observed_positive_rate": 0.3224
     },
     {
-      "predicted_mean_prob": 0.4507,
-      "observed_positive_rate": 0.4014
+      "predicted_mean_prob": 0.4502,
+      "observed_positive_rate": 0.3654
     },
     {
-      "predicted_mean_prob": 0.5501,
-      "observed_positive_rate": 0.4347
+      "predicted_mean_prob": 0.5511,
+      "observed_positive_rate": 0.4058
     },
     {
-      "predicted_mean_prob": 0.6502,
-      "observed_positive_rate": 0.453
+      "predicted_mean_prob": 0.6526,
+      "observed_positive_rate": 0.496
     },
     {
-      "predicted_mean_prob": 0.7517,
-      "observed_positive_rate": 0.5716
+      "predicted_mean_prob": 0.755,
+      "observed_positive_rate": 0.6047
     },
     {
-      "predicted_mean_prob": 0.8619,
-      "observed_positive_rate": 0.7263
-    },
-    {
-      "predicted_mean_prob": 0.9356,
-      "observed_positive_rate": 0.974
+      "predicted_mean_prob": 0.8755,
+      "observed_positive_rate": 0.9085
     }
   ],
   "roc_curve": [
@@ -66,316 +62,316 @@
       "tpr": 0.0
     },
     {
-      "fpr": 0.0,
-      "tpr": 0.1022
+      "fpr": 0.0003,
+      "tpr": 0.2878
     },
     {
-      "fpr": 0.0,
-      "tpr": 0.3343
+      "fpr": 0.003,
+      "tpr": 0.4977
     },
     {
-      "fpr": 0.002,
-      "tpr": 0.6272
+      "fpr": 0.0066,
+      "tpr": 0.592
     },
     {
-      "fpr": 0.0044,
-      "tpr": 0.6993
+      "fpr": 0.0107,
+      "tpr": 0.6645
     },
     {
-      "fpr": 0.0068,
-      "tpr": 0.7395
+      "fpr": 0.0156,
+      "tpr": 0.7232
     },
     {
-      "fpr": 0.0096,
-      "tpr": 0.7736
+      "fpr": 0.0213,
+      "tpr": 0.7708
     },
     {
-      "fpr": 0.0127,
-      "tpr": 0.7969
+      "fpr": 0.0275,
+      "tpr": 0.8089
     },
     {
-      "fpr": 0.016,
-      "tpr": 0.8156
+      "fpr": 0.0345,
+      "tpr": 0.8416
     },
     {
-      "fpr": 0.0197,
-      "tpr": 0.8327
+      "fpr": 0.0427,
+      "tpr": 0.8705
     },
     {
-      "fpr": 0.0233,
-      "tpr": 0.8484
+      "fpr": 0.0526,
+      "tpr": 0.8964
     },
     {
-      "fpr": 0.0274,
-      "tpr": 0.8605
+      "fpr": 0.0635,
+      "tpr": 0.92
     },
     {
-      "fpr": 0.0327,
-      "tpr": 0.8729
+      "fpr": 0.0773,
+      "tpr": 0.941
     },
     {
-      "fpr": 0.0375,
-      "tpr": 0.8837
+      "fpr": 0.0961,
+      "tpr": 0.9599
     },
     {
-      "fpr": 0.0424,
-      "tpr": 0.8931
+      "fpr": 0.1243,
+      "tpr": 0.9763
     },
     {
-      "fpr": 0.048,
-      "tpr": 0.9046
+      "fpr": 0.1784,
+      "tpr": 0.9907
     },
     {
-      "fpr": 0.053,
-      "tpr": 0.9146
+      "fpr": 0.3135,
+      "tpr": 0.9995
     },
     {
-      "fpr": 0.0597,
-      "tpr": 0.9234
-    },
-    {
-      "fpr": 0.0674,
-      "tpr": 0.9313
-    },
-    {
-      "fpr": 0.0744,
-      "tpr": 0.94
-    },
-    {
-      "fpr": 0.0831,
-      "tpr": 0.9483
-    },
-    {
-      "fpr": 0.0953,
-      "tpr": 0.9555
-    },
-    {
-      "fpr": 0.1065,
-      "tpr": 0.9631
-    },
-    {
-      "fpr": 0.1234,
-      "tpr": 0.9707
-    },
-    {
-      "fpr": 0.1435,
-      "tpr": 0.9774
-    },
-    {
-      "fpr": 0.1749,
-      "tpr": 0.9844
-    },
-    {
-      "fpr": 0.2124,
-      "tpr": 0.9911
-    },
-    {
-      "fpr": 0.2643,
-      "tpr": 0.9972
-    },
-    {
-      "fpr": 0.5509,
+      "fpr": 0.5162,
       "tpr": 1.0
     },
     {
-      "fpr": 0.6144,
+      "fpr": 0.5889,
       "tpr": 1.0
     },
     {
-      "fpr": 0.8856,
+      "fpr": 0.6284,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.6572,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.6828,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.7085,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.7337,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.7583,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.7838,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.809,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.8379,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.8679,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.904,
+      "tpr": 1.0
+    },
+    {
+      "fpr": 0.9988,
       "tpr": 1.0
     }
   ],
   "pr_curve": [
     {
       "recall": 1.0,
-      "precision": 0.262
+      "precision": 0.1979
     },
     {
       "recall": 1.0,
-      "precision": 0.3805
+      "precision": 0.2284
     },
     {
       "recall": 1.0,
-      "precision": 0.3942
+      "precision": 0.2446
     },
     {
       "recall": 1.0,
-      "precision": 0.4088
+      "precision": 0.2609
     },
     {
       "recall": 1.0,
-      "precision": 0.4245
+      "precision": 0.2758
     },
     {
       "recall": 1.0,
-      "precision": 0.4414
+      "precision": 0.29
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.3031
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.317
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.3316
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.3474
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.3646
+    },
+    {
+      "recall": 1.0,
+      "precision": 0.3834
     },
     {
       "recall": 0.9999,
-      "precision": 0.4598
+      "precision": 0.4044
     },
     {
-      "recall": 0.9999,
-      "precision": 0.4797
-    },
-    {
-      "recall": 0.9998,
-      "precision": 0.5013
+      "recall": 0.9997,
+      "precision": 0.4278
     },
     {
       "recall": 0.9991,
-      "precision": 0.5246
+      "precision": 0.4541
     },
     {
-      "recall": 0.9985,
-      "precision": 0.5503
+      "recall": 0.998,
+      "precision": 0.4835
     },
     {
-      "recall": 0.9969,
-      "precision": 0.5781
+      "recall": 0.9964,
+      "precision": 0.5166
     },
     {
-      "recall": 0.9939,
-      "precision": 0.6081
+      "recall": 0.9937,
+      "precision": 0.554
     },
     {
-      "recall": 0.989,
-      "precision": 0.6403
+      "recall": 0.9884,
+      "precision": 0.5957
     },
     {
-      "recall": 0.983,
-      "precision": 0.6757
+      "recall": 0.9799,
+      "precision": 0.6431
     },
     {
-      "recall": 0.9754,
-      "precision": 0.7147
+      "recall": 0.9658,
+      "precision": 0.6954
     },
     {
-      "recall": 0.9644,
-      "precision": 0.7565
+      "recall": 0.9409,
+      "precision": 0.7505
     },
     {
-      "recall": 0.949,
-      "precision": 0.801
+      "recall": 0.8992,
+      "precision": 0.805
     },
     {
-      "recall": 0.9243,
-      "precision": 0.8441
+      "recall": 0.8414,
+      "precision": 0.858
     },
     {
-      "recall": 0.8902,
-      "precision": 0.8857
+      "recall": 0.7637,
+      "precision": 0.9026
     },
     {
-      "recall": 0.8491,
-      "precision": 0.9279
+      "recall": 0.6662,
+      "precision": 0.938
     },
     {
-      "recall": 0.7916,
-      "precision": 0.9592
+      "recall": 0.549,
+      "precision": 0.9671
     },
     {
-      "recall": 0.7195,
-      "precision": 0.9784
+      "recall": 0.4225,
+      "precision": 0.9867
     },
     {
-      "recall": 0.6388,
-      "precision": 0.9898
+      "recall": 0.2896,
+      "precision": 0.9959
     },
     {
-      "recall": 0.553,
-      "precision": 0.9956
+      "recall": 0.1499,
+      "precision": 0.9989
     },
     {
-      "recall": 0.4647,
-      "precision": 0.9984
-    },
-    {
-      "recall": 0.3753,
-      "precision": 0.9998
-    },
-    {
-      "recall": 0.2834,
-      "precision": 1.0
-    },
-    {
-      "recall": 0.1914,
-      "precision": 1.0
-    },
-    {
-      "recall": 0.0978,
-      "precision": 1.0
-    },
-    {
-      "recall": 0.0006,
+      "recall": 0.0001,
       "precision": 1.0
     }
   ],
   "feature_importances": [
     {
       "feature": "rain_24h_mm",
-      "importance": 0.6135
+      "importance": 0.6227
     },
     {
       "feature": "flow_accumulation",
-      "importance": 0.1774
-    },
-    {
-      "feature": "rain_12h_mm",
-      "importance": 0.04
+      "importance": 0.0838
     },
     {
       "feature": "historical_flood_frequency",
-      "importance": 0.0366
+      "importance": 0.0545
     },
     {
       "feature": "elevation_m",
-      "importance": 0.0218
-    },
-    {
-      "feature": "impervious_surface_ratio",
-      "importance": 0.0213
-    },
-    {
-      "feature": "rain_6h_mm",
-      "importance": 0.0152
+      "importance": 0.0452
     },
     {
       "feature": "slope_deg",
-      "importance": 0.0148
+      "importance": 0.0417
     },
     {
-      "feature": "rain_1h_mm",
-      "importance": 0.0116
+      "feature": "impervious_surface_ratio",
+      "importance": 0.0327
     },
     {
-      "feature": "drainage_density",
-      "importance": 0.0112
+      "feature": "rain_6h_mm",
+      "importance": 0.0254
     },
     {
-      "feature": "distance_to_water_m",
-      "importance": 0.0111
+      "feature": "rain_12h_mm",
+      "importance": 0.0158
     },
     {
       "feature": "road_density_km_km2",
-      "importance": 0.0079
+      "importance": 0.0153
+    },
+    {
+      "feature": "drainage_density",
+      "importance": 0.0141
+    },
+    {
+      "feature": "rain_1h_mm",
+      "importance": 0.0133
+    },
+    {
+      "feature": "distance_to_water_m",
+      "importance": 0.0106
+    },
+    {
+      "feature": "rain_3h_mm",
+      "importance": 0.0094
+    },
+    {
+      "feature": "building_density",
+      "importance": 0.0092
     },
     {
       "feature": "rain_72h_mm",
       "importance": 0.0046
     },
     {
-      "feature": "building_density",
-      "importance": 0.0045
-    },
-    {
-      "feature": "rain_3h_mm",
-      "importance": 0.0043
-    },
-    {
       "feature": "rain_change_rate",
-      "importance": 0.0041
+      "importance": 0.0018
     },
     {
       "feature": "rain_intensity_mm_h",

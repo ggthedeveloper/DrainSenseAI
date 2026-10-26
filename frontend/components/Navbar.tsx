@@ -138,6 +138,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Corridor:</span>
               <span className="text-cyan-300 font-semibold">{currentCityObj.river}</span>
             </div>
+
+            {/* Verified Real Data Badge */}
+            {(selectedCity === "VJA" || selectedCity === "CHE") && (
+              <div className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Copernicus DEM & ERA5 Real Data</span>
+              </div>
+            )}
           </div>
 
           {/* Right: Telemetry Badge, Overview Link, Jury Demo */}

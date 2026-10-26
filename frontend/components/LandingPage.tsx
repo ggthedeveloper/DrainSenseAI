@@ -37,12 +37,12 @@ interface LandingPageProps {
 }
 
 const METRO_BASINS = [
-  { id: "VJA", name: "Vijayawada / Amaravati", state: "Andhra Pradesh", river: "Krishna & Budameru Corridor", grids: 1420, risk: "CRITICAL" },
-  { id: "CHE", name: "Chennai", state: "Tamil Nadu", river: "Adyar, Cooum & Buckingham Canal", grids: 2150, risk: "HIGH" },
-  { id: "BOM", name: "Mumbai", state: "Maharashtra", river: "Mithi River & Coastal Subways", grids: 2480, risk: "HIGH" },
-  { id: "BLR", name: "Bengaluru", state: "Karnataka", river: "Bellandur & Varthur Lake Valley", grids: 1980, risk: "ELEVATED" },
-  { id: "DEL", name: "Delhi NCR", state: "Delhi", river: "Yamuna Floodplain & Najafgarh Drain", grids: 2890, risk: "HIGH" },
-  { id: "HYD", name: "Hyderabad", state: "Telangana", river: "Musi River & Hussain Sagar Weir", grids: 1840, risk: "ELEVATED" }
+  { id: "VJA", name: "Vijayawada / Amaravati", state: "Andhra Pradesh", river: "Krishna & Budameru Corridor", grids: 810, risk: "CRITICAL", realData: true },
+  { id: "CHE", name: "Chennai", state: "Tamil Nadu", river: "Adyar, Cooum & Buckingham Canal", grids: 1485, risk: "HIGH", realData: true },
+  { id: "BOM", name: "Mumbai", state: "Maharashtra", river: "Mithi River & Coastal Subways", grids: 2480, risk: "HIGH", realData: false },
+  { id: "BLR", name: "Bengaluru", state: "Karnataka", river: "Bellandur & Varthur Lake Valley", grids: 1980, risk: "ELEVATED", realData: false },
+  { id: "DEL", name: "Delhi NCR", state: "Delhi", river: "Yamuna Floodplain & Najafgarh Drain", grids: 2890, risk: "HIGH", realData: false },
+  { id: "HYD", name: "Hyderabad", state: "Telangana", river: "Musi River & Hussain Sagar Weir", grids: 1840, risk: "ELEVATED", realData: false }
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -457,9 +457,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
-                      {b.id}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
+                        {b.id}
+                      </span>
+                      {b.realData && (
+                        <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
+                          Real Data
+                        </span>
+                      )}
+                    </div>
                     <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${
                       b.risk === "CRITICAL" ? "bg-red-500/20 text-red-400 border border-red-500/30" :
                       b.risk === "HIGH" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :

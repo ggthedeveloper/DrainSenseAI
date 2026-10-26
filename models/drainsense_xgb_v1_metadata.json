@@ -1,7 +1,7 @@
 {
   "model_version": "v1.0",
   "model_type": "XGBoost Classifier (Calibrated with Sigmoid)",
-  "training_timestamp": "2026-09-11T08:03:53.915616Z",
+  "training_timestamp": "2026-10-26T09:38:07.201059Z",
   "dataset_path": "data/processed/drainsense_train_dataset.csv",
   "total_samples": 776890,
   "test_samples": 155378,
@@ -49,184 +49,184 @@
   },
   "metrics_comparison": {
     "Dummy Baseline": {
-      "precision": 0.1864,
-      "recall": 0.1868,
-      "f1_score": 0.1866,
-      "roc_auc": 0.4999,
-      "pr_auc": 0.1865,
-      "brier_score": 0.3037,
-      "recall_at_high_risk": 0.1868,
-      "train_time_sec": 0.038,
+      "precision": 0.1949,
+      "recall": 0.1954,
+      "f1_score": 0.1952,
+      "roc_auc": 0.4981,
+      "pr_auc": 0.1973,
+      "brier_score": 0.319,
+      "recall_at_high_risk": 0.1954,
+      "train_time_sec": 0.027,
       "confusion_matrix": [
         [
-          102767,
-          23628
+          99811,
+          24820
         ],
         [
-          23568,
-          5415
+          24738,
+          6009
         ]
       ]
     },
     "Logistic Regression": {
-      "precision": 0.7158,
-      "recall": 0.9392,
-      "f1_score": 0.8124,
-      "roc_auc": 0.9761,
-      "pr_auc": 0.8861,
-      "brier_score": 0.06,
-      "recall_at_high_risk": 0.87,
-      "train_time_sec": 0.688,
+      "precision": 0.733,
+      "recall": 0.9309,
+      "f1_score": 0.8201,
+      "roc_auc": 0.976,
+      "pr_auc": 0.8948,
+      "brier_score": 0.0597,
+      "recall_at_high_risk": 0.8625,
+      "train_time_sec": 0.585,
       "confusion_matrix": [
         [
-          115588,
-          10807
+          114203,
+          10428
         ],
         [
-          1762,
-          27221
+          2125,
+          28622
         ]
       ]
     },
     "Random Forest": {
-      "precision": 0.7008,
-      "recall": 0.951,
-      "f1_score": 0.807,
-      "roc_auc": 0.9802,
-      "pr_auc": 0.9224,
-      "brier_score": 0.0593,
-      "recall_at_high_risk": 0.8955,
-      "train_time_sec": 16.451,
+      "precision": 0.7219,
+      "recall": 0.9486,
+      "f1_score": 0.8199,
+      "roc_auc": 0.9805,
+      "pr_auc": 0.927,
+      "brier_score": 0.0576,
+      "recall_at_high_risk": 0.8898,
+      "train_time_sec": 12.989,
       "confusion_matrix": [
         [
-          114629,
-          11766
+          113397,
+          11234
         ],
         [
-          1420,
-          27563
+          1579,
+          29168
         ]
       ]
     },
     "XGBoost": {
-      "precision": 0.7139,
-      "recall": 0.9507,
-      "f1_score": 0.8155,
-      "roc_auc": 0.982,
-      "pr_auc": 0.9303,
-      "brier_score": 0.0567,
-      "recall_at_high_risk": 0.902,
-      "train_time_sec": 1.487,
+      "precision": 0.7337,
+      "recall": 0.9502,
+      "f1_score": 0.8281,
+      "roc_auc": 0.9824,
+      "pr_auc": 0.935,
+      "brier_score": 0.0553,
+      "recall_at_high_risk": 0.8988,
+      "train_time_sec": 1.182,
       "confusion_matrix": [
         [
-          115354,
-          11041
+          114029,
+          10602
         ],
         [
-          1430,
-          27553
+          1531,
+          29216
         ]
       ]
     },
     "XGBoost (Calibrated)": {
-      "precision": 0.7965,
-      "recall": 0.8897,
-      "f1_score": 0.8405,
-      "roc_auc": 0.982,
-      "pr_auc": 0.9304,
-      "brier_score": 0.0442,
-      "recall_at_high_risk": 0.803,
+      "precision": 0.8146,
+      "recall": 0.8903,
+      "f1_score": 0.8508,
+      "roc_auc": 0.9823,
+      "pr_auc": 0.9346,
+      "brier_score": 0.0446,
+      "recall_at_high_risk": 0.8245,
       "confusion_matrix": [
         [
-          119809,
-          6586
+          118402,
+          6229
         ],
         [
-          3198,
-          25785
+          3373,
+          27374
         ]
       ]
     }
   },
   "active_model_metrics": {
-    "precision": 0.7965,
-    "recall": 0.8897,
-    "f1_score": 0.8405,
-    "roc_auc": 0.982,
-    "pr_auc": 0.9304,
-    "brier_score": 0.0442,
-    "recall_at_high_risk": 0.803,
+    "precision": 0.8146,
+    "recall": 0.8903,
+    "f1_score": 0.8508,
+    "roc_auc": 0.9823,
+    "pr_auc": 0.9346,
+    "brier_score": 0.0446,
+    "recall_at_high_risk": 0.8245,
     "confusion_matrix": [
       [
-        119809,
-        6586
+        118402,
+        6229
       ],
       [
-        3198,
-        25785
+        3373,
+        27374
       ]
     ]
   },
   "feature_importances": [
     {
       "feature": "rain_24h_mm",
-      "importance": 0.6497
+      "importance": 0.6227
     },
     {
       "feature": "flow_accumulation",
-      "importance": 0.1418
+      "importance": 0.0838
     },
     {
       "feature": "historical_flood_frequency",
-      "importance": 0.048
-    },
-    {
-      "feature": "impervious_surface_ratio",
-      "importance": 0.032
-    },
-    {
-      "feature": "rain_6h_mm",
-      "importance": 0.0258
-    },
-    {
-      "feature": "distance_to_water_m",
-      "importance": 0.0207
-    },
-    {
-      "feature": "rain_12h_mm",
-      "importance": 0.0164
-    },
-    {
-      "feature": "slope_deg",
-      "importance": 0.0144
-    },
-    {
-      "feature": "drainage_density",
-      "importance": 0.0125
-    },
-    {
-      "feature": "building_density",
-      "importance": 0.0108
+      "importance": 0.0545
     },
     {
       "feature": "elevation_m",
-      "importance": 0.0089
+      "importance": 0.0452
+    },
+    {
+      "feature": "slope_deg",
+      "importance": 0.0417
+    },
+    {
+      "feature": "impervious_surface_ratio",
+      "importance": 0.0327
+    },
+    {
+      "feature": "rain_6h_mm",
+      "importance": 0.0254
+    },
+    {
+      "feature": "rain_12h_mm",
+      "importance": 0.0158
     },
     {
       "feature": "road_density_km_km2",
-      "importance": 0.0071
+      "importance": 0.0153
     },
     {
-      "feature": "rain_3h_mm",
-      "importance": 0.0045
-    },
-    {
-      "feature": "rain_72h_mm",
-      "importance": 0.0032
+      "feature": "drainage_density",
+      "importance": 0.0141
     },
     {
       "feature": "rain_1h_mm",
-      "importance": 0.0025
+      "importance": 0.0133
+    },
+    {
+      "feature": "distance_to_water_m",
+      "importance": 0.0106
+    },
+    {
+      "feature": "rain_3h_mm",
+      "importance": 0.0094
+    },
+    {
+      "feature": "building_density",
+      "importance": 0.0092
+    },
+    {
+      "feature": "rain_72h_mm",
+      "importance": 0.0046
     },
     {
       "feature": "rain_change_rate",

@@ -264,7 +264,10 @@ class RiskInferenceService:
 
         geojson_features = []
         geojson_data = self.city_geojsons.get(cid, {})
-        geom_map = {f["id"]: f["geometry"] for f in geojson_data.get("features", [])}
+        geom_map = {
+            f.get("id") or f.get("properties", {}).get("grid_id"): f["geometry"]
+            for f in geojson_data.get("features", [])
+        }
 
         for _, row in df.iterrows():
             gid = row["grid_id"]
