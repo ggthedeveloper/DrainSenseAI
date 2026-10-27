@@ -41,12 +41,13 @@ export const TRANSLATIONS = {
     navHistorical: "Historical Deluges",
     navAnalytics: "Model Analytics",
     navReports: "Municipal Reports",
+    navSources: "Data Sources & Provenance",
     navHealth: "Data & System Health",
     navSettings: "System Settings",
 
     // Header & City
     citySelectLabel: "Active Municipal Catchment",
-    monitoredCitiesCount: "12 Flood-Prone Cities",
+    monitoredCitiesCount: "2 Verified Metros (VJA & CHE)",
     liveTelemetry: "Telemetry Live",
     juryDemoButton: "Jury Demo Mode",
 
@@ -209,12 +210,13 @@ export const TRANSLATIONS = {
     navHistorical: "ऐतिहासिक बाढ़ आपदाएं",
     navAnalytics: "मॉडल एनालिटिक्स",
     navReports: "नगरपालिका रिपोर्ट",
+    navSources: "डेटा स्रोत और लिंक (Data Sources)",
     navHealth: "डेटा और सिस्टम स्वास्थ्य",
     navSettings: "सिस्टम सेटिंग्स",
 
     // Header & City
     citySelectLabel: "सक्रिय नगरपालिका जलक्षेत्र",
-    monitoredCitiesCount: "12 बाढ़-संवेदनशील शहर",
+    monitoredCitiesCount: "2 सत्यापित शहर (VJA और CHE)",
     liveTelemetry: "टेलीमेट्री सक्रिय",
     juryDemoButton: "जूरी डेमो मोड",
 
@@ -377,12 +379,13 @@ export const TRANSLATIONS = {
     navHistorical: "చారిత్రక వరదలు",
     navAnalytics: "మోడల్ విశ్లేషణ",
     navReports: "మున్సిపల్ నివేదికలు",
+    navSources: "డేటా వనరులు & లింకులు (Data Sources)",
     navHealth: "డేటా & సిస్టమ్ స్థితి",
     navSettings: "సిస్టమ్ సెట్టింగులు",
 
     // Header & City
     citySelectLabel: "ప్రస్తుత మున్సిపల్ పరిధి",
-    monitoredCitiesCount: "12 వరద ముప్పు గల నగరాలు",
+    monitoredCitiesCount: "2 ధృవీకరించబడిన నగరాలు (VJA & CHE)",
     liveTelemetry: "టెలిమెట్రీ సక్రియం",
     juryDemoButton: "జ్యూరీ డెమో మోడ్",
 

@@ -17,6 +17,7 @@ import { AlertsManager } from "../components/AlertsManager";
 import { ReportsGenerator } from "../components/ReportsGenerator";
 import { SettingsPage } from "../components/SettingsPage";
 import { ResourceOptimizerModal } from "../components/ResourceOptimizerModal";
+import { DataSources } from "../components/DataSources";
 
 import { RiskMapGeoJSON, RiskSummary, ZoneDetail, PriorityZoneItem, CascadeTraceResponse } from "../types";
 import { 
@@ -475,6 +476,9 @@ export default function DashboardPage() {
 
           {/* Tab 6: Model Analytics */}
           {activeTab === "analytics" && <ModelAnalytics />}
+
+          {/* Tab 6b: Data Sources & Provenance */}
+          {activeTab === "sources" && <DataSources />}
 
           {/* Tab 7: Municipal Reports */}
           {activeTab === "reports" && (

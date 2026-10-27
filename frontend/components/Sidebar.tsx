@@ -66,6 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "priority", label: t.navPriority, icon: ListOrdered },
     { id: "historical", label: t.navHistorical, icon: History },
     { id: "analytics", label: t.navAnalytics, icon: LineChart },
+    { id: "sources", label: t.navSources || "Data Sources", icon: Database },
     { id: "reports", label: t.navReports, icon: FileText },
     { id: "settings", label: t.navSettings, icon: Settings },
   ];

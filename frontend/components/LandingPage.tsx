@@ -23,7 +23,9 @@ import {
   Droplets,
   Network,
   Compass,
-  ArrowDown
+  ArrowDown,
+  Database,
+  ExternalLink
 } from "lucide-react";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
 import { UserSession, setStoredSession } from "../lib/auth";
@@ -164,6 +166,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <a href="#about" className="hover:text-white transition-colors">About</a>
               <a href="#basins" className="hover:text-white transition-colors">Users & Basins</a>
               <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
+              <a href="#sources" className="hover:text-white transition-colors flex items-center gap-1">
+                <span>Data Sources</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-mono">Real</span>
+              </a>
               <a href="#team" className="hover:text-white transition-colors">Team</a>
             </div>
 
@@ -508,6 +514,225 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 5.5 VERIFIED DATA SOURCES & TELEMETRY PROVENANCE               */}
+      {/* ============================================================== */}
+      <section id="sources" className="py-20 bg-[#070E1B] border-t border-white/10 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 w-fit mx-auto">
+              <Database className="w-3.5 h-3.5" /> 100% Real Earth Data Provenance
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
+              Open Data Sources &amp; Verification Links
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+              DrainSenseAI operates strictly on verified Earth observations, satellite elevation datums, meteorological reanalysis, and published Kaggle flood benchmarks. Click below to inspect official source repositories.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Source 1: Copernicus DEM */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-blue-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                    European Space Agency
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-mono">30m DEM</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors">
+                  Copernicus 30m Global DEM
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Real satellite surface elevations mapped across 2,295 spatial cells. Derived 2D finite-difference gradient slopes (0.0° to 13.17°).
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  VJA: 7.0m - 246m | CHE: 0.0m - 110m AMSL
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">Open-Meteo API</span>
+                <a
+                  href="https://open-meteo.com/en/docs/elevation-api"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>API Docs</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Source 2: ERA5 Telemetry */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    ECMWF Copernicus
+                  </span>
+                  <span className="text-[10px] text-cyan-400 font-mono">Hourly Telemetry</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  ERA5 Precipitation Telemetry
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  1,008 hours of real continuous hourly rainfall observations for the Budameru 2024 cloudburst (513.7mm) and Cyclone Michaung 2023 (434.8mm).
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  Rolling windows: 1h, 3h, 6h, 12h, 24h, 72h
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">Copernicus Archive</span>
+                <a
+                  href="https://open-meteo.com/en/docs/historical-weather-api"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Weather API</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Source 3: Kaggle Chennai Water Management */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-purple-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    Kaggle Ground Truth
+                  </span>
+                  <span className="text-[10px] text-purple-400 font-mono">Reservoir Inundation</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">
+                  Kaggle Chennai Water Dataset
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Historical reservoir storage (mcft) and surplus discharge from Chembarambakkam, Poondi, and Red Hills reservoirs during catastrophic deluges.
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  Dataset: anuragkanaujia/chennai-water-management
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">Kaggle Open Data</span>
+                <a
+                  href="https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View Dataset</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Source 4: Kaggle Chennai Rainfall Archive */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Kaggle Benchmark
+                  </span>
+                  <span className="text-[10px] text-amber-400 font-mono">1990 - Present</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors">
+                  Kaggle Chennai Rainfall Series
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Decadal daily meteorological precipitation records used for extreme event return period calibration and historical flood benchmarking.
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  Dataset: sudalairajkumar/chennai-rainfall-data
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">Kaggle Archive</span>
+                <a
+                  href="https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View Dataset</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Source 5: OSM Overpass Waterway Centrelines */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    OpenStreetMap Foundation
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-mono">Vector Centrelines</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-emerald-300 transition-colors">
+                  OSM Overpass Drainage Network
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Geodesic vector waterways for Krishna, Budameru, Adyar, Cooum, and Buckingham canal. Computes haversine distance-to-water for all cells.
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  Query: way[&quot;waterway&quot;] via Overpass API
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">Overpass Turbo</span>
+                <a
+                  href="https://overpass-turbo.eu/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Overpass Turbo</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Source 6: USDA-NRCS SCS Curve Number Physics */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-indigo-500/40 transition-all flex flex-col justify-between shadow-xl group">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    USDA-NRCS Standard
+                  </span>
+                  <span className="text-[10px] text-indigo-400 font-mono">Hydro-Physics Law</span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors">
+                  SCS-CN Mass Balance Physics Guardrail
+                </h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  National Engineering Handbook mass-balance equations governing runoff depth Q and potential retention S to prevent unphysical AI predictions.
+                </p>
+                <div className="mt-3 p-2 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 border border-slate-800">
+                  Q = (P - 0.2·S)² / (P + 0.8·S)
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-mono">USDA Handbook</span>
+                <a
+                  href="https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Handbook NEH-4</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
