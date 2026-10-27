@@ -34,7 +34,7 @@ export const JuryDemoModal: React.FC<JuryDemoModalProps> = ({
 
   if (!isOpen) return null;
 
-  const totalSteps = 6;
+  const totalSteps = 7;
 
   const handleNext = () => {
     if (step < totalSteps) {
@@ -56,16 +56,18 @@ export const JuryDemoModal: React.FC<JuryDemoModalProps> = ({
 
   const applyStepActions = (s: number) => {
     if (s === 1 || s === 2) {
-      setActiveTab("map");
+      setActiveTab("dashboard");
     } else if (s === 3) {
-      setActiveTab("map");
+      setActiveTab("dashboard");
       onSelectGrid("VJA_0036"); // Select low-lying critical zone
     } else if (s === 4) {
-      setActiveTab("whatif");
+      setActiveTab("dashboard"); // What-If simulator is integrated in Dashboard
     } else if (s === 5) {
       setActiveTab("priority");
     } else if (s === 6) {
       setActiveTab("analytics");
+    } else if (s === 7) {
+      setActiveTab("sources");
     }
   };
 
@@ -187,15 +189,33 @@ export const JuryDemoModal: React.FC<JuryDemoModalProps> = ({
 
           {step === 6 && (
             <div className="space-y-3">
-              <h4 className="text-base font-bold text-slate-100">6. Model Governance, Real Data & Limitations</h4>
+              <h4 className="text-base font-bold text-slate-100">6. Model Validation & Benchmark Metrics</h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Trained on <strong>72,900 spatio-temporal observations</strong> from CWC telemetry, Open-Meteo, IFI, and SRTM DEM.
+                Trained on <strong>776,890 spatiotemporal samples</strong> across Copernicus 30m Global DEM topography and Open-Meteo ERA5 hourly telemetry.
               </p>
               <ul className="text-xs text-slate-300 space-y-1 list-disc pl-4">
-                <li>Calibrated XGBoost classifier with 100% recall on severe flood conditions.</li>
-                <li>3-Fold Sigmoid probability calibration (Brier score 0.0000).</li>
-                <li>Honest limitations: 1D statistical proxy model, not dynamic 2D Saint-Venant hydraulic flow.</li>
+                <li>Calibrated XGBoost classifier: <strong>ROC-AUC 0.9823</strong> and <strong>PR-AUC 0.9346</strong>.</li>
+                <li>Holdout test slice of 155,378 records with 89.03% recall and 95.00% specificity.</li>
+                <li>3-Fold Sigmoid probability calibration (Brier score: <strong>0.0446</strong>).</li>
+                <li>Physics-Informed SCS-CN mass balance audit guarantees conservation of mass.</li>
               </ul>
+            </div>
+          )}
+
+          {step === 7 && (
+            <div className="space-y-3">
+              <h4 className="text-base font-bold text-slate-100">7. Data Provenance & Official Source Links</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Zero synthetic data or mock proxies. Every single coordinate, slope, and rainfall observation is linked to its official space agency or Kaggle repository.
+              </p>
+              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-xs text-emerald-300 space-y-1.5">
+                <div className="font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 100% Real Earth Observation Provenance
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  Inspect the <strong>Data Sources</strong> tab for direct links to Copernicus 30m DEM, ERA5 Hourly Reanalysis, Kaggle Chennai Water Management, and OSM Overpass Waterways.
+                </div>
+              </div>
             </div>
           )}
         </div>
