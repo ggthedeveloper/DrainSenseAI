@@ -21,11 +21,10 @@ def test_cities_endpoint():
     response = client.get("/api/v1/cities")
     assert response.status_code == 200
     cities = response.json()
-    assert len(cities) >= 12
+    assert len(cities) == 2
     assert any(c["city_id"] == "VJA" for c in cities)
-    assert any(c["city_id"] == "DEL" for c in cities)
-    assert any(c["city_id"] == "HYD" for c in cities)
-    assert any(c["city_id"] == "PAT" for c in cities)
+    assert any(c["city_id"] == "CHE" for c in cities)
+    assert all(c["status"] == "VERIFIED_REAL_DATA" for c in cities)
 
 def test_current_risk_summary():
     response = client.get("/api/v1/risk/current")
