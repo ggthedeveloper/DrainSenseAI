@@ -189,9 +189,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </nav>
 
       {/* ============================================================== */}
-      {/* 2. HERO SECTION (Exact RailSamanvayAI Proportions & Typography)*/}
+      {/* 2. HERO SECTION (Viewport Stable & High-Contrast Typography)  */}
       {/* ============================================================== */}
-      <section className="relative min-h-[calc(100vh-4.5rem)] flex items-center overflow-hidden">
+      <section className="relative min-h-[100dvh] flex items-center overflow-hidden pt-20 sm:pt-24 pb-16">
         {/* Full-bleed high-res urban monsoon deluge backdrop */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none scale-100 opacity-85 brightness-110 contrast-105 z-0"
@@ -199,14 +199,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         />
 
         {/* Left-side dark gradient overlay for optimal high contrast text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070E1B] via-[#070E1B]/75 to-transparent pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070E1B]/80 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070E1B] via-[#070E1B]/80 to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070E1B]/90 via-transparent to-transparent pointer-events-none z-0" />
 
         {/* Content Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="max-w-3xl">
             {/* Eyebrow Header with Indian Tricolor Accent Strip */}
-            <div className="mb-2">
+            <div className="mb-3">
               <span className="text-xs sm:text-sm font-bold text-slate-300 tracking-widest uppercase">
                 MINISTRY OF JAL SHAKTI • NDMA INDIA
               </span>
@@ -221,7 +221,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             {/* Subheading */}
             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-slate-200 mb-4 max-w-2xl leading-snug">
-              AI-Powered Urban Drainage & Hydro-Cascade Nowcasting
+              Urban Drainage &amp; Hydro-Cascade Nowcasting
             </h2>
 
             {/* Description Paragraph */}
@@ -243,15 +243,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </button>
 
               <a
-                href="#how-it-works"
-                className="bg-slate-900/70 hover:bg-slate-800/80 border border-white/15 text-slate-200 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl backdrop-blur-md flex items-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+                href="#about"
+                className="bg-slate-900/80 hover:bg-slate-800/90 border border-white/15 text-slate-200 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               >
-                <span>Explore How It Works</span>
+                <span>Explore Architecture</span>
                 <ArrowDown className="w-4 h-4 text-slate-400" />
               </a>
             </div>
 
-            {/* Bottom Left Attribution (Matches RailSamanvayAI) */}
+            {/* Bottom Left Attribution */}
             <div className="border-l-2 border-slate-600 pl-3.5 py-0.5">
               <div className="text-xs text-slate-300 font-medium">
                 Developed by <span className="text-blue-400 font-bold">Group 02</span>
@@ -265,51 +265,116 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* ============================================================== */}
-      {/* 3. ABOUT SECTION                                               */}
+      {/* 3. ABOUT SECTION (Asymmetric Bento Grid - Anti-Slop Rhythm)   */}
       {/* ============================================================== */}
-      <section id="about" className="py-20 bg-[#0B1220] border-t border-white/10 relative z-10">
+      <section id="about" className="py-24 bg-[#0B1220] border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-              Urban Deluge Resilience
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
-              Why Traditional Flood Systems Fail
+          <div className="max-w-3xl mb-14">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+              Why traditional municipal flood systems fail
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Urban flooding is not a static 2D problem. Cloudburst deluges overwhelm arterial channels, causing backward sump tailback and cascading downstream inundation. DrainSenseAI closes this operational gap.
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed mt-4 max-w-2xl">
+              Urban flooding is not a static 2D elevation problem. Cloudburst deluges overwhelm arterial channels, causing backward sump tailback and cascading downstream inundation within 90 minutes.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md">
-              <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mb-4">
-                <AlertCircle className="w-6 h-6" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Cell 1: Col-span 2 - The Urban Inundation Crisis with Real Incident Telemetry */}
+            <div className="lg:col-span-2 p-7 sm:p-8 rounded-3xl bg-slate-900/70 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-blue-500/30 transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-inner">
+                    <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25">
+                    Critical Failure Mode
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">
+                  The Urban Inundation Crisis
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed mb-6 max-w-xl">
+                  Metros face catastrophic flooding when arterial conduits choke. In September 2024, the Budameru rivulet breach submerged 40% of Vijayawada within 2 hours. In December 2023, Cyclone Michaung dropped 434.8mm of rain on Chennai, overwhelming the Adyar basin.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">The Urban Inundation Crisis</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Metros like Vijayawada (Budameru), Chennai (Adyar), and Mumbai (Mithi) face catastrophic flooding within 90 minutes of cloudburst rainfall, paralyzing civic transit.
-              </p>
+
+              {/* Real Incident Telemetry Strip */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-800/80">
+                <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+                  <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wide">Vijayawada Budameru Breach</div>
+                  <div className="text-base font-extrabold text-rose-400 mt-1">513.7 mm / 72h</div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">810 cells mapped • 90-min crest lead time</div>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+                  <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wide">Chennai Cyclone Michaung</div>
+                  <div className="text-base font-extrabold text-amber-400 mt-1">434.8 mm / 48h</div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">1,485 cells mapped • Adyar canal spillover</div>
+                </div>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
-                <Layers className="w-6 h-6" />
+            {/* Cell 2: Col-span 1 - Directed Catchment Graph */}
+            <div className="lg:col-span-1 p-7 sm:p-8 rounded-3xl bg-slate-900/70 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shadow-inner mb-4">
+                  <Network className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Directed Catchment Graphs
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                  Traditional static GIS views fail because water moves dynamically along gravity gradients. DrainSenseAI constructs directed acyclic hydrological graphs (DAHG) with hydraulic velocity routing.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Topological Catchment Graphs</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Traditional static GIS maps lack connectivity. DrainSenseAI maps drainage networks as directed acyclic hydrological graphs (DAHG) with hydraulic lag times.
-              </p>
+
+              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 font-mono text-xs text-cyan-300">
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Manning Hydraulic Equation</div>
+                <div>v = (1/n) · R^(2/3) · S^(1/2)</div>
+                <div className="text-[11px] text-slate-400 mt-1">τ_lag = L / v (Inundation Arrival Lag)</div>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                <ShieldAlert className="w-6 h-6" />
+            {/* Cell 3: Full Width Col-span 3 - Autonomous Dispatch Engine with NDMA Form D-4 Action Plan */}
+            <div className="lg:col-span-3 p-7 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-900/90 via-[#0B1528] to-slate-900/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div className="lg:col-span-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-inner">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                    <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                      Operations Research Solver
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                    Autonomous Resource Dispatch Engine
+                  </h3>
+                  <p className="text-sm text-slate-300 leading-relaxed max-w-2xl">
+                    Rather than issuing passive flood alarms that overwhelm civic commanders, DrainSenseAI formulates integer linear programming (ILP) models to optimize heavy dewatering pump routing, super-sucker deployments, and rescue squad allocation. Directly outputs NDMA Form D-4 incident action plans.
+                  </p>
+                </div>
+
+                <div className="lg:col-span-1 bg-slate-950/90 rounded-2xl border border-slate-800 p-4 space-y-2.5">
+                  <div className="text-[11px] font-mono text-emerald-400 font-bold flex items-center justify-between">
+                    <span>NDMA FORM D-4 INCIDENT PLAN</span>
+                    <span className="text-emerald-500 font-mono text-[10px]">LIVE GENERATION</span>
+                  </div>
+                  <div className="text-xs text-slate-300 space-y-1.5 font-mono">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">High-Capacity Pumps:</span>
+                      <span className="text-white font-bold">12 Units Routed</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Super-Suckers:</span>
+                      <span className="text-white font-bold">6 Units Deployed</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Response Lead Time:</span>
+                      <span className="text-emerald-300 font-bold">&lt; 35 Minutes</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Autonomous Dispatch Engine</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Rather than passive alarms, DrainSense generates NDMA Form D-4 compliant deployment schedules for dewatering pumps, super-suckers, and rescue squads.
-              </p>
             </div>
           </div>
         </div>
@@ -318,23 +383,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ============================================================== */}
       {/* 4. HOW IT WORKS: FOUR SCIENTIFIC HYDRO-AI NOVELTIES           */}
       {/* ============================================================== */}
-      <section id="how-it-works" className="py-20 bg-[#070E1B] border-t border-white/10 relative z-10">
+      <section id="how-it-works" className="py-24 bg-[#070E1B] border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
-              Academic & Research Core
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
+          <div className="max-w-3xl mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               The Four Scientific Hydro-AI Novelties
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Evaluated on 2,295 high-resolution spatial grid cells across Vijayawada &amp; Chennai river basins with sub-15ms inference latency.
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed mt-4">
+              Evaluated across 2,295 high-resolution spatial grid cells with sub-15ms inference latency and deterministic physical boundary conditions.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Novelty 1 */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0B1220] border border-white/10 relative overflow-hidden group hover:border-blue-500/40 transition-all">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0B1220]/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-mono font-bold text-blue-400 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20">
                   NOVELTY 01
@@ -363,7 +425,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Novelty 2 */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0B1220] border border-white/10 relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0B1220]/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-mono font-bold text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   NOVELTY 02
@@ -392,7 +454,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Novelty 3 */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0B1220] border border-white/10 relative overflow-hidden group hover:border-cyan-500/40 transition-all">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0B1220]/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-cyan-500/40 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-mono font-bold text-cyan-400 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                   NOVELTY 03
@@ -421,7 +483,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Novelty 4 */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0B1220] border border-white/10 relative overflow-hidden group hover:border-amber-500/40 transition-all">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0B1220]/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl relative overflow-hidden group hover:border-amber-500/40 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-mono font-bold text-amber-400 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20">
                   NOVELTY 04
@@ -455,16 +517,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ============================================================== */}
       {/* 5. USERS & BASINS SECTION                                      */}
       {/* ============================================================== */}
-      <section id="basins" className="py-20 bg-[#0B1220] border-t border-white/10 relative z-10">
+      <section id="basins" className="py-24 bg-[#0B1220] border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-              Verified Real Data Deployments
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
+          <div className="max-w-3xl mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Real-World River Basin Deployments
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed mt-4">
               Standardized across 2,295 deterministic 500m × 500m spatial cells with Copernicus 30m Global DEM elevation, finite-difference gradient slopes, and real ERA5 hourly cloudburst telemetry.
             </p>
           </div>
@@ -473,7 +532,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {METRO_BASINS.map((b) => (
               <div 
                 key={b.id} 
-                className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-blue-500/40 transition-all flex flex-col justify-between shadow-xl"
+                className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-blue-500/40 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -521,23 +580,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ============================================================== */}
       {/* 5.5 VERIFIED DATA SOURCES & TELEMETRY PROVENANCE               */}
       {/* ============================================================== */}
-      <section id="sources" className="py-20 bg-[#070E1B] border-t border-white/10 relative z-10">
+      <section id="sources" className="py-24 bg-[#070E1B] border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 w-fit mx-auto">
+          <div className="max-w-3xl mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 w-fit mb-4">
               <Database className="w-3.5 h-3.5" /> 100% Real Earth Data Provenance
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Open Data Sources &amp; Verification Links
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed mt-4">
               DrainSenseAI operates strictly on verified Earth observations, satellite elevation datums, meteorological reanalysis, and published Kaggle flood benchmarks. Click below to inspect official source repositories.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Source 1: Copernicus DEM */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-blue-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-blue-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -570,7 +629,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Source 2: ERA5 Telemetry */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-cyan-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
@@ -603,7 +662,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Source 3: Kaggle Chennai Water Management */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-purple-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-purple-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
@@ -636,7 +695,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Source 4: Kaggle Chennai Rainfall Archive */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-amber-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
@@ -669,7 +728,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Source 5: OSM Overpass Waterway Centrelines */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-emerald-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -702,7 +761,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Source 6: USDA-NRCS SCS Curve Number Physics */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-indigo-500/40 transition-all flex flex-col justify-between shadow-xl group">
+            <div className="p-7 rounded-3xl bg-slate-900/80 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:border-indigo-500/40 transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
@@ -740,41 +799,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ============================================================== */}
       {/* 6. TEAM & SPECIFICATIONS SECTION                               */}
       {/* ============================================================== */}
-      <section id="team" className="py-20 bg-[#070E1B] border-t border-white/10 relative z-10">
+      <section id="team" className="py-24 bg-[#070E1B] border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
-              Academic Major Project
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">
+          <div className="max-w-3xl mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Group 02 Research Specifications
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Developed as a publication-ready major project for the Department of Computer Science & Engineering.
+            <p className="text-slate-400 text-sm sm:text-base leading-relaxed mt-4">
+              Developed as a publication-ready major project for the Department of Computer Science &amp; Engineering.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">
-              <div className="text-3xl font-extrabold text-blue-400 mb-1">2,295</div>
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold text-blue-400 mb-1.5 font-mono">2,295</div>
               <div className="text-xs font-semibold text-white mb-1">Spatial Grid Cells</div>
               <div className="text-[11px] text-slate-400">500m × 500m resolution across Vijayawada &amp; Chennai river basins</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">
-              <div className="text-3xl font-extrabold text-emerald-400 mb-1">&lt; 15 ms</div>
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold text-emerald-400 mb-1.5 font-mono">&lt; 15 ms</div>
               <div className="text-xs font-semibold text-white mb-1">Inference Latency</div>
               <div className="text-[11px] text-slate-400">Ultra-fast calibrated XGBoost + TreeSHAP explainability</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">
-              <div className="text-3xl font-extrabold text-cyan-400 mb-1">100%</div>
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold text-cyan-400 mb-1.5 font-mono">100%</div>
               <div className="text-xs font-semibold text-white mb-1">Physics Concordance</div>
               <div className="text-[11px] text-slate-400">Audited via USDA-NRCS Curve Number mass balance equations</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/10 text-center">
-              <div className="text-3xl font-extrabold text-amber-400 mb-1">Form D-4</div>
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold text-amber-400 mb-1.5 font-mono">Form D-4</div>
               <div className="text-xs font-semibold text-white mb-1">NDMA Compliance</div>
               <div className="text-[11px] text-slate-400">Automated municipal incident action plan dispatch schedule</div>
             </div>
