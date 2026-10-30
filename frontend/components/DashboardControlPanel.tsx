@@ -159,7 +159,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
   return (
     <div className="w-full h-full flex flex-col space-y-4 text-slate-100 overflow-y-auto pr-1 select-text scroll-smooth">
       {/* SECTION A: Live Status & Incident Posture */}
-      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden shrink-0">
+      <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden shrink-0">
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600" />
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -210,7 +210,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       {summary && (
         <div className="grid grid-cols-2 gap-2.5 shrink-0">
           {/* Critical Risk */}
-          <div className="bg-slate-900/80 border border-rose-900/40 rounded-xl p-3 shadow-lg relative overflow-hidden">
+          <div className="bg-slate-900/80 border border-rose-900/40 rounded-xl p-3 shadow-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden">
             <div className="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center justify-between">
               <span>{t.kpiCriticalRisk}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
@@ -223,7 +223,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
           </div>
 
           {/* Elevated / High */}
-          <div className="bg-slate-900/80 border border-amber-900/40 rounded-xl p-3 shadow-lg relative overflow-hidden">
+          <div className="bg-slate-900/80 border border-amber-900/40 rounded-xl p-3 shadow-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden">
             <div className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
               <span>{t.kpiElevatedHigh}</span>
             </div>
@@ -235,7 +235,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
           </div>
 
           {/* 24h Rain */}
-          <div className="bg-slate-900/80 border border-blue-900/40 rounded-xl p-3 shadow-lg relative overflow-hidden">
+          <div className="bg-slate-900/80 border border-blue-900/40 rounded-xl p-3 shadow-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden">
             <div className="text-[10px] uppercase font-bold text-blue-400 tracking-wider flex items-center gap-1">
               <Droplets className="w-3 h-3 text-blue-400" />
               <span>{t.kpiCurrentRain}</span>
@@ -248,7 +248,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
           </div>
 
           {/* Safe Uplands */}
-          <div className="bg-slate-900/80 border border-emerald-900/40 rounded-xl p-3 shadow-lg relative overflow-hidden">
+          <div className="bg-slate-900/80 border border-emerald-900/40 rounded-xl p-3 shadow-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden">
             <div className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
               <span>{t.kpiSafeGround}</span>
             </div>
@@ -265,7 +265,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       {onOpenFleetOptimizer && (
         <button
           onClick={onOpenFleetOptimizer}
-          className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-950/60 via-indigo-950/40 to-slate-900 border border-blue-500/40 hover:border-blue-400 text-xs font-bold text-blue-200 transition-all shadow-lg hover:shadow-blue-500/10 group cursor-pointer"
+          className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-950/60 via-indigo-950/40 to-slate-900 border border-blue-500/40 hover:border-blue-400 text-xs font-bold text-blue-200 transition-all shadow-lg hover:shadow-blue-500/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] active:scale-[0.99] group cursor-pointer"
         >
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center text-blue-300 shadow-inner">
@@ -284,7 +284,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       )}
 
       {/* SECTION C: Selected Zone Details & TreeSHAP (In-Panel Inspection) */}
-      <div className="zone-inspection-panel bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0">
+      <div className="zone-inspection-panel bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] shrink-0">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-blue-400" />
@@ -537,7 +537,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       </div>
 
       {/* SECTION D: What-If Rainfall Scenario Simulator */}
-      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0 space-y-3">
+      <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] shrink-0 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-amber-400" />
@@ -636,7 +636,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       </div>
 
       {/* SECTION E: Municipal Priority Response Queue */}
-      <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shrink-0 space-y-3">
+      <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] shrink-0 space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-rose-400" />

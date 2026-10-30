@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentCityObj = CITIES.find((c) => c.id === selectedCity) || CITIES[0];
 
   return (
-    <header className="border-b border-white/10 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-40 transition-all shadow-md">
+    <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40 transition-all shadow-md shadow-black/40">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Left: Mobile Toggle & Active River Basin Selector */}
@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={onToggleMobileMenu}
-                className="lg:hidden p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+                className="lg:hidden p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer active:scale-[0.96]"
                 title="Toggle Navigation Menu"
               >
                 <Menu className="w-4 h-4" />
@@ -75,14 +75,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={() => setCityMenuOpen(!cityMenuOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800/90 border border-white/10 text-xs text-slate-200 transition-all group cursor-pointer shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800/90 border border-white/10 text-xs text-slate-200 transition-all group cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] active:scale-[0.98]"
               >
                 <Building2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                 <div className="text-left">
                   <span className="font-semibold text-white tracking-tight">
                     {currentCityObj.name}
                   </span>
-                  <span className="ml-1.5 font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold">
+                  <span className="ml-1.5 font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
                     {currentCityObj.state}
                   </span>
                 </div>
@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* City Selection Modal Dropdown */}
               {cityMenuOpen && (
                 <div
-                  className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[#0c1322] dark:bg-[#0c1322] border border-slate-700/90 rounded-2xl shadow-2xl shadow-black/90 p-2.5 z-[9999] city-dropdown-menu animate-in fade-in slide-in-from-top-2 duration-150"
+                  className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[#0c1322] dark:bg-[#0c1322] border border-slate-700/90 rounded-2xl shadow-2xl shadow-black/90 p-2.5 z-[9999] city-dropdown-menu animate-in fade-in slide-in-from-top-2 duration-150 backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                   onMouseLeave={() => setCityMenuOpen(false)}
                 >
                   <div className="px-3 py-2 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
