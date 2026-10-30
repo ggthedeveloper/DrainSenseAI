@@ -1,4 +1,4 @@
-// DrainSense India — Complete Internationalization (i18n) Engine
+// DrainSenseAI: Complete Internationalization (i18n) Engine
 // Supports English (en), Hindi (hi), and Telugu (te) across the ENTIRE platform.
 
 export type SupportedLanguage = "en" | "hi" | "te";

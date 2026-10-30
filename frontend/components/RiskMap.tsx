@@ -465,7 +465,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({
             });
             polygon.addListener("click", (event: any) => {
               onSelectGrid(p.grid_id);
-              infoWindow.setContent(`<div style="color:#0f172a;font-size:12px;line-height:1.45"><strong>${p.zone_name}</strong> (${p.grid_id})<br/>Risk: ${p.risk_score}% — ${p.risk_level}<br/>Underlying model cell: 500 m × 500 m<br/><small>Lat: ${p.latitude.toFixed(5)} · Lng: ${p.longitude.toFixed(5)}</small></div>`);
+              infoWindow.setContent(`<div style="color:#0f172a;font-size:12px;line-height:1.45"><strong>${p.zone_name}</strong> (${p.grid_id})<br/>Risk: ${p.risk_score}% - ${p.risk_level}<br/>Underlying model cell: 500 m × 500 m<br/><small>Lat: ${p.latitude.toFixed(5)} · Lng: ${p.longitude.toFixed(5)}</small></div>`);
               infoWindow.setPosition(event.latLng);
               infoWindow.open({ map });
             });

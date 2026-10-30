@@ -79,8 +79,8 @@ export const DataHealth: React.FC = () => {
       accent: "text-cyan-400",
       resources: [
         { name: "Open-Meteo Historical Weather Archive", description: "Historical rainfall and weather API documentation", url: "https://open-meteo.com/en/docs/historical-weather-api" },
-        { name: "Vijayawada September 2024 Deluge", description: "Raw hourly precipitation archive for 25 Aug – 8 Sep 2024", url: "https://archive-api.open-meteo.com/v1/archive?latitude=16.5062&longitude=80.6480&start_date=2024-08-25&end_date=2024-09-08&hourly=precipitation,rain&timezone=Asia%2FKolkata" },
-        { name: "Chennai Cyclone Michaung 2023", description: "Raw hourly precipitation archive for 1 – 8 Dec 2023", url: "https://archive-api.open-meteo.com/v1/archive?latitude=13.0827&longitude=80.2707&start_date=2023-12-01&end_date=2023-12-08&hourly=precipitation,rain&timezone=Asia%2FKolkata" },
+        { name: "Vijayawada September 2024 Deluge", description: "Raw hourly precipitation archive for 25 Aug - 8 Sep 2024", url: "https://archive-api.open-meteo.com/v1/archive?latitude=16.5062&longitude=80.6480&start_date=2024-08-25&end_date=2024-09-08&hourly=precipitation,rain&timezone=Asia%2FKolkata" },
+        { name: "Chennai Cyclone Michaung 2023", description: "Raw hourly precipitation archive for 1 - 8 Dec 2023", url: "https://archive-api.open-meteo.com/v1/archive?latitude=13.0827&longitude=80.2707&start_date=2023-12-01&end_date=2023-12-08&hourly=precipitation,rain&timezone=Asia%2FKolkata" },
         { name: "NASA GPM IMERG Precipitation", description: "Official half-hourly and daily satellite precipitation datasets", url: "https://gpm.nasa.gov/data/imerg" },
         { name: "IMD Rainfall Statistics 2024", description: "Official India Meteorological Department rainfall statistics PDF", url: "https://hydro.imd.gov.in/hydrometweb/PRODUCTS/Publications/Rainfall%20Statistics%20of%20India%20-%202024/Rainfall%20Statistics%20of%20India%202024.pdf" }
       ]

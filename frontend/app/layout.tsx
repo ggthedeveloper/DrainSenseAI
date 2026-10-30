@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DrainSense India — Urban Waterlogging Early Warning & Response Intelligence",
+  title: "DrainSenseAI: Urban Waterlogging Early Warning & Response Intelligence",
   description: "Decision-support system estimating short-term urban waterlogging risk at 500m grid level using rainfall, terrain, and historical flood patterns.",
 };
 

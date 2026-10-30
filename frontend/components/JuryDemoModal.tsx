@@ -81,7 +81,7 @@ export const JuryDemoModal: React.FC<JuryDemoModalProps> = ({
               <Presentation className="w-4 h-4" />
             </span>
             <div>
-              <h3 className="text-sm font-bold text-slate-100">DrainSense India — Jury Presentation Tour</h3>
+              <h3 className="text-sm font-bold text-slate-100">DrainSenseAI: Jury Presentation Tour</h3>
               <p className="text-[11px] text-slate-400">3-Minute Scientific Defense Walkthrough</p>
             </div>
           </div>

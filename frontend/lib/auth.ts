@@ -1,4 +1,4 @@
-// DrainSense India — Authentication & Session Utility
+// DrainSenseAI: Authentication & Session Utility
 // Secure client-side session persistence. No credentials or passwords stored client-side.
 
 export interface UserSession {

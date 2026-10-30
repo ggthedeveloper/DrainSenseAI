@@ -263,7 +263,7 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
           <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-900/30">
             <div className="text-[10px] uppercase font-bold text-amber-400">High / Elevated Sectors</div>
             <div className="text-lg font-black text-amber-300 font-mono mt-1">{(summary?.high_risk_zones || 0) + (summary?.elevated_zones || 0)}</div>
-            <div className="text-[10px] text-amber-400/70 mt-0.5">Probability 40% – 80%</div>
+            <div className="text-[10px] text-amber-400/70 mt-0.5">Probability 40% to 80%</div>
           </div>
           <div className="p-3.5 rounded-xl bg-blue-950/20 border border-blue-900/30">
             <div className="text-[10px] uppercase font-bold text-blue-400">Peak 24h Rain</div>

@@ -164,7 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </nav>
 
-        {/* Sidebar Footer — Profile, Controls & Logout */}
+        {/* Sidebar Footer: Profile, Controls & Logout */}
         <div className="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-2">
           {/* Active Admin Profile Card */}
           {(!isCollapsed || isMobileOpen) ? (
