@@ -14,7 +14,7 @@
 
 Traditional urban flood systems rely either on computationally prohibitive 2D hydrodynamic solvers (SWMM, HEC-RAS taking hours to run) or unconstrained "black-box" machine learning models that frequently violate physical mass conservation laws during severe deluge anomalies.
 
-**DrainSenseAI** resolves this operational gap by coupling **calibrated gradient boosting** with **hydro-physical guardrails** and **operations-research dispatch optimization** on 2,295 deterministic 500m × 500m spatial cells across Indian river basins.
+**DrainSenseAI** resolves this operational gap by coupling **calibrated gradient boosting** with **hydro-physical guardrails** and **operations-research dispatch optimization** on 5,827 deterministic 500m × 500m spatial cells across Indian river basins.
 
 ### The Four Core Scientific Hydro-AI Novelties:
 
@@ -39,12 +39,12 @@ Traditional urban flood systems rely either on computationally prohibitive 2D hy
 
 | Data Layer | Source Agency | Resolution / Specs | Project Ground Truth | Official Dataset Hyperlink |
 | :--- | :--- | :--- | :--- | :--- |
-| **Digital Elevation Model (DEM)** | European Space Agency (ESA) & NASA SRTM | 30m Global DEM resampled to 500m centroids | 2,295 centroids: VJA (7m–246m), CHE (0m–110m AMSL) | [Copernicus DEM / Open-Meteo](https://open-meteo.com/en/docs/elevation-api) |
-| **Topographic Gradient Slope** | 2D Finite-Difference $\nabla z$ | Physical slope in degrees ($0.0^\circ$ to $13.17^\circ$) | Derived directly from real Copernicus elevation matrix | [Manning Formula Ref](https://en.wikipedia.org/wiki/Manning_formula) |
-| **Precipitation Telemetry** | ECMWF Copernicus ERA5 Reanalysis | Hourly cadence ($0.1\text{mm}$ precision) | 1,008 hours: Budameru 2024 (513.7mm) & Michaung 2023 (434.8mm) | [ERA5 Historical Archive](https://open-meteo.com/en/docs/historical-weather-api) |
-| **Waterway Vector Network** | OpenStreetMap (OSM) Contributors | Sub-meter vector polyline centrelines | Krishna, Budameru, Ryves, Eluru, Adyar, Cooum, Buckingham | [OSM Overpass Turbo](https://overpass-turbo.eu/) |
+| **Digital Elevation Model (DEM)** | European Space Agency (ESA) & NASA SRTM | 30m Global DEM resampled to 500m centroids | 5,827 centroids: VJA (7m-246m), CHE (0m-110m), BOM (0m-459m), BLR (810m-952m AMSL) | [Copernicus DEM / Open-Meteo](https://open-meteo.com/en/docs/elevation-api) |
+| **Topographic Gradient Slope** | 2D Finite-Difference $\nabla z$ | Physical slope in degrees ($0.0^\circ$ to $18.23^\circ$) | Derived directly from real Copernicus elevation matrix | [Manning Formula Ref](https://en.wikipedia.org/wiki/Manning_formula) |
+| **Precipitation Telemetry** | ECMWF Copernicus ERA5 Reanalysis | Hourly cadence ($0.1\text{mm}$ precision) | 1,632 hours: VJA (513.7mm), CHE (434.8mm), BOM (336h), BLR (288h) | [ERA5 Historical Archive](https://open-meteo.com/en/docs/historical-weather-api) |
+| **Waterway Vector Network** | OpenStreetMap (OSM) Contributors | Sub-meter vector polyline centrelines | Krishna, Budameru, Adyar, Cooum, Buckingham, Mithi, Bellandur | [OSM Overpass Turbo](https://overpass-turbo.eu/) |
 | **Reservoir Ground Truth** | Kaggle Open Benchmark / CMWSSB | Daily storage (mcft) & outfall surges | Chembarambakkam, Poondi, Red Hills discharge | [Kaggle Chennai Water Dataset](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management) |
-| **Meteorological Archive** | Kaggle Open Benchmark / IMD | Decadal meteorological daily rainfall | Multi-decadal extreme precipitation benchmarks (1990–present) | [Kaggle Chennai Rainfall Series](https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data) |
+| **Meteorological Archive** | Kaggle Open Benchmark / IMD | Decadal meteorological daily rainfall | Multi-decadal extreme precipitation benchmarks (1990-present) | [Kaggle Chennai Rainfall Series](https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data) |
 | **Satellite Flood Inundation** | ISRO NRSC Bhuvan Disaster Portal | 10m Sentinel-1 SAR radar backscatter | Observed flood footprints for Budameru (VJA) & Velachery (CHE) | [ISRO NRSC Flood Portal](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood) |
 | **Hydro-Physical Soil Curves** | USDA-NRCS Engineering Handbook | Hydrological Soil Groups A, B, C, D | SCS Curve Numbers (CN 68 to 92) and Potential Retention $S$ | [USDA-NRCS Handbook NEH-4](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook) |
 
@@ -55,12 +55,22 @@ Traditional urban flood systems rely either on computationally prohibitive 2D hy
 ### 1. Vijayawada / Amaravati (`VJA`), Andhra Pradesh
 - **Grid Scale:** 810 deterministic 500m × 500m spatial cells (202.5 km²).
 - **Critical Corridors:** Budameru Rivulet breach corridor, Krishna River / Prakasam Barrage (11.43 lakh cusecs capacity), Ryves & Eluru Canals.
-- **Historic Validation:** August 20 – September 12, 2024 Budameru cloudburst (513.7mm cumulative, peak intensity 26.8 mm/h).
+- **Historic Validation:** August 20 - September 12, 2024 Budameru cloudburst (513.7mm cumulative, peak intensity 26.8 mm/h).
 
 ### 2. Chennai (`CHE`), Tamil Nadu
 - **Grid Scale:** 1,485 deterministic 500m × 500m spatial cells (371.25 km²).
 - **Critical Corridors:** Adyar River (Saidapet / Kotturpuram outfall), Cooum River, Buckingham Canal tidal backup, Pallikaranai Marshland basin.
-- **Historic Validation:** November 25 – December 12, 2023 Cyclone Michaung (434.8mm cumulative, peak intensity 26.1 mm/h).
+- **Historic Validation:** November 25 - December 12, 2023 Cyclone Michaung (434.8mm cumulative, peak intensity 26.1 mm/h).
+
+### 3. Mumbai (`BOM`), Maharashtra
+- **Grid Scale:** 1,768 deterministic 500m × 500m spatial cells (442.0 km²).
+- **Critical Corridors:** Mithi River estuary, Mahim Causeway confluence, Milan Subway sump, Hindmata underground storage basin.
+- **Historic Validation:** July 15 - July 28, 2023 Monsoon deluge (336 continuous hours of telemetry).
+
+### 4. Bengaluru (`BLR`), Karnataka
+- **Grid Scale:** 1,764 deterministic 500m × 500m spatial cells (441.0 km²).
+- **Critical Corridors:** Bellandur-Varthur Lake chain, Outer Ring Road tech corridor culverts, Koramangala Rajakaluve, Rainbow Drive basin.
+- **Historic Validation:** August 28 - September 8, 2022 Urban cloudburst (288 continuous hours of telemetry).
 
 ---
 
@@ -98,7 +108,7 @@ Copernicus 30m Global DEM   ECMWF ERA5 Reanalysis    OpenStreetMap & Kaggle
                                 │
                                 ▼
                    FEATURE EXTRACTION & TOPOLOGY
-          (2,295 Grids @ 500m x 500m: 810 VJA, 1,485 CHE)
+          (5,827 Grids @ 500m x 500m: VJA, CHE, BOM, BLR)
        (∇z Gradient Slope, Flow Accumulation, Canal Distance)
                                 │
                                 ▼
@@ -147,13 +157,12 @@ DrainSense/
 │   │   ├── DataSources.tsx            # Dedicated Data Provenance & Links view
 │   │   ├── ModelAnalytics.tsx         # Benchmarks, calibration curves & confusion matrix
 │   │   ├── ResourceOptimizerModal.tsx # Autonomous fleet dispatch optimizer
-│   │   ├── JuryDemoModal.tsx          # 7-Step defense walkthrough modal
 │   │   ├── LandingPage.tsx            # Cinematic public gateway
 │   │   └── Navbar.tsx & Sidebar.tsx   # Opaque command navigation
 │   └── lib/api.ts                     # TypeScript API client with offline fallback
 ├── data/
 │   ├── raw/                           # Raw Copernicus DEM JSON & ERA5 hourly rainfall CSVs
-│   └── processed/                     # Compiled 2,295 grid features & historical flood JSON
+│   └── processed/                     # Compiled 5,827 grid features & historical flood JSON
 ├── ml/
 │   ├── src/inference/predictor.py     # Sub-15ms calibrated XGBoost inference engine
 │   └── src/ingestion/                 # Data harvesting adapters
@@ -210,7 +219,7 @@ For academic evaluations, major project dissertations, and technical reviews:
   year = {2026},
   publisher = {Department of Computer Science & Engineering},
   howpublished = {\url{https://github.com/ggthedeveloper/DrainSenseAI}},
-  note = {Validated on Copernicus 30m Global DEM & ECMWF ERA5 Telemetry for Vijayawada and Chennai}
+  note = {Validated on Copernicus 30m Global DEM & ECMWF ERA5 Telemetry for Vijayawada, Chennai, Mumbai, and Bengaluru}
 }
 ```
 
