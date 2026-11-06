@@ -8,10 +8,10 @@ This directory maintains the raw, interim, and processed data assets for DrainSe
 
 | Dataset Name | Primary Source / Agency | Retrieval Path | Purpose in DrainSense |
 | :--- | :--- | :--- | :--- |
-| **Copernicus 30m Global DEM** | European Space Agency (ESA) / NASA SRTM via Open-Meteo Elevation API | `data/raw/*_real_elevation.json` | Replaces flat planes with real topography across 5,827 cells |
-| **ECMWF ERA5 Reanalysis** | European Centre for Medium-Range Weather Forecasts (ECMWF) | `data/raw/*_real_hourly_rainfall.csv` | Real hourly precipitation telemetry for cloudburst benchmarks |
-| **OpenStreetMap Vector Hydrography** | OpenStreetMap Foundation / Overpass Turbo | `ml/src/ingestion/spatial_loader.py` | Centrelines of Krishna, Budameru, Adyar, Cooum, Mithi, and Bellandur |
-| **India Disaster Ground Truth** | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, Kaggle | `data/processed/historical_flood_events.json` | Validated historical inundation events for model calibration |
+| **Copernicus 30m Global DEM** | European Space Agency (ESA) / NASA SRTM via Open-Meteo Elevation API<br/><small>[source link](https://open-meteo.com/en/docs/elevation-api)</small> | `data/raw/*_real_elevation.json` | Replaces flat planes with real topography across 5,827 cells |
+| **ECMWF ERA5 Reanalysis** | European Centre for Medium-Range Weather Forecasts (ECMWF)<br/><small>[source link](https://open-meteo.com/en/docs/historical-weather-api)</small> | `data/raw/*_real_hourly_rainfall.csv` | Real hourly precipitation telemetry for cloudburst benchmarks |
+| **OpenStreetMap Vector Hydrography** | OpenStreetMap Foundation / Overpass Turbo<br/><small>[source link](https://overpass-turbo.eu/)</small> | `ml/src/ingestion/spatial_loader.py` | Centrelines of Krishna, Budameru, Adyar, Cooum, Mithi, and Bellandur |
+| **India Disaster Ground Truth** | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, Kaggle<br/><small>[source link](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management)</small> | `data/processed/historical_flood_events.json` | Validated historical inundation events for model calibration |
 
 ---
 
