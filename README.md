@@ -14,9 +14,9 @@
 
 ## Executive Summary
 
-Traditional municipal flood management relies either on computationally heavy 2D hydrodynamic solvers (like SWMM or HEC-RAS taking hours to simulate) or unconstrained machine learning models that often violate basic physical mass conservation laws during cloudburst deluges.
+Traditional municipal flood management relies either on computationally heavy 2D hydrodynamic solvers (SWMM, HEC-RAS taking hours to simulate) or unconstrained machine learning models that frequently violate physical mass conservation laws during cloudburst deluges.
 
-**DrainSenseAI** bridges this gap. It couples **calibrated gradient boosting (XGBoost)** with **USDA SCS-CN hydro-physical guardrails**, **D8 topological cascade flow routing**, and **integer linear programming dispatch optimization** across 5,827 deterministic 500m x 500m spatial grid cells spanning four major Indian river catchments.
+**DrainSenseAI** bridges this operational gap. It couples **calibrated gradient boosting (XGBoost)** with **USDA SCS-CN hydro-physical guardrails**, **D8 topological cascade flow routing**, and **integer linear programming dispatch optimization** across 5,827 deterministic 500m x 500m spatial grid cells spanning four major Indian river catchments.
 
 | Metric | Specification | Verification Details |
 | :--- | :--- | :--- |
@@ -31,42 +31,79 @@ Traditional municipal flood management relies either on computationally heavy 2D
 
 ---
 
-## 1. Scientific Positioning & Four Hydro-AI Novelties
+## 1. System Architecture & Scientific Novelties
 
-```
-                    VERIFIED REAL-WORLD DATA SOURCES
-     Copernicus 30m DEM  |  ECMWF ERA5 Telemetry  |  OSM Waterways  |  ISRO SAR
-                                │
-                                ▼
-                    FEATURE EXTRACTION & TOPOLOGY
-           (5,827 Grids @ 500m x 500m: VJA, CHE, BOM, BLR)
-        (Gradient Slope ∇z, Flow Accumulation, Waterway Distance)
-                                │
-                                ▼
-                  CALIBRATED MACHINE LEARNING CORE
-             (models/drainsense_xgb_v1.joblib, Calibrated)
-                                │
-                                ▼
-                  PHYSICS-INFORMED SCS-CN GUARDRAIL
-             (HCI Mass-Balance Audit: NEH-4 Verification)
-                                │
-                                ▼
-                 TOPOLOGICAL CASCADE TRACER (DAHG)
-             (Manning Open-Channel Velocity & D8 Lag)
-                                │
-                                ▼
-                 FASTAPI ASYNC BACKEND (PORT 8000)
-         (/health, /risk, /simulate, /cascade, /optimize)
-                                │
-                                ▼
-                  NEXT.JS 14 COMMAND CENTER (PORT 3000)
-     (Live Map, TreeSHAP Attributions, What-If Slider, NDMA Form D-4)
+### End-to-End System Architecture
+
+```mermaid
+flowchart TD
+    subgraph DataIngestion["1. Verified Earth Observation Ingestion"]
+        A1["Copernicus 30m Global DEM<br/>(Open-Meteo Elevation API)"]
+        A2["ECMWF ERA5 Reanalysis<br/>(Hourly Rainfall Archive)"]
+        A3["OpenStreetMap Overpass<br/>(Waterway & Canal Centrelines)"]
+        A4["ISRO NRSC Bhuvan / SAR<br/>(Satellite Flood Ground Truth)"]
+    end
+
+    subgraph FeatureEngineering["2. Topographic & Hydrological Feature Compiler"]
+        B1["2D Finite-Difference Slopes (grad z)"]
+        B2["Topographic Wetness Index & Flow Accumulation"]
+        B3["Geodesic Haversine Canal Proximity"]
+        B4["Rolling Rainfall Windows (1h, 3h, 6h, 12h, 24h, 72h)"]
+        A1 --> B1
+        A1 --> B2
+        A3 --> B3
+        A2 --> B4
+    end
+
+    subgraph CoreML["3. Calibrated Machine Learning Engine"]
+        C1["Spatial Feature Matrix (5,827 Grids @ 500m)"]
+        C2["Calibrated XGBoost Classifier (ROC-AUC: 0.9823)"]
+        C3["TreeSHAP Local Feature Attribution Engine"]
+        B1 & B2 & B3 & B4 --> C1
+        C1 --> C2
+        C2 --> C3
+    end
+
+    subgraph PhysicsAudit["4. Hydro-Physical Guardrail (PIML)"]
+        D1["USDA-NRCS SCS-CN Engine (NEH-4)"]
+        D2["Hydrological Concordance Index (HCI) Audit"]
+        C2 --> D2
+        D1 --> D2
+    end
+
+    subgraph CascadeTracer["5. Topological Cascade Tracer (DAHG)"]
+        E1["D8 Steepest Descent Flow Connectivity"]
+        E2["Manning Velocity Formulation (v = 1/n R^2/3 S^1/2)"]
+        E3["Dynamic Lead-Time Propagation (tau = L / v)"]
+        B1 & B2 --> E1
+        E1 --> E2 --> E3
+    end
+
+    subgraph Serving["6. FastAPI Async Backend & Next.js Command Center"]
+        F1["FastAPI REST Endpoints (/health, /risk/map, /simulate)"]
+        F2["Integer Linear Programming Dispatch Optimizer"]
+        F3["Next.js 14 Command Center (Google Maps, What-If Slider)"]
+        D2 & E3 --> F1
+        F1 --> F2
+        F1 --> F3
+    end
 ```
 
-### Novelty 1: Topological Cascade Inundation Graph (DAHG)
+---
+
+### The Four Core Scientific Hydro-AI Novelties
+
+#### Novelty 1: Topological Cascade Inundation Graph (DAHG)
 Standard machine learning treats spatial grid cells as independent units, ignoring upstream-to-downstream water flow. DrainSenseAI constructs a **Directed Acyclic Hydrological Graph (DAHG)** using D8 steepest descent topology. Spillover arrival lead times are computed using the Manning open-channel velocity formulation:
 
 $$v = \frac{1}{n} R^{2/3} S^{1/2} \quad \Big| \quad \tau_{\text{lag}} = \frac{L}{v}$$
+
+```mermaid
+flowchart LR
+    NodeA["Upstream Ridge Sump<br/>(Cell A, Elev: 24.5m)"] -->|"Overland Surcharge<br/>v = 1.42 m/s"| NodeB["Intermittent Canal Culvert<br/>(Cell B, Elev: 18.2m)"]
+    NodeB -->|"Canal Flow Lag<br/>tau = 18.4 min"| NodeC["Lowland Depression Bowl<br/>(Cell C, Elev: 12.0m)"]
+    NodeC -->|"Backwater Surcharge<br/>tau = 34.2 min"| NodeD["Tidal Outfall Lock<br/>(Cell D, Elev: 2.5m)"]
+```
 
 Where:
 - $n$ is Manning roughness coefficient ($0.035$ for masonry channels, $0.055$ for urban overland paths).
@@ -74,30 +111,45 @@ Where:
 - $S$ is topographic gradient slope ($\text{m/m}$) derived directly from the Copernicus DEM.
 - $\tau_{\text{lag}}$ is lead time in minutes before upstream surcharge inundates downstream low-lying wards.
 
-### Novelty 2: Physics-Informed SCS-CN Mass-Balance Guardrail (PIML)
+#### Novelty 2: Physics-Informed SCS-CN Mass-Balance Guardrail (PIML)
 Pure machine learning models can predict low flood probability in sumps receiving hundreds of millimeters of rain if training data had limited local gauge records. DrainSenseAI audits model outputs against USDA-NRCS National Engineering Handbook (NEH-4) SCS Curve Number equations:
 
 $$Q = \frac{(P - I_a)^2}{P - I_a + S} \quad \Big| \quad S = \frac{25400}{\text{CN}} - 254 \quad \Big| \quad \text{HCI} = 1 - \frac{|Q_{\text{xgb}} - Q_{\text{scs}}|}{Q_{\text{scs}}}$$
 
-Where:
-- $P$ is total cumulative storm rainfall in mm.
-- $I_a = 0.2 \cdot S$ is initial abstraction (interception, depression storage).
-- $S$ is potential maximum soil retention in mm.
-- $\text{CN}$ is Curve Number assigned per soil group and impervious ratio ($68 \le \text{CN} \le 92$).
-- $\text{HCI}$ is the Hydrological Concordance Index. Any prediction with $\text{HCI} < 0.70$ is flagged for physics divergence.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Next.js Command Center
+    participant API as FastAPI Backend
+    participant ML as XGBoost Classifier
+    participant PIML as SCS-CN Physics Guardrail
+    Client->>API: Request Risk Map (city_id = VJA, rain_24h = 145mm)
+    API->>ML: Run Inference on 500m Centroids
+    ML-->>API: Predicted Probability (P_xgb = 0.88)
+    API->>PIML: Audit Mass Balance (Soil CN: 85, Impervious: 78%)
+    PIML->>PIML: Compute Theoretical Runoff Q_scs = 104.2mm
+    PIML-->>API: Concordance Index HCI = 0.94 (Physically Verified)
+    API-->>Client: Stream GeoJSON Polygons with Physics Audit Flag
+```
 
-### Novelty 3: Multi-Horizon Temporal Nowcaster ($T+0\text{h}$ to $T+6\text{h}$)
+#### Novelty 3: Multi-Horizon Temporal Nowcaster ($T+0\text{h}$ to $T+6\text{h}$)
 Forecasts forward inundation escalation across 1h, 2h, 4h, and 6h operational horizons. It dynamically accounts for:
 - Rainfall intensity decay following storm centroid passage.
 - Saturated hydraulic conductivity depletion in urban soil sumps.
 - Canal outfall backwater tailback during high tide or peak barrage discharge.
 
-### Novelty 4: Autonomous Operations-Research Dispatch Optimizer
+#### Novelty 4: Autonomous Operations-Research Dispatch Optimizer
 When multiple wards hit critical waterlogging levels simultaneously, municipal equipment cannot be everywhere at once. DrainSenseAI solves an Integer Linear Program (ILP) matching available municipal depots to priority zones:
 
 $$\min \sum_{i \in \text{Zones}} \sum_{j \in \text{Depots}} c_{ij} \cdot x_{ij} - \lambda \sum_{i \in \text{Zones}} \text{Priority}_i \cdot y_i$$
 
-Subject to depot equipment counts (high-head dewatering pumps, super-suckers, rescue boat squads), road transit accessibility, and power availability. The optimal dispatch exports directly to an **NDMA Form D-4** compliant Incident Action Plan.
+```mermaid
+flowchart TD
+    InundationAlert["Critical Waterlogging Detected<br/>(Multiple Municipal Wards Breached)"] --> PriorityQueue["Algorithmic Priority Ranking<br/>Score = 0.60(Risk) + 0.20(Bldg) + 0.10(Flood) + 0.10(Roads)"]
+    PriorityQueue --> DepotInventory["Depot Equipment Constraints<br/>(Pumps, Super-Suckers, Rescue Boats)"]
+    DepotInventory --> ILPSolver["Integer Linear Programming Solver<br/>(Transit Time vs Ward Vulnerability Optimization)"]
+    ILPSolver --> ActionPlan["NDMA Form D-4 Action Plan<br/>(Standardized Municipal Staging Directive)"]
+```
 
 ---
 
@@ -117,6 +169,18 @@ Subject to depot equipment counts (high-head dewatering pumps, super-suckers, re
 | **Meteorological Archive** | Kaggle Open Benchmark / IMD | Decadal meteorological daily rainfall | Multi-decadal extreme rainfall benchmarks (1990-present) | [Kaggle Chennai Rainfall Series](https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data) |
 | **Satellite Flood Inundation** | ISRO NRSC Bhuvan Disaster Portal | 10m Sentinel-1 SAR radar backscatter | Observed flood footprints for Budameru (VJA) & Velachery (CHE) | [ISRO NRSC Flood Portal](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood) |
 | **Hydro-Physical Soil Curves** | USDA-NRCS Engineering Handbook | Hydrological Soil Groups A, B, C, D | SCS Curve Numbers (CN 68 to 92) and Potential Retention $S$ | [USDA-NRCS Handbook NEH-4](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook) |
+
+---
+
+### Catchment Topography & Historical Deluge Telemetry
+
+<p align="center">
+  <img src="docs/assets/catchment_topography_profiles.png" alt="Catchment Topography Profiles across Four Verified Indian River Basins" width="98%" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/rainfall_deluge_hyetographs.png" alt="ECMWF ERA5 Real Hourly Rainfall Hyetographs for Historic Cloudbursts" width="98%" />
+</p>
 
 ---
 
@@ -148,9 +212,13 @@ Subject to depot equipment counts (high-head dewatering pumps, super-suckers, re
 
 ---
 
-## 4. Machine Learning Benchmarks & Calibration
+## 4. Machine Learning Benchmarks & Explainability
 
 The primary risk classifier is trained on **776,890 spatiotemporal feature vectors** derived from Copernicus 30m DEM topography, finite-difference gradient slopes, waterway proximity, and ERA5 precipitation windows. Models were evaluated using 5-fold stratified cross-validation and calibrated with Sigmoid probability mapping.
+
+<p align="center">
+  <img src="docs/assets/model_performance_matrix.png" alt="Model Performance: ROC-AUC, PR-AUC, and Confusion Matrix" width="98%" />
+</p>
 
 ### Comparative Model Evaluation ($N = 155,378$ Holdout Records)
 
@@ -166,6 +234,10 @@ The primary risk classifier is trained on **776,890 spatiotemporal feature vecto
 - **False Positives (FP):** $6,229$ (Low False Alarm Rate: **5.00%**)
 - **False Negatives (FN):** $3,373$ (Missed Deluge Rate: **10.97%**)
 - **True Positives (TP):** $27,374$ (Flood Zones Detected, Sensitivity / Recall: **89.03%**)
+
+<p align="center">
+  <img src="docs/assets/shap_feature_importance.png" alt="TreeSHAP Global Feature Gain Importance Ranking" width="85%" />
+</p>
 
 ### TreeSHAP Feature Gain Rankings
 1. `rain_24h_mm` (Normalized Gain: **0.342**): 24-hour antecedent rainfall mass.
@@ -221,6 +293,8 @@ DrainSense/
 ├── data/
 │   ├── raw/                           # Raw Copernicus DEM JSON & ERA5 hourly rainfall CSVs
 │   └── processed/                     # Compiled 5,827 grid features & historical flood JSON
+├── docs/
+│   └── assets/                        # Publication-grade PNG charts and figures
 ├── ml/
 │   ├── src/inference/predictor.py     # Sub-15ms calibrated XGBoost inference engine
 │   ├── src/hydrology/cascade_graph.py # D8 directed acyclic flow graph implementation
@@ -231,7 +305,8 @@ DrainSense/
 │   └── drainsense_xgb_v1_metadata.json# Real training metrics and feature gain rankings
 ├── scripts/
 │   ├── fetch_real_earth_data.py       # Open-Meteo DEM & ERA5 telemetry harvester
-│   └── inject_real_earth_data.py      # 2D finite-difference slope & TWI compiler
+│   ├── inject_real_earth_data.py      # 2D finite-difference slope & TWI compiler
+│   └── generate_readme_charts.py      # Generates 300-DPI technical README charts
 ├── tests/
 │   ├── test_backend.py                # FastAPI integration & endpoint test suite
 │   └── test_ml_pipeline.py            # Feature engineering & hydrology test suite
