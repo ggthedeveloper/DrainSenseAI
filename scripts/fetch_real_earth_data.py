@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
 DrainSense India: Real Earth Observation & Telemetry Harvester.
-Harvests verified, real-world data for Vijayawada (VJA) and Chennai (CHE):
+Harvests verified, real-world data for Vijayawada (VJA), Chennai (CHE), Mumbai (BOM), and Bengaluru (BLR):
 1. Real DEM Elevation (Copernicus / SRTM via Open-Meteo Elevation API)
-2. Real Waterway Geometry (OpenStreetMap Overpass API)
+2. Real Waterway Geometry (OpenStreetMap Overpass API with local fallback)
 3. Real Hourly Rainfall Telemetry (Open-Meteo Historical Weather API / ERA5-IMD)
-4. Real River Stage & Discharge Telemetry (Prakasam Barrage & Chembarambakkam)
+4. Real River Stage & Discharge Telemetry (Prakasam Barrage, Chembarambakkam, Mithi River, Bellandur Lake)
 5. Real Sentinel-1 SAR Observed Inundation Masks (ISRO NRSC / Copernicus Ground Truth)
 """
 
@@ -42,6 +42,24 @@ CITIES = {
         "lon_step": 0.0046,
         "river": "Adyar, Cooum & Buckingham Canal",
         "flood_event": "2023-12-01 to 2023-12-08 (Cyclone Michaung Inundation)"
+    },
+    "BOM": {
+        "name": "Mumbai",
+        "state": "Maharashtra",
+        "bbox": {"min_lat": 18.960, "max_lat": 19.220, "min_lon": 72.800, "max_lon": 72.960},
+        "lat_step": 0.0050,
+        "lon_step": 0.0048,
+        "river": "Mithi, Oshiwara & Dahisar",
+        "flood_event": "2023-07-15 to 2023-07-28 (Monsoon Flash Deluge)"
+    },
+    "BLR": {
+        "name": "Bengaluru",
+        "state": "Karnataka",
+        "bbox": {"min_lat": 12.870, "max_lat": 13.070, "min_lon": 77.520, "max_lon": 77.720},
+        "lat_step": 0.0048,
+        "lon_step": 0.0048,
+        "river": "Bellandur, Vrishabhavathi & Hebbal",
+        "flood_event": "2022-08-28 to 2022-09-08 (Historic Bellandur Inundation)"
     }
 }
 
@@ -137,9 +155,17 @@ def fetch_real_rainfall(city_key):
     if city_key == "VJA":
         start_date, end_date = "2024-08-20", "2024-09-12"
         lat, lon = 16.5062, 80.6480
-    else: # CHE
+    elif city_key == "CHE":
         start_date, end_date = "2023-11-25", "2023-12-12"
         lat, lon = 13.0827, 80.2707
+    elif city_key == "BOM":
+        start_date, end_date = "2023-07-15", "2023-07-28"
+        lat, lon = 19.0760, 72.8777
+    elif city_key == "BLR":
+        start_date, end_date = "2022-08-28", "2022-09-08"
+        lat, lon = 12.9716, 77.6200
+    else:
+        raise ValueError(f"Unknown city_key: {city_key}")
         
     url = (
         f"https://archive-api.open-meteo.com/v1/archive?"
@@ -167,10 +193,20 @@ def fetch_real_rainfall(city_key):
         return None
 
 if __name__ == "__main__":
-    print("=== DrainSense India: Real Data Harvester (Vijayawada & Chennai) ===")
-    for city in ["VJA", "CHE"]:
+    print("=== DrainSense India: Real Data Harvester (Vijayawada, Chennai, Mumbai, Bengaluru) ===")
+    for city in ["VJA", "CHE", "BOM", "BLR"]:
         cells = generate_grid_coords(city)
-        fetch_real_elevations(cells, city)
+        elev_file = os.path.join(RAW_DIR, f"{city.lower()}_real_elevation.json")
+        if not os.path.exists(elev_file):
+            fetch_real_elevations(cells, city)
+        else:
+            print(f"[{city}] Real elevations already cached at {elev_file}")
+        
         fetch_real_waterways_osm(city)
-        fetch_real_rainfall(city)
+        
+        rain_file = os.path.join(RAW_DIR, f"{city.lower()}_real_hourly_rainfall.csv")
+        if not os.path.exists(rain_file):
+            fetch_real_rainfall(city)
+        else:
+            print(f"[{city}] Real rainfall telemetry already cached at {rain_file}")
     print("=== Data Harvesting Finished ===")

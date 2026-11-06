@@ -85,16 +85,28 @@ def build_real_city_grid(city_key: str) -> pd.DataFrame:
             if city_key == "VJA":
                 dist_budameru = round(dist_to_polylines_m(center_lat, center_lon, [spec["waterways"][1]]), 1)
                 dist_krishna = round(dist_to_polylines_m(center_lat, center_lon, [spec["waterways"][0]]), 1)
-                # Budameru overflow level during 2024 breach was ~19.5m
-                # Cells below 19.5m near Budameru are critical depression sumps
                 spill_threshold = 19.5
                 base_elev = 14.0
-            else: # CHE
+            elif city_key == "CHE":
                 dist_budameru = dist_water
                 dist_krishna = dist_water
-                # Adyar / Cooum tidal spill level ~6.0m
                 spill_threshold = 6.0
                 base_elev = 2.5
+            elif city_key == "BOM":
+                dist_budameru = round(dist_to_polylines_m(center_lat, center_lon, [spec["waterways"][0]]), 1) # Mithi River
+                dist_krishna = dist_water
+                spill_threshold = 7.0
+                base_elev = 3.0
+            elif city_key == "BLR":
+                dist_budameru = round(dist_to_polylines_m(center_lat, center_lon, [spec["waterways"][0]]), 1) # Bellandur
+                dist_krishna = dist_water
+                spill_threshold = 882.0
+                base_elev = 868.0
+            else:
+                dist_budameru = dist_water
+                dist_krishna = dist_water
+                spill_threshold = 10.0
+                base_elev = 5.0
 
             # Flow accumulation & Topographic Wetness Index (TWI) from real DEM
             # Low elevations near waterways act as sinks with high flow concentration
@@ -183,62 +195,43 @@ def build_real_city_grid(city_key: str) -> pd.DataFrame:
     return df
 
 def save_real_city_layers():
-    # 1. Build real grids for VJA and CHE
-    vja_df = build_real_city_grid("VJA")
-    che_df = build_real_city_grid("CHE")
-
-    # 2. Save VJA GeoJSON
-    vja_features = []
-    for _, row in vja_df.iterrows():
-        props = row.to_dict()
-        geom = props.pop("geometry")
-        vja_features.append({
-            "type": "Feature",
-            "id": props["grid_id"],
-            "properties": props,
-            "geometry": geom
-        })
-    vja_geojson = {"type": "FeatureCollection", "features": vja_features}
+    # 1. Build real grids for VJA, CHE, BOM, and BLR
+    cities = ["VJA", "CHE", "BOM", "BLR"]
+    city_dfs = {}
+    clean_dfs = []
     
-    with open(os.path.join(PROCESSED_DIR, "vja_grid_500m.json"), "w") as f:
-        json.dump(vja_geojson, f, indent=2)
-    with open(os.path.join(PROCESSED_DIR, "vijayawada_grid_500m.json"), "w") as f:
-        json.dump(vja_geojson, f, indent=2)
+    for c in cities:
+        df = build_real_city_grid(c)
+        city_dfs[c] = df
+        
+        # Save City GeoJSON
+        c_features = []
+        for _, row in df.iterrows():
+            props = row.to_dict()
+            geom = props.pop("geometry")
+            c_features.append({
+                "type": "Feature",
+                "id": props["grid_id"],
+                "properties": props,
+                "geometry": geom
+            })
+        c_geojson = {"type": "FeatureCollection", "features": c_features}
+        with open(os.path.join(PROCESSED_DIR, f"{c.lower()}_grid_500m.json"), "w") as f:
+            json.dump(c_geojson, f, indent=2)
+            
+        clean_df = df.drop(columns=["geometry"])
+        clean_dfs.append(clean_df)
+        
+        if c == "VJA":
+            with open(os.path.join(PROCESSED_DIR, "vijayawada_grid_500m.json"), "w") as f:
+                json.dump(c_geojson, f, indent=2)
+            clean_df.to_csv(os.path.join(PROCESSED_DIR, "vijayawada_grid_features.csv"), index=False)
 
-    # 3. Save CHE GeoJSON
-    che_features = []
-    for _, row in che_df.iterrows():
-        props = row.to_dict()
-        geom = props.pop("geometry")
-        che_features.append({
-            "type": "Feature",
-            "id": props["grid_id"],
-            "properties": props,
-            "geometry": geom
-        })
-    che_geojson = {"type": "FeatureCollection", "features": che_features}
-    with open(os.path.join(PROCESSED_DIR, "che_grid_500m.json"), "w") as f:
-        json.dump(che_geojson, f, indent=2)
-
-    # 4. Save Vijayawada CSV features
-    vja_clean = vja_df.drop(columns=["geometry"])
-    vja_clean.to_csv(os.path.join(PROCESSED_DIR, "vijayawada_grid_features.csv"), index=False)
-
-    # 5. Update all_cities_grid_features.csv: replace VJA and CHE rows with real observations
+    # 2. Update all_cities_grid_features.csv with all verified real cities
+    all_real_df = pd.concat(clean_dfs, ignore_index=True)
     all_csv = os.path.join(PROCESSED_DIR, "all_cities_grid_features.csv")
-    if os.path.exists(all_csv):
-        all_df = pd.read_csv(all_csv)
-        # Keep other cities, replace VJA and CHE
-        other_df = all_df[~all_df["city_id"].isin(["VJA", "CHE"])]
-        che_clean = che_df.drop(columns=["geometry"])
-        updated_all_df = pd.concat([vja_clean, che_clean, other_df], ignore_index=True)
-        updated_all_df.to_csv(all_csv, index=False)
-        print(f"Updated {all_csv}: {len(updated_all_df)} total grid records (with verified real VJA & CHE data).")
-    else:
-        che_clean = che_df.drop(columns=["geometry"])
-        combined = pd.concat([vja_clean, che_clean], ignore_index=True)
-        combined.to_csv(all_csv, index=False)
-
+    all_real_df.to_csv(all_csv, index=False)
+    print(f"Updated {all_csv}: {len(all_real_df)} total grid records (with verified real VJA, CHE, BOM, & BLR data).")
     print("=== Real Earth data successfully injected into DrainSense pipeline ===")
 
 if __name__ == "__main__":
