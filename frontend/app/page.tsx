@@ -11,7 +11,6 @@ import { DashboardControlPanel } from "../components/DashboardControlPanel";
 import { PriorityList } from "../components/PriorityList";
 import { HistoricalEvents } from "../components/HistoricalEvents";
 import { ModelAnalytics } from "../components/ModelAnalytics";
-import { JuryDemoModal } from "../components/JuryDemoModal";
 import { DrainAssets } from "../components/DrainAssets";
 import { AlertsManager } from "../components/AlertsManager";
 import { ReportsGenerator } from "../components/ReportsGenerator";
@@ -59,7 +58,6 @@ export default function DashboardPage() {
   const [cascadePath, setCascadePath] = useState<CascadeTraceResponse | null>(null);
   const [isFleetOptimizerOpen, setIsFleetOptimizerOpen] = useState<boolean>(false);
   const [isCascadeLoading, setIsCascadeLoading] = useState<boolean>(false);
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
   const [healthStatus, setHealthStatus] = useState<{ status: string; model_version: string }>({
     status: "HEALTHY",
     model_version: "v1.0 (Calibrated XGBoost)"
@@ -381,7 +379,6 @@ export default function DashboardPage() {
             setZoneDetail(null);
             setCascadePath(null);
           }}
-          onLaunchDemo={() => setIsDemoModalOpen(true)}
           healthStatus={healthStatus}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
           onOpenLanding={() => setShowLanding(true)}
@@ -516,14 +513,6 @@ export default function DashboardPage() {
           }}
         />
       </div>
-
-      {/* Jury Demo Guided Walkthrough Modal */}
-      <JuryDemoModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-        setActiveTab={setActiveTab}
-        onSelectGrid={handleSelectGrid}
-      />
 
       {/* Novelty 4: Autonomous Operations-Research Municipal Dispatch Optimizer Modal */}
       <ResourceOptimizerModal
