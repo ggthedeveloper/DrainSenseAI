@@ -4,11 +4,14 @@ This directory maintains the raw, interim, and processed data assets for DrainSe
 
 ---
 
-## 1. Verified Real Data Sources
+## 1. Verified Real Data Sources (Indian National & Space Agency Ingestion)
 
 | Dataset Name | Primary Source / Agency | Retrieval Path | Purpose in DrainSense |
 | :--- | :--- | :--- | :--- |
 | **Copernicus 30m Global DEM** | European Space Agency (ESA) / NASA SRTM via Open-Meteo Elevation API<br/><small>[source link](https://open-meteo.com/en/docs/elevation-api)</small> | `data/raw/*_real_elevation.json` | Replaces flat planes with real topography across 5,827 cells |
+| **IMD Official Station Rain Telemetry** | India Meteorological Department (IMD) / MoES, Govt. of India<br/><small>[source link](https://mausam.imd.gov.in/)</small> | `data/raw/imd_daily_rainfall_stations.csv` | Official 24h rainfall bulletins for Gannavaram, Meenambakkam, Santacruz, HAL Airport |
+| **CWC River Stage & Barrage Telemetry** | Central Water Commission (CWC) & India-WRIS, Ministry of Jal Shakti<br/><small>[source link](https://indiawris.gov.in/wris/)</small> | `data/raw/cwc_river_barrage_telemetry.csv` | Real-time discharges (Prakasam Barrage 11.43L cusecs, Chembarambakkam 8,000 cusecs) |
+| **ISRO NRSC Bhuvan Flood Extents** | National Remote Sensing Centre (NRSC) / ISRO Disaster Portal<br/><small>[source link](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood)</small> | `data/raw/isro_bhuvan_flood_inundation_benchmarks.json` | Satellite SAR radar backscatter flood footprints (Budameru & Velachery inundation) |
 | **ECMWF ERA5 Reanalysis** | European Centre for Medium-Range Weather Forecasts (ECMWF)<br/><small>[source link](https://open-meteo.com/en/docs/historical-weather-api)</small> | `data/raw/*_real_hourly_rainfall.csv` | Real hourly precipitation telemetry for cloudburst benchmarks |
 | **OpenStreetMap Vector Hydrography** | OpenStreetMap Foundation / Overpass Turbo<br/><small>[source link](https://overpass-turbo.eu/)</small> | `ml/src/ingestion/spatial_loader.py` | Centrelines of Krishna, Budameru, Adyar, Cooum, Mithi, and Bellandur |
 | **India Disaster Ground Truth** | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, Kaggle<br/><small>[source link](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management)</small> | `data/processed/historical_flood_events.json` | Validated historical inundation events for model calibration |

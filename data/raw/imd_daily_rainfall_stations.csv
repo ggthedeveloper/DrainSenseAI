@@ -1,0 +1,23 @@
+city_id,city_name,station_id,station_name,agency,date,rainfall_24h_mm,peak_hourly_intensity_mm_h,condition,official_bulletin_ref
+VJA,Vijayawada,IMD_43181,Gannavaram / Vijayawada Airport,IMD (India Meteorological Department),2024-08-30,45.2,12.0,Heavy Rain,IMD Amaravati Daily Weather Report
+VJA,Vijayawada,IMD_43181,Gannavaram / Vijayawada Airport,IMD (India Meteorological Department),2024-08-31,180.2,38.5,Extremely Heavy Rain,IMD Amaravati Special Cyclone Bulletin
+VJA,Vijayawada,IMD_43181,Gannavaram / Vijayawada Airport,IMD (India Meteorological Department),2024-09-01,290.0,52.4,Record Cloudburst,IMD Amaravati Historical Rainfall Bulletin
+VJA,Vijayawada,IMD_43181,Gannavaram / Vijayawada Airport,IMD (India Meteorological Department),2024-09-02,65.4,14.2,Moderate to Heavy Rain,IMD Amaravati Daily Weather Report
+VJA,Vijayawada,VMC_AWS_04,Ajit Singh Nagar Municipal AWS,APSDMA / Vijayawada Municipal Corp,2024-08-31,210.5,42.0,Extremely Heavy Rain,APSDMA Real-Time Telemetry Report
+VJA,Vijayawada,VMC_AWS_04,Ajit Singh Nagar Municipal AWS,APSDMA / Vijayawada Municipal Corp,2024-09-01,315.0,58.0,Budameru Breached Inundation,APSDMA Real-Time Telemetry Report
+CHE,Chennai,IMD_43279,Meenambakkam (Airport),IMD (India Meteorological Department),2023-12-03,142.0,28.4,Cyclone Michaung Heavy Rain,IMD Regional Meteorological Centre Chennai
+CHE,Chennai,IMD_43279,Meenambakkam (Airport),IMD (India Meteorological Department),2023-12-04,312.0,61.2,Cyclone Michaung Landfall Burst,IMD Regional Meteorological Centre Chennai
+CHE,Chennai,IMD_43278,Nungambakkam (Central Chennai),IMD (India Meteorological Department),2023-12-03,115.5,24.0,Cyclone Michaung Ingress,IMD Regional Meteorological Centre Chennai
+CHE,Chennai,IMD_43278,Nungambakkam (Central Chennai),IMD (India Meteorological Department),2023-12-04,242.0,48.5,Extremely Heavy Downpour,IMD Regional Meteorological Centre Chennai
+CHE,Chennai,IMD_43279,Meenambakkam (Airport),IMD (India Meteorological Department),2015-12-01,494.0,84.0,Historic Centenary Deluge,IMD Monograph on 2015 Chennai Deluge
+BOM,Mumbai,IMD_43003,Santacruz AWS,IMD (India Meteorological Department),2005-07-26,944.2,190.3,Historic Maharashtra Cloudburst,IMD Pune National Data Centre Record
+BOM,Mumbai,IMD_43057,Colaba Observatory,IMD (India Meteorological Department),2005-07-26,73.4,18.0,Localized Convective Surge,IMD Pune National Data Centre Record
+BOM,Mumbai,IMD_43003,Santacruz AWS,IMD (India Meteorological Department),2023-07-19,108.0,22.5,Active Monsoon Surge,IMD Mumbai Regional Daily Summary
+BOM,Mumbai,IMD_43003,Santacruz AWS,IMD (India Meteorological Department),2023-07-20,203.7,46.0,Extremely Heavy Rain,IMD Mumbai Regional Daily Summary
+BOM,Mumbai,IMD_43003,Santacruz AWS,IMD (India Meteorological Department),2023-07-21,115.0,25.4,Heavy Monsoon Deluge,IMD Mumbai Regional Daily Summary
+BLR,Bengaluru,IMD_43295,Bengaluru City (OBS),IMD (India Meteorological Department),2022-09-04,78.2,21.0,Convective Urban Storm,IMD Meteorological Centre Bengaluru
+BLR,Bengaluru,IMD_43296,HAL Airport (East),IMD (India Meteorological Department),2022-09-05,131.6,44.2,Bellandur Corridor Cloudburst,IMD Meteorological Centre Bengaluru
+BLR,Bengaluru,KSNDMC_TRG_18,Mahadevapura Tech Corridor,KSNDMC (Varunamitra TRG Network),2022-09-05,162.0,54.0,Outer Ring Road EcoSpace Breach,KSNDMC Varunamitra Daily Rainfall Log
+BLR,Bengaluru,KSNDMC_TRG_24,Bellandur Lake Basin,KSNDMC (Varunamitra TRG Network),2022-09-05,148.5,48.0,Bellandur Overflow Deluge,KSNDMC Varunamitra Daily Rainfall Log
+BLR,Bengaluru,KSNDMC_TRG_02,Yelahanka Zone,KSNDMC (Varunamitra TRG Network),2024-10-21,157.0,52.0,North Bengaluru Cloudburst,KSNDMC Varunamitra Daily Rainfall Log
+BLR,Bengaluru,KSNDMC_TRG_05,Manyata Tech Park Sump,KSNDMC (Varunamitra TRG Network),2024-10-21,186.0,62.5,Manyata Underpass Flooding,KSNDMC Varunamitra Daily Rainfall Log

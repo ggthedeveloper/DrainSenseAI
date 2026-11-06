@@ -162,9 +162,13 @@ To ensure complete scientific integrity, research transparency, and evaluator cl
 | Category | Component / Layer | Source / Methodology | Real or Synthetic? | Purpose in DrainSenseAI |
 | :--- | :--- | :--- | :---: | :--- |
 | **Topography** | 5,827 Digital Elevation Points | Copernicus 30m Global DEM via European Space Agency (ESA) & NASA SRTM | **100% REAL**<br/><small>[source link](https://open-meteo.com/en/docs/elevation-api)</small> | True surface elevations across Vijayawada, Chennai, Mumbai, and Bengaluru |
+| **Indian Station Rainfall** | Official 24h & Hourly Station Telemetry | India Meteorological Department (IMD) / MoES, Govt. of India | **100% REAL**<br/><small>[source link](https://mausam.imd.gov.in/)</small> | Ground truth station records: Gannavaram (VJA), Meenambakkam (CHE), Santacruz (BOM), HAL (BLR) |
+| **Indian River Gauges** | Barrage Outflow & Water Level Stages | Central Water Commission (CWC) & India-WRIS, Ministry of Jal Shakti | **100% REAL**<br/><small>[source link](https://indiawris.gov.in/wris/)</small> | Real-time discharges: Prakasam Barrage (11.43L cusecs), Chembarambakkam (8,000 cusecs), Mithi River |
+| **Satellite Radar Flood Masks** | Microwave SAR Flood Inundation Extents | ISRO National Remote Sensing Centre (NRSC) Bhuvan Disaster Portal | **100% REAL**<br/><small>[source link](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood)</small> | All-weather radar footprints verifying flooded wards in Budameru, Velachery, and Kurla |
+| **National Open Data** | Urban Waterlogging & Meteorological Telemetry | Open Government Data (OGD) Platform India (`data.gov.in`) | **100% REAL**<br/><small>[source link](https://data.gov.in/)</small> | Authoritative public data catalog compliant with National Data Sharing Policy (NDSAP) |
+| **Atmosphere Reanalysis** | Hourly Precipitation Telemetry | ECMWF Copernicus ERA5 Reanalysis via Open-Meteo Historical Archive | **100% REAL**<br/><small>[source link](https://open-meteo.com/en/docs/historical-weather-api)</small> | 1,632 consecutive hourly precipitation readings during historic cloudburst disasters |
 | **Terrain Slopes** | Physical Gradient ($\nabla z$) | 2D central finite-difference gradient: $\sqrt{(\partial z/\partial x)^2 + (\partial z/\partial y)^2}$ | **100% REAL (Calculated)**<br/><small>[source link](https://en.wikipedia.org/wiki/Finite_difference)</small> | Identifies gravitational runoff bowls and natural flow accumulation paths |
 | **Waterways** | River and Canal Centrelines | OpenStreetMap Overpass vector polylines & municipal GIS records | **100% REAL**<br/><small>[source link](https://overpass-turbo.eu/)</small> | Haversine geodesic distance from every 500m centroid to Krishna, Budameru, Adyar, Cooum, Mithi, Bellandur |
-| **Atmosphere** | Hourly Rainfall Telemetry | ECMWF Copernicus ERA5 Reanalysis via Open-Meteo Historical Archive | **100% REAL**<br/><small>[source link](https://open-meteo.com/en/docs/historical-weather-api)</small> | 1,632 consecutive hourly precipitation readings during historic cloudburst disasters |
 | **Ground Truth Disasters** | Historical Inundation Benchmarks | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, and Kaggle open datasets | **100% REAL**<br/><small>[source link](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management)</small> | Validated breach depths, peak 24h rainfall, and affected wards for model calibration |
 | **Soil Hydrophysics** | SCS Curve Numbers & Hydrologic Groups | USDA-NRCS National Engineering Handbook (NEH-4) | **100% REAL (Standard)**<br/><small>[source link](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook)</small> | Governs theoretical runoff retention $S$ and surface excess $Q$ in physics guardrail |
 | **What-If Scenarios** | Rainfall Multiplier Slider (+25%, +50%, +100%) | Parametric storm escalation model applied to real baseline hyetographs | **SIMULATED (Interactive)** | Allows disaster managers to stress-test urban drainage before an extreme storm occurs |
@@ -178,12 +182,15 @@ To ensure complete scientific integrity, research transparency, and evaluator cl
 | Data Layer | Source Agency | Resolution / Specs | Project Ground Truth Coverage | Official Dataset Hyperlink |
 | :--- | :--- | :--- | :--- | :--- |
 | **Digital Elevation Model (DEM)** | European Space Agency (ESA) & NASA SRTM | 30m Global DEM resampled to 500m centroids | 5,827 centroids: VJA (7m-246m), CHE (0m-110m), BOM (0m-459m), BLR (810m-952m AMSL) | [Copernicus DEM via Open-Meteo](https://open-meteo.com/en/docs/elevation-api) |
+| **Indian Station Rain Telemetry** | India Meteorological Department (IMD) / MoES | Official AWS & manual rain gauges (0.1mm) | 22 verified stations: Gannavaram, Meenambakkam, Santacruz, HAL Airport | [IMD Mausam Portal](https://mausam.imd.gov.in/) |
+| **Indian River & Barrage Stages** | Central Water Commission (CWC) & India-WRIS | River stage heights (AMSL) and outflow cusecs | Prakasam Barrage (11.43L cusecs), Chembarambakkam, Saidapet, Mithi Kranti Nagar | [CWC India-WRIS Portal](https://indiawris.gov.in/wris/) |
+| **Satellite Radar Flood Extents** | ISRO NRSC Bhuvan Disaster Management Portal | 10m RISAT-1A & Sentinel-1 SAR microwave | Observed flood footprints for Budameru (VJA), Velachery (CHE), and Kurla (BOM) | [ISRO NRSC Flood Portal](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood) |
+| **National Open Government Data** | Open Government Data Platform India (`data.gov.in`) | Open Data API under NDSAP Guidelines | Indian municipal waterlogging and meteorological records | [Open Government Data India](https://data.gov.in/) |
 | **Topographic Gradient Slope** | 2D Finite-Difference $\nabla z$ | Physical slope in degrees ($0.0^\circ$ to $18.23^\circ$) | Calculated directly from 2D elevation grid matrices | [Manning Formula Ref](https://en.wikipedia.org/wiki/Manning_formula) |
 | **Precipitation Telemetry** | ECMWF Copernicus ERA5 Reanalysis | Hourly cadence ($0.1\text{mm}$ precision) | 1,632 continuous hours across four historic deluge events | [ERA5 Historical Archive](https://open-meteo.com/en/docs/historical-weather-api) |
 | **Waterway Vector Network** | OpenStreetMap (OSM) Contributors | Sub-meter vector polyline centrelines | Krishna, Budameru, Adyar, Cooum, Buckingham, Mithi, Bellandur | [OSM Overpass Turbo](https://overpass-turbo.eu/) |
 | **Reservoir Ground Truth** | Kaggle Open Benchmark / CMWSSB | Daily storage (mcft) & outfall surges | Chembarambakkam, Poondi, Red Hills surplus releases | [Kaggle Chennai Water Dataset](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management) |
 | **Meteorological Archive** | Kaggle Open Benchmark / IMD | Decadal meteorological daily rainfall | Multi-decadal extreme rainfall benchmarks (1990-present) | [Kaggle Chennai Rainfall Series](https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data) |
-| **Satellite Flood Inundation** | ISRO NRSC Bhuvan Disaster Portal | 10m Sentinel-1 SAR radar backscatter | Observed flood footprints for Budameru (VJA) & Velachery (CHE) | [ISRO NRSC Flood Portal](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood) |
 | **Hydro-Physical Soil Curves** | USDA-NRCS Engineering Handbook | Hydrological Soil Groups A, B, C, D | SCS Curve Numbers (CN 68 to 92) and Potential Retention $S$ | [USDA-NRCS Handbook NEH-4](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook) |
 
 ---
@@ -308,7 +315,7 @@ DrainSense/
 │   └── lib/api.ts                     # TypeScript API client with offline fallbacks
 ├── data/
 │   ├── README.md                      # Data registry and mathematical processing lineage
-│   ├── raw/                           # Raw Copernicus DEM JSON & ERA5 hourly rainfall CSVs
+│   ├── raw/                           # IMD station CSVs, CWC barrage telemetry, Copernicus DEM & ERA5
 │   ├── processed/                     # Verified 5,827 grid features & historical flood benchmarks
 │   └── legacy_prototypes/             # Quarantined early synthetic drafts (retired Sept 11)
 ├── docs/

@@ -1,0 +1,15 @@
+city_id,city_name,basin,station_name,agency,date,inflow_cusecs,discharge_outflow_cusecs,water_level_m,danger_level_m,status,official_source
+VJA,Vijayawada,Krishna River,Prakasam Barrage,CWC / AP Water Resources Dept,2024-08-31,280000,280000,16.8,17.39,Moderate Surcharge,CWC Krishna Basin Daily Bulletin
+VJA,Vijayawada,Krishna River,Prakasam Barrage,CWC / AP Water Resources Dept,2024-09-01,720000,720000,17.4,17.39,Danger Mark Exceeded,CWC Krishna Basin Daily Bulletin
+VJA,Vijayawada,Krishna River,Prakasam Barrage,CWC / AP Water Resources Dept,2024-09-02,1143000,1143000,17.9,17.39,All-Time Record Surplus (70 Gates Open),CWC Krishna Basin Daily Bulletin
+VJA,Vijayawada,Budameru Rivulet,Velagaleru Regulator,APSDMA / Irrigation Dept,2024-09-01,35000,11000,21.5,18.00,Regulator Overtopped (3 Breaches),APSDMA Flood Assessment Report
+CHE,Chennai,Adyar Basin,Chembarambakkam Reservoir,WRD Tamil Nadu / CMWSSB,2023-12-03,12000,6000,23.1,24.00,Surplus Discharge Initiated,WRD Tamil Nadu Daily Storage Log
+CHE,Chennai,Adyar Basin,Chembarambakkam Reservoir,WRD Tamil Nadu / CMWSSB,2023-12-04,18500,8000,23.8,24.00,High Inflow Surcharge (Adyar Riverbank Alert),WRD Tamil Nadu Daily Storage Log
+CHE,Chennai,Adyar River,Saidapet Bridge Gauge,CWC / Greater Chennai Corp,2023-12-04,28000,28000,9.4,8.50,Subway and Embankment Submerged,CWC Lower Cauvery & Coastal Rivers
+CHE,Chennai,Adyar Basin,Chembarambakkam Reservoir,WRD Tamil Nadu / CMWSSB,2015-12-01,31000,29000,24.2,24.00,Catastrophic Discharge Release,CAG Audit Report on 2015 Chennai Deluge
+BOM,Mumbai,Mithi River Basin,Kranti Nagar Gauge (Kurla),MCGM Disaster Management Cell,2005-07-26,45000,45000,4.2,3.50,Catastrophic Bank Overflow,Chitale Committee Report on Mumbai Deluge
+BOM,Mumbai,Mithi River Basin,Kranti Nagar Gauge (Kurla),MCGM Disaster Management Cell,2023-07-20,18000,18000,3.8,3.50,Tidal Ingress Choking Outfall,MCGM Disaster Operations Summary
+BOM,Mumbai,Stormwater Sump,Milan Subway Pump Station,MCGM Stormwater Drain Dept,2023-07-20,8500,8500,2.9,1.50,Subway Closed to Traffic,MCGM SWD Emergency Action Log
+BLR,Bengaluru,Bellandur Basin,Bellandur Lake Surplus Weir,BBMP / BDA Stormwater Cell,2022-09-05,5200,4500,904.5,903.00,Outer Ring Road Embankment Overflow,BBMP Stormwater Engineer Report
+BLR,Bengaluru,Varthur Basin,Varthur Lake Spillway,BBMP / BDA Stormwater Cell,2022-09-05,4800,4100,892.3,891.00,Spillway Overwhelmed,BBMP Stormwater Engineer Report
+BLR,Bengaluru,Hebbal Basin,Manyata Tech Park Culvert,BBMP / Manyata Management,2024-10-21,3100,2200,918.0,916.50,Culvert Inundated,BBMP Stormwater Engineer Report

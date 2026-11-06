@@ -23,6 +23,9 @@ frontend/.turbo
 # Data & Models
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/imd_daily_rainfall_stations.csv
+!data/raw/cwc_river_barrage_telemetry.csv
+!data/raw/isro_bhuvan_flood_inundation_benchmarks.json
 data/interim/*
 !data/interim/.gitkeep
 data/processed/drainsense_train_dataset.csv
