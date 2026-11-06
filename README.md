@@ -153,11 +153,27 @@ flowchart TD
 
 ---
 
-## 2. Verified Real Earth Observation Data & Provenance
+## 2. Data Authenticity & Provenance: What is Real vs. Synthetic
 
-> [!IMPORTANT]
-> **Zero Synthetic Data / Zero Mock Proxies:**
-> Every coordinate centroid, elevation, slope, rainfall observation, and drainage canal in DrainSenseAI is sourced directly from verified space agency Earth observations, national meteorological archives, and official open datasets.
+To ensure complete scientific integrity, research transparency, and evaluator clarity, the table below outlines exactly what data is sourced from real-world space agencies and sensor archives, what represents interactive simulation, and what legacy prototypes were quarantined.
+
+### Data Lineage Matrix
+
+| Category | Component / Layer | Source / Methodology | Real or Synthetic? | Purpose in DrainSenseAI |
+| :--- | :--- | :--- | :---: | :--- |
+| **Topography** | 5,827 Digital Elevation Points | Copernicus 30m Global DEM via European Space Agency (ESA) & NASA SRTM | **100% REAL** | True surface elevations across Vijayawada, Chennai, Mumbai, and Bengaluru |
+| **Terrain Slopes** | Physical Gradient ($\nabla z$) | 2D central finite-difference gradient: $\sqrt{(\partial z/\partial x)^2 + (\partial z/\partial y)^2}$ | **100% REAL (Calculated)** | Identifies gravitational runoff bowls and natural flow accumulation paths |
+| **Waterways** | River and Canal Centrelines | OpenStreetMap Overpass vector polylines & municipal GIS records | **100% REAL** | Haversine geodesic distance from every 500m centroid to Krishna, Budameru, Adyar, Cooum, Mithi, Bellandur |
+| **Atmosphere** | Hourly Rainfall Telemetry | ECMWF Copernicus ERA5 Reanalysis via Open-Meteo Historical Archive | **100% REAL** | 1,632 consecutive hourly precipitation readings during historic cloudburst disasters |
+| **Ground Truth Disasters** | Historical Inundation Benchmarks | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, and Kaggle open datasets | **100% REAL** | Validated breach depths, peak 24h rainfall, and affected wards for model calibration |
+| **Soil Hydrophysics** | SCS Curve Numbers & Hydrologic Groups | USDA-NRCS National Engineering Handbook (NEH-4) | **100% REAL (Standard)** | Governs theoretical runoff retention $S$ and surface excess $Q$ in physics guardrail |
+| **What-If Scenarios** | Rainfall Multiplier Slider (+25%, +50%, +100%) | Parametric storm escalation model applied to real baseline hyetographs | **SIMULATED (Interactive)** | Allows disaster managers to stress-test urban drainage before an extreme storm occurs |
+| **Hydrological Synthesis** | Semi-Synthetic Storm Augmentations | SCS-CN hydrographs generated across real topography for 1-in-50-year return periods | **SEMI-SYNTHETIC (Augmented)** | Supplements sparse physical rain gauge networks to train models on extreme unrecorded extremes |
+| **Legacy Grids** | Early 10-city draft JSONs (`amd`, `ccu`, `del`, `cok`, etc.) | Preliminary uniform random coordinate ranges generated during Sept 11 prototype | **RETIRED / QUARANTINED** | Isolated in `data/legacy_prototypes/`. NOT used in active models, APIs, or UI maps |
+
+---
+
+### Detailed Breakdown of Real Data Layers
 
 | Data Layer | Source Agency | Resolution / Specs | Project Ground Truth Coverage | Official Dataset Hyperlink |
 | :--- | :--- | :--- | :--- | :--- |
@@ -291,8 +307,10 @@ DrainSense/
 │   │   └── Navbar.tsx & Sidebar.tsx   # Navigation and city basin switcher
 │   └── lib/api.ts                     # TypeScript API client with offline fallbacks
 ├── data/
+│   ├── README.md                      # Data registry and mathematical processing lineage
 │   ├── raw/                           # Raw Copernicus DEM JSON & ERA5 hourly rainfall CSVs
-│   └── processed/                     # Compiled 5,827 grid features & historical flood JSON
+│   ├── processed/                     # Verified 5,827 grid features & historical flood benchmarks
+│   └── legacy_prototypes/             # Quarantined early synthetic drafts (retired Sept 11)
 ├── docs/
 │   └── assets/                        # Publication-grade PNG charts and figures
 ├── ml/
