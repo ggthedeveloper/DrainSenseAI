@@ -20,14 +20,12 @@ import {
   TrendingDown,
   Clock,
   CheckCircle2,
-  Droplets,
   Building2,
   MapPin,
   X,
   ArrowRight,
   Zap,
   ChevronRight,
-  Truck,
   CornerDownRight,
   Atom,
   Scale,
@@ -219,84 +217,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
         </div>
       </div>
 
-      {/* 2. Key Flood Indicators */}
-      {summary && (
-        <div className="grid grid-cols-2 gap-2 shrink-0">
-          <div className="bg-rose-50/80 border border-rose-200/90 rounded-xl p-2.5 shadow-2xs">
-            <div className="text-[10px] uppercase font-bold text-rose-700 flex items-center justify-between">
-              <span>Critical Zones</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-            </div>
-            <div className="text-lg font-black text-rose-900 mt-0.5 font-mono">
-              {summary.critical_zones}
-              <span className="text-[11px] font-sans font-medium text-rose-700 ml-1">Sectors</span>
-            </div>
-            <div className="text-[10px] text-rose-700 font-mono font-medium mt-0.5">&gt;80% Inundation Probability</div>
-          </div>
-
-          <div className="bg-amber-50/80 border border-amber-200/90 rounded-xl p-2.5 shadow-2xs">
-            <div className="text-[10px] uppercase font-bold text-amber-800">
-              <span>Elevated Risk</span>
-            </div>
-            <div className="text-lg font-black text-amber-900 mt-0.5 font-mono">
-              {summary.high_risk_zones + summary.elevated_zones}
-              <span className="text-[11px] font-sans font-medium text-amber-800 ml-1">Sectors</span>
-            </div>
-            <div className="text-[10px] text-amber-800 font-mono font-medium mt-0.5">40%–80% Probability</div>
-          </div>
-
-          <div className="bg-sky-50/80 border border-sky-200/90 rounded-xl p-2.5 shadow-2xs">
-            <div className="text-[10px] uppercase font-bold text-sky-800 flex items-center gap-1">
-              <Droplets className="w-3 h-3 text-sky-600" />
-              <span>24h Rainfall</span>
-            </div>
-            <div className="text-lg font-black text-sky-900 mt-0.5 font-mono">
-              {summary.current_rainfall_24h_mm}
-              <span className="text-[11px] font-sans font-medium text-sky-800 ml-1">mm</span>
-            </div>
-            <div className="text-[10px] text-sky-800 font-mono font-medium mt-0.5">
-              {summary.rainfall_observed_on
-                ? `Telemetry ${summary.rainfall_observed_on}`
-                : "Custom model input"}
-            </div>
-          </div>
-
-          <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-xl p-2.5 shadow-2xs">
-            <div className="text-[10px] uppercase font-bold text-emerald-800">
-              <span>Safe Uplands</span>
-            </div>
-            <div className="text-lg font-black text-emerald-900 mt-0.5 font-mono">
-              {summary.low_zones}
-              <span className="text-[11px] font-sans font-medium text-emerald-800 ml-1">Sectors</span>
-            </div>
-            <div className="text-[10px] text-emerald-800 font-mono font-medium mt-0.5">&lt;20% Low Probability</div>
-          </div>
-        </div>
-      )}
-
-      {/* 3. Autonomous Fleet Optimizer Action Banner */}
-      {onOpenFleetOptimizer && (
-        <button
-          onClick={onOpenFleetOptimizer}
-          className="w-full flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-teal-50 via-emerald-50 to-[#FBFDFC] border border-teal-200 hover:border-teal-400 hover:shadow-sm text-xs font-bold text-[#12262A] transition-all cursor-pointer shadow-2xs active:scale-[0.99] group"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#115E59] text-white flex items-center justify-center shadow-2xs">
-              <Truck className="w-3.5 h-3.5" />
-            </div>
-            <div className="text-left">
-              <div className="text-[#12262A] text-xs font-bold flex items-center gap-1.5">
-                Autonomous Fleet Dispatch
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-100 text-teal-800 font-mono font-bold">ILP</span>
-              </div>
-              <div className="text-[10px] text-[#4C5E62] font-medium">Generate NDMA Form D-4 Equipment Plan</div>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-teal-700 group-hover:translate-x-0.5 transition-transform" />
-        </button>
-      )}
-
-      {/* 4. Selected Zone Hydrological Inspection */}
+      {/* Zone Hydrological Inspection */}
       <div className="bg-[#FBFDFC] border border-[#D5E2E0] rounded-2xl p-3.5 shadow-sm shrink-0">
         <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-[#E6EFEB]">
           <div className="flex items-center gap-1.5">
