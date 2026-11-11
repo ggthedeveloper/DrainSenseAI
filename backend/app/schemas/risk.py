@@ -50,6 +50,8 @@ class PredictionResponse(BaseModel):
     risk_probability: float
     risk_score: int
     risk_level: str
+    failure_mode: Optional[str] = "NONE_DRY"
+    surface_archetype: Optional[Dict[str, Any]] = None
     prediction_horizon_hours: int
     model_version: str
     terrain: Optional[Dict[str, Any]] = None

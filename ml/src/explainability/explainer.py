@@ -61,10 +61,21 @@ def explain_prediction(features_dict: dict, top_k: int = 4) -> list:
             "explanation": "Low precipitation volume keeps runoff well within stormwater capacity."
         })
 
-    # 2. Elevation & Topography
+    # 2. Elevation, Slope & Topographic Trap
     elev = features_dict.get("elevation_m", 25.0)
     slope = features_dict.get("slope_deg", 1.5)
-    if elev <= 19.5:
+    tpi = features_dict.get("tpi_11", 0.0)
+    trap = features_dict.get("topographic_trap_index", 0.0)
+    
+    if trap >= 0.5 or tpi <= -1.2:
+        factors.append({
+            "factor": "Topographic Depression Basin (TPI Trap)",
+            "impact": "+ HIGH",
+            "value": f"TPI {tpi:.2f} / Trap {trap:.2f}",
+            "direction": "escalating",
+            "explanation": "Multi-scale geomorphology confirms localized topographic bowl that traps convergent runoff."
+        })
+    elif elev <= 19.5:
         factors.append({
             "factor": "Low-Lying Topographic Depression",
             "impact": "+ HIGH",
@@ -72,13 +83,24 @@ def explain_prediction(features_dict: dict, top_k: int = 4) -> list:
             "direction": "escalating",
             "explanation": f"Low elevation ({elev}m) creates natural gravity sump prone to water stagnation."
         })
-    elif elev >= 45.0:
+    elif elev >= 45.0 or slope >= 15.0:
         factors.append({
-            "factor": "High Ridge Elevation",
+            "factor": "High Ridge Elevation & Steep Slope",
             "impact": "- MITIGATING",
-            "value": f"{elev} m AMSL",
+            "value": f"{elev} m AMSL, {slope}°",
             "direction": "mitigating",
-            "explanation": f"High ground elevation ({elev}m) and steep slope prevent water pooling."
+            "explanation": f"High ground elevation ({elev}m) and steep gradient rapidly discharge storm runoff."
+        })
+
+    # 2b. River Tailwater & Outfall Lock
+    stage = features_dict.get("prakasam_stage_m", 3.75)
+    if stage >= 5.0:
+        factors.append({
+            "factor": "Prakasam Barrage High Tailwater Lock",
+            "impact": "+ CRITICAL",
+            "value": f"{stage} m",
+            "direction": "escalating",
+            "explanation": "High Krishna river stage prevents gravity outfall drainage, causing backwater surcharge."
         })
 
     # 3. Flow Accumulation & Drainage Density

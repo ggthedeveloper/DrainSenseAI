@@ -1,0 +1,60 @@
+{
+  "model_version": "2.0",
+  "model_name": "DrainSenseAI 2.0 Calibrated Physics-Informed XGBoost",
+  "model_type": "CalibratedClassifierCV(XGBClassifier, method='sigmoid')",
+  "training_timestamp": "2026-11-11T10:57:15Z",
+  "dataset_reference": "data/processed/drainsense_v2_training_matrix.csv",
+  "scaler_path": "models/production_scaler.joblib",
+  "archetype_model_path": "models/kmeans_surface_archetypes.joblib",
+  "attribution_model_path": "models/drainsense_v2_multiclass_attribution.joblib",
+  "attribution_encoder_path": "models/multiclass_label_encoder.joblib",
+  "feature_columns": [
+    "elevation_m",
+    "slope_deg",
+    "tpi_11",
+    "topographic_trap_index",
+    "distance_to_water_m",
+    "drainage_density_km_km2",
+    "curve_number",
+    "rain_24h_mm",
+    "prakasam_stage_m"
+  ],
+  "thresholds": {
+    "flood_decision_threshold": 0.50,
+    "low_moderate_threshold": 0.20,
+    "moderate_elevated_threshold": 0.40,
+    "elevated_high_threshold": 0.60,
+    "high_critical_threshold": 0.80
+  },
+  "active_model_metrics": {
+    "accuracy": 0.9536,
+    "precision": 0.9888,
+    "recall": 0.8714,
+    "specificity": 0.9950,
+    "npv": 0.9388,
+    "f1_score": 0.9264,
+    "mcc": 0.8965,
+    "roc_auc": 0.9920,
+    "pr_auc": 0.9752,
+    "brier_score": 0.0638
+  },
+  "feature_importances": [
+    {"feature": "rain_24h_mm", "importance": 0.423},
+    {"feature": "tpi_11", "importance": 0.247},
+    {"feature": "elevation_m", "importance": 0.141},
+    {"feature": "topographic_trap_index", "importance": 0.089},
+    {"feature": "prakasam_stage_m", "importance": 0.042},
+    {"feature": "curve_number", "importance": 0.026},
+    {"feature": "slope_deg", "importance": 0.018},
+    {"feature": "distance_to_water_m", "importance": 0.009},
+    {"feature": "drainage_density_km_km2", "importance": 0.005}
+  ],
+  "failure_modes": [
+    "NONE_DRY",
+    "NONE_STEEP_SLOPE",
+    "DEPRESSION_TRAP",
+    "SURFACE_RUNOFF_CHOKE",
+    "COMBINED_COMPOUND",
+    "BARRAGE_BACKWATER"
+  ]
+}

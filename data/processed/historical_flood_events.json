@@ -1,0 +1,75 @@
+[
+  {
+    "city_id": "VJA",
+    "city_name": "Vijayawada / Amaravati",
+    "event_id": "VJA_HIST_2024_09",
+    "title": "September 2024 Budameru Flash Breach & Inundation",
+    "start_date": "2024-08-31",
+    "end_date": "2024-09-03",
+    "peak_24h_rainfall_mm": 240.6,
+    "severity": "CRITICAL",
+    "water_level_m": 4.1,
+    "affected_population_est": 350000,
+    "key_zones": [
+      "Zone 5 - Gunadala / Budameru Corridor",
+      "Zone 1 - One Town (Old City)",
+      "Zone 2 - Two Town / Governorpet"
+    ],
+    "description": "Record torrential deluge combined with upstream Budameru rivulet breach inundated over 35 municipal wards with water depths reaching 2.5 meters in low-lying sumps.",
+    "response_summary": "Mobilized 80 SDRF/NDRF rescue boats, automated barrage gates release of 1.18 million cusecs, and emergency helicopter food drops."
+  },
+  {
+    "city_id": "VJA",
+    "city_name": "Vijayawada / Amaravati",
+    "event_id": "VJA_HIST_2025_08",
+    "title": "August 2025 Southwest Monsoon Extreme Storm",
+    "start_date": "2025-08-06",
+    "end_date": "2025-08-08",
+    "peak_24h_rainfall_mm": 153.6,
+    "severity": "HIGH",
+    "water_level_m": 3.75,
+    "affected_population_est": 110000,
+    "key_zones": [
+      "Zone 3 - Bhavanipuram",
+      "Krishna Riverfront / Outfall Corridor"
+    ],
+    "description": "Intense pluvial cloudburst over saturated urban basins caused localized stormwater conduit choking and roadway waterlogging.",
+    "response_summary": "45 high-capacity dewatering pumps deployed; arterial diversions activated across NH16 underpasses."
+  },
+  {
+    "city_id": "VJA",
+    "city_name": "Vijayawada / Amaravati",
+    "event_id": "VJA_HIST_2023_12",
+    "title": "December 2023 Cyclone Michaung Cloudburst",
+    "start_date": "2023-12-04",
+    "end_date": "2023-12-06",
+    "peak_24h_rainfall_mm": 109.2,
+    "severity": "ELEVATED",
+    "water_level_m": 3.75,
+    "affected_population_est": 75000,
+    "key_zones": [
+      "Zone 4 - Auto Nagar / Kanuru Industrial",
+      "Zone 7 - Patamata"
+    ],
+    "description": "Cyclonic feeder rain bands produced prolonged 48-hour continuous rainfall with high runoff accumulation in flat agricultural-urban fringe.",
+    "response_summary": "Canal sluice gates opened to drain excess stormwater into irrigation outfalls."
+  },
+  {
+    "city_id": "VJA",
+    "city_name": "Vijayawada / Amaravati",
+    "event_id": "VJA_HIST_2022_07",
+    "title": "July 2022 Krishna River High Inflow Flood",
+    "start_date": "2022-07-22",
+    "end_date": "2022-07-25",
+    "peak_24h_rainfall_mm": 117.8,
+    "severity": "HIGH",
+    "water_level_m": 4.5,
+    "affected_population_est": 180000,
+    "key_zones": [
+      "Krishna Riverfront / Outfall Corridor",
+      "Zone 3 - Bhavanipuram"
+    ],
+    "description": "Upstream reservoir releases from Nagarjuna Sagar combined with local cloudburst caused Prakasam Barrage water levels to surge.",
+    "response_summary": "First warning signal hoisted at Prakasam Barrage; riverbank settlements temporarily evacuated to cyclone relief shelters."
+  }
+]
