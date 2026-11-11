@@ -149,7 +149,7 @@ def generate_neural_rag_response(
     crit = summary.get("critical_zones", 0)
     high = summary.get("high_risk_zones", 0)
     elev = summary.get("elevated_zones", 0)
-    total_grids = summary.get("total_grids", 810)
+    total_grids = summary.get("total_grids")
     peak_name = peak_zone.get("zone_name", "Primary Lowland Sump")
     peak_score = peak_zone.get("risk_score", 92)
     peak_elev = peak_zone.get("elevation_m", 18.0)
@@ -509,7 +509,7 @@ def run_ai_copilot(
     context_str = (
         f"City: {city_name} ({city_id})\n"
         f"Current 24h Rainfall: {rain_24h} mm\n"
-        f"Total 500m Grids Monitored: {summary.get('total_grids', 810)}\n"
+        f"Total grids monitored: {summary.get('total_grids')}\n"
         f"Critical Risk Grids (>80%): {crit}\n"
         f"High Risk Grids (60-80%): {high}\n"
         f"Highest Vulnerability Sector: {peak_name} (Elevation: {peak_elev}m AMSL, Risk Score: {peak_score}%)\n"

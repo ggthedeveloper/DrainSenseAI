@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { Navbar } from "../components/Navbar";
 import { Sidebar } from "../components/Sidebar";
-import { LoginPage } from "../components/LoginPage";
 import { LandingPage } from "../components/LandingPage";
 import { RiskMap } from "../components/RiskMap";
 import { ZoneDrawer } from "../components/ZoneDrawer";
@@ -17,361 +17,162 @@ import { ReportsGenerator } from "../components/ReportsGenerator";
 import { SettingsPage } from "../components/SettingsPage";
 import { ResourceOptimizerModal } from "../components/ResourceOptimizerModal";
 import { DataSources } from "../components/DataSources";
-
-import { RiskMapGeoJSON, RiskSummary, ZoneDetail, PriorityZoneItem, CascadeTraceResponse } from "../types";
-import { 
-  fetchCurrentRiskMap, 
-  fetchZoneDetail, 
+import { RainField } from "../components/RainField";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  RiskMapGeoJSON,
+  RiskSummary,
+  ZoneDetail,
+  PriorityZoneItem,
+  CascadeTraceResponse,
+} from "../types";
+import {
+  fetchAlerts,
+  fetchCascadeTrace,
+  fetchCurrentRiskMap,
   fetchHealthStatus,
   fetchPriorityZones,
-  fetchCascadeTrace
+  fetchZoneDetail,
 } from "../lib/api";
-import { SupportedLanguage, getTranslation } from "../lib/i18n";
-import { UserSession, getStoredSession, clearStoredSession, isUserAuthenticated } from "../lib/auth";
 
-import { 
-  ShieldAlert, 
-  RefreshCw 
-} from "lucide-react";
+const ease = [0.16, 1, 0.3, 1] as const;
 
 export default function DashboardPage() {
-  // Auth state
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [showLanding, setShowLanding] = useState<boolean>(true);
-  const [authChecking, setAuthChecking] = useState<boolean>(false);
-
-  // Layout & Theme state
-  const [currentLang, setCurrentLang] = useState<SupportedLanguage>("en");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-
-  // Navigation & Data state
-  const [selectedCity, setSelectedCity] = useState<string>("VJA");
-  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const reduce = useReducedMotion();
+  const [showLanding, setShowLanding] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("VJA");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [mapData, setMapData] = useState<RiskMapGeoJSON | null>(null);
   const [summary, setSummary] = useState<RiskSummary | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapLoading, setMapLoading] = useState(true);
   const [priorityZones, setPriorityZones] = useState<PriorityZoneItem[]>([]);
   const [selectedGridId, setSelectedGridId] = useState<string | null>(null);
   const [zoneDetail, setZoneDetail] = useState<ZoneDetail | null>(null);
   const [cascadePath, setCascadePath] = useState<CascadeTraceResponse | null>(null);
-  const [isFleetOptimizerOpen, setIsFleetOptimizerOpen] = useState<boolean>(false);
-  const [isCascadeLoading, setIsCascadeLoading] = useState<boolean>(false);
-  const [healthStatus, setHealthStatus] = useState<{ status: string; model_version: string }>({
-    status: "HEALTHY",
-    model_version: "v1.0 (Calibrated XGBoost)"
-  });
+  const [isFleetOptimizerOpen, setIsFleetOptimizerOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
+  const [healthStatus, setHealthStatus] = useState<{ status: string; model_version: string } | null>(null);
+  const [compactLayout, setCompactLayout] = useState(false);
 
-  const t = getTranslation(currentLang);
-
-  // Initialize auth session
   useEffect(() => {
-    const { user } = getStoredSession();
-    if (user && isUserAuthenticated()) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      setShowLanding(false);
-    } else {
-      setIsAuthenticated(false);
-      setShowLanding(true);
-    }
-    setAuthChecking(false);
+    const media = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setCompactLayout(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
   }, []);
 
-  // Initialize Theme and Language
   useEffect(() => {
-    const savedTheme = localStorage.getItem("drainsense_theme") as "dark" | "light" | null;
-    const activeTheme = savedTheme || "dark";
-    setTheme(activeTheme);
-    document.documentElement.dataset.theme = activeTheme;
-    document.documentElement.classList.toggle("dark", activeTheme === "dark");
-
-    const savedLang = localStorage.getItem("drainsense_lang") as SupportedLanguage | null;
-    if (savedLang && (savedLang === "en" || savedLang === "hi" || savedLang === "te")) {
-      setCurrentLang(savedLang);
-    }
-
+    localStorage.removeItem("drainsense_lang");
     const savedCollapsed = localStorage.getItem("drainsense_sidebar_collapsed");
-    if (savedCollapsed !== null) {
-      setSidebarCollapsed(savedCollapsed === "true");
-    }
+    if (savedCollapsed != null) setSidebarCollapsed(savedCollapsed === "true");
+    localStorage.removeItem("drainsense_token");
+    localStorage.removeItem("drainsense_user");
   }, []);
 
-  // Theme toggle handler
-  const handleThemeToggle = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    localStorage.setItem("drainsense_theme", nextTheme);
-    document.documentElement.dataset.theme = nextTheme;
-    document.documentElement.classList.toggle("dark", nextTheme === "dark");
-  };
+  useEffect(() => {
+    fetchHealthStatus()
+      .then((h) => setHealthStatus({ status: h.status, model_version: h.model_version || "model" }))
+      .catch(() => setHealthStatus({ status: "OFFLINE", model_version: "" }));
+  }, []);
 
-  // Language change handler
-  const handleLanguageChange = (lang: SupportedLanguage) => {
-    setCurrentLang(lang);
-    localStorage.setItem("drainsense_lang", lang);
-  };
+  useEffect(() => {
+    let cancelled = false;
+    setMapLoading(true);
+    setMapError(null);
+    Promise.all([fetchCurrentRiskMap(selectedCity), fetchPriorityZones(selectedCity)])
+      .then(([map, priority]) => {
+        if (cancelled) return;
+        setMapData(map.geojson);
+        setSummary(map.summary);
+        setPriorityZones(priority.zones || []);
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        setMapData(null);
+        setSummary(null);
+        setPriorityZones([]);
+        setMapError(err.message || "The risk map did not load.");
+      })
+      .finally(() => {
+        if (!cancelled) setMapLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCity]);
 
-  // Sidebar collapse handler
+  useEffect(() => {
+    fetchAlerts(selectedCity)
+      .then((res) => setAlertCount(res.alerts?.length || 0))
+      .catch(() => setAlertCount(0));
+  }, [selectedCity, activeTab]);
+
   const handleToggleSidebar = (collapsed: boolean) => {
     setSidebarCollapsed(collapsed);
     localStorage.setItem("drainsense_sidebar_collapsed", String(collapsed));
   };
 
-  // Logout handler
-  const handleLogout = () => {
-    if (confirm(t.logoutConfirm)) {
-      clearStoredSession();
-      setCurrentUser(null);
-      setIsAuthenticated(false);
-      setShowLanding(true);
-    }
-  };
+  const rainNow = summary?.current_rainfall_24h_mm;
 
-  // Load risk map & priority zones whenever selectedCity changes
-  useEffect(() => {
-    fetchCurrentRiskMap(selectedCity)
-      .then((res) => {
-        setMapData(res.geojson);
-        setSummary(res.summary);
-      })
-      .catch((err) => console.error("Error loading map:", err));
-
-    fetchPriorityZones(selectedCity)
-      .then((res) => {
-        setPriorityZones(res.zones || []);
-      })
-      .catch((err) => console.error("Error loading priority zones:", err));
-  }, [selectedCity]);
-
-  // Load initial health status once
-  useEffect(() => {
-    fetchHealthStatus()
-      .then((h) => {
-        if (h) {
-          setHealthStatus({
-            status: h.status,
-            model_version: h.model_version || "v1.0"
-          });
-        }
-      })
-      .catch((err) => console.error("Health fetch error:", err));
-  }, []);
-
-  // When a grid is clicked, fetch its zone detail
   const handleSelectGrid = async (gridId: string) => {
     setSelectedGridId(gridId);
+    if (rainNow == null) {
+      setZoneDetail(null);
+      return;
+    }
     try {
-      const detail = await fetchZoneDetail(gridId, summary?.current_rainfall_24h_mm || 145.0);
+      const detail = await fetchZoneDetail(gridId, rainNow);
       setZoneDetail(detail);
     } catch (e) {
-      console.error("Error loading zone detail:", e);
+      console.error(e);
+      setZoneDetail(null);
     }
   };
 
-  // Novelty 1: Trigger topological flood cascade trace
   const handleTriggerCascade = async (gridId: string) => {
-    setIsCascadeLoading(true);
+    if (rainNow == null) {
+      setCascadePath(null);
+      return;
+    }
     try {
-      const trace = await fetchCascadeTrace(gridId);
+      const trace = await fetchCascadeTrace(gridId, rainNow);
       setCascadePath(trace);
     } catch (e) {
-      console.error("Error loading cascade trace:", e);
-    } finally {
-      setIsCascadeLoading(false);
+      console.error(e);
+      setCascadePath(null);
     }
   };
 
-  const cityIdToName = (cid: string) => {
-    const map: Record<string, string> = {
-      VJA: "Vijayawada / Amaravati (AP)",
-      CHE: "Chennai (TN)",
-      BOM: "Mumbai (MH)",
-      BLR: "Bengaluru (KA)",
-      DEL: "Delhi NCR (DL)",
-      HYD: "Hyderabad (TG)",
-      CCU: "Kolkata (WB)",
-      AMD: "Ahmedabad (GJ)",
-      PNQ: "Pune (MH)",
-      COK: "Kochi (KL)",
-      GAU: "Guwahati (AS)",
-      PAT: "Patna (BR)"
-    };
-    return map[cid] || cid;
-  };
-
-  const cityCatchmentLabels: Record<string, { rainRegion: string; threatSector: string; breachCorridor: string; sampleCritical: string; sampleLow: string }> = {
-    VJA: {
-      rainRegion: "Prakasam Catchment",
-      threatSector: "Ajit Singh Nagar",
-      breachCorridor: "Budameru Inundation Corridor",
-      sampleCritical: "VJA_0036",
-      sampleLow: "VJA_0001"
-    },
-    CHE: {
-      rainRegion: "Adyar/Cooum Basin",
-      threatSector: "Velachery & Kotturpuram",
-      breachCorridor: "Adyar River Overflow Corridor",
-      sampleCritical: "CHE_0110",
-      sampleLow: "CHE_0001"
-    },
-    BOM: {
-      rainRegion: "Mithi River Catchment",
-      threatSector: "Kurla & Milan Subway",
-      breachCorridor: "BKC/Mithi Lowland Sump",
-      sampleCritical: "BOM_0120",
-      sampleLow: "BOM_0001"
-    },
-    BLR: {
-      rainRegion: "Bellandur Valley Basin",
-      threatSector: "Rainbow Drive & EcoSpace",
-      breachCorridor: "Outer Ring Road Rajakaluve",
-      sampleCritical: "BLR_0140",
-      sampleLow: "BLR_0001"
-    },
-    DEL: {
-      rainRegion: "Yamuna Floodplain Catchment",
-      threatSector: "Yamuna Bazar & ITO Ring Road",
-      breachCorridor: "Najafgarh Drain Outfall",
-      sampleCritical: "DEL_0050",
-      sampleLow: "DEL_0001"
-    },
-    HYD: {
-      rainRegion: "Musi River & Hussain Sagar",
-      threatSector: "Moosarambagh & Begumpet Nala",
-      breachCorridor: "Tolichowki / Nadeem Colony Sump",
-      sampleCritical: "HYD_0045",
-      sampleLow: "HYD_0001"
-    },
-    CCU: {
-      rainRegion: "Hooghly Tidal Basin",
-      threatSector: "Thanthania & Behala",
-      breachCorridor: "Circular Canal Outfall",
-      sampleCritical: "CCU_0035",
-      sampleLow: "CCU_0001"
-    },
-    AMD: {
-      rainRegion: "Sabarmati Riverfront Catchment",
-      threatSector: "Akhbarnagar Underpass & Vatva",
-      breachCorridor: "Kharicut Canal Tailback",
-      sampleCritical: "AMD_0040",
-      sampleLow: "AMD_0001"
-    },
-    PNQ: {
-      rainRegion: "Mula-Mutha Basin",
-      threatSector: "Ambil Odha & Sinhagad Road",
-      breachCorridor: "Pulachi Wadi Riverfront Sump",
-      sampleCritical: "PNQ_0030",
-      sampleLow: "PNQ_0001"
-    },
-    COK: {
-      rainRegion: "Periyar & Vembanad Estuary",
-      threatSector: "Kaloor Stadium Sump & Aluva",
-      breachCorridor: "Edappally Canal Choke",
-      sampleCritical: "COK_0025",
-      sampleLow: "COK_0001"
-    },
-    GAU: {
-      rainRegion: "Brahmaputra Valley Basin",
-      threatSector: "Anil Nagar & Bharalu Rivulet",
-      breachCorridor: "Deepor Beel Catchment",
-      sampleCritical: "GAU_0020",
-      sampleLow: "GAU_0001"
-    },
-    PAT: {
-      rainRegion: "Ganga & Punpun Confluence",
-      threatSector: "Rajendra Nagar & Kankarbagh",
-      breachCorridor: "Badshahi Nala Sump",
-      sampleCritical: "PAT_0030",
-      sampleLow: "PAT_0001"
-    }
-  };
-
-  const currentMeta = cityCatchmentLabels[selectedCity] || cityCatchmentLabels["VJA"];
-
-  // Authentication Gate Check
-  if (authChecking) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090d16] text-slate-300">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 mb-4 animate-pulse">
-          <ShieldAlert className="w-6 h-6" />
-        </div>
-        <div className="flex items-center gap-2 text-sm font-mono">
-          <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />
-          <span>Verifying Command Session...</span>
-        </div>
-      </div>
-    );
+  if (showLanding) {
+    return <LandingPage onEnterDashboard={() => setShowLanding(false)} />;
   }
 
-  // If not authenticated or showLanding is true, display the cinematic landing page
-  if (!isAuthenticated || showLanding) {
-    return (
-      <LandingPage
-        onEnterDashboard={(user) => {
-          setCurrentUser(user);
-          setIsAuthenticated(true);
-          setShowLanding(false);
-        }}
-        currentLang={currentLang}
-        onLanguageChange={handleLanguageChange}
-        currentTheme={theme}
-        onThemeToggle={handleThemeToggle}
-      />
-    );
-  }
+  const dashboard = activeTab === "dashboard" || activeTab === "map";
 
   return (
-    <div className={`min-h-screen flex selection:bg-blue-600 selection:text-white relative overflow-x-hidden ${
-      theme === "light" ? "theme-light bg-slate-50 text-slate-900" : "bg-[#070E1B] text-slate-100"
-    }`}>
-      {/* 1. Cinematic Atmospheric Monsoon Backdrop across Dashboard */}
-      <div 
-        className={`fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0 transition-opacity duration-300 ${
-          theme === "light" ? "opacity-30 brightness-105" : "opacity-65 brightness-110 contrast-105"
-        }`}
-        style={{ backgroundImage: `url('/monsoon_backdrop.jpg')` }}
+    <div className="flex h-dvh overflow-hidden bg-[#F3F7F6] text-[#12262A]">
+      <RainField />
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={handleToggleSidebar}
+        isMobileOpen={isMobileMenuOpen}
+        setIsMobileOpen={setIsMobileMenuOpen}
+        currentLang="en"
+        alertCount={alertCount}
       />
-      {/* 2. Atmospheric Daylight/Deluge Vignette & Ambient Radial Lighting */}
-      <div className={`fixed inset-0 pointer-events-none z-0 transition-all duration-300 ${
-        theme === "light"
-          ? "bg-gradient-to-b from-slate-100/85 via-white/80 to-slate-200/90"
-          : "bg-gradient-to-b from-[#070E1B]/60 via-[#070E1B]/45 to-[#070E1B]/75"
-      }`} />
-      <div className={`fixed top-0 left-1/3 w-[650px] h-[350px] rounded-full blur-[160px] pointer-events-none z-0 ${
-        theme === "light" ? "bg-sky-400/10" : "bg-cyan-500/20"
-      }`} />
-      <div className={`fixed bottom-0 right-1/4 w-[600px] h-[350px] rounded-full blur-[170px] pointer-events-none z-0 ${
-        theme === "light" ? "bg-blue-400/10" : "bg-blue-600/20"
-      }`} />
-
-      {/* Expandable/Collapsible Sidebar + Mobile Drawer */}
-      <div className="relative z-20">
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          isCollapsed={sidebarCollapsed}
-          setIsCollapsed={handleToggleSidebar}
-          isMobileOpen={isMobileMenuOpen}
-          setIsMobileOpen={setIsMobileMenuOpen}
-          currentLang={currentLang}
-          onLanguageChange={handleLanguageChange}
-          currentTheme={theme}
-          onThemeToggle={handleThemeToggle}
-          currentUser={currentUser}
-          onLogout={handleLogout}
-        />
-      </div>
-
-      {/* Main Layout Area with responsive sidebar offset */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      }`}>
-        {/* Streamlined Top Header Navigation (No Redundant Tabs) */}
+      <div
+        className={`relative z-10 flex min-h-0 min-w-0 flex-1 flex-col transition-[padding] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          sidebarCollapsed ? "lg:pl-[4.5rem]" : "lg:pl-64"
+        }`}
+      >
         <Navbar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
           selectedCity={selectedCity}
           onSelectCity={(cityId) => {
             setSelectedCity(cityId);
@@ -381,130 +182,121 @@ export default function DashboardPage() {
           }}
           healthStatus={healthStatus}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
-          onOpenLanding={() => setShowLanding(true)}
         />
-
-        {/* Main Body View */}
-        <main className="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 lg:p-5 space-y-5 relative z-10">
-          {/* Tab 1: Dashboard & Live Risk Map (Strict Two-Part Layout) */}
-          {(activeTab === "dashboard" || activeTab === "map") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 h-[calc(100vh-5.25rem)] min-h-[640px]">
-              {/* Left Column: Google Maps Surface (~60-65% Desktop Width) */}
-              <div className="lg:col-span-7 xl:col-span-8 h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-cyan-500/20 bg-slate-950/75 backdrop-blur-xl relative min-h-[500px]">
-                <RiskMap
-                  cityId={selectedCity}
-                  mapData={mapData}
-                  onSelectGrid={handleSelectGrid}
-                  selectedGridId={selectedGridId}
-                  cascadePath={cascadePath}
-                  onClearCascade={() => setCascadePath(null)}
-                />
+        <main className={`min-h-0 flex-1 ${dashboard ? "overflow-hidden" : "overflow-y-auto"} px-4 py-4 sm:px-5`}>
+          <motion.div
+            key={activeTab}
+            className={dashboard ? "h-full min-h-0" : "mx-auto max-w-[1400px]"}
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease }}
+          >
+            {dashboard && (
+              <div className="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="min-h-[50dvh] overflow-hidden rounded-xl border border-[#D5E2E0] bg-[#FBFDFC] lg:col-span-8 lg:min-h-0">
+                  {mapLoading && <Skeleton className="h-full min-h-[50dvh] w-full rounded-none" />}
+                  {!mapLoading && mapError && (
+                    <div className="flex h-full min-h-[50dvh] items-center justify-center p-8 text-center">
+                      <div>
+                        <p className="text-lg font-semibold">The risk map did not load.</p>
+                        <p className="mt-2 text-sm text-[#4C5E62]">{mapError}</p>
+                      </div>
+                    </div>
+                  )}
+                  {!mapLoading && !mapError && mapData && (
+                    <RiskMap
+                      cityId={selectedCity}
+                      mapData={mapData}
+                      onSelectGrid={handleSelectGrid}
+                      selectedGridId={selectedGridId}
+                      cascadePath={cascadePath}
+                      onClearCascade={() => setCascadePath(null)}
+                      baseRain24h={rainNow}
+                    />
+                  )}
+                </div>
+                <div className="min-h-0 overflow-hidden lg:col-span-4">
+                  <ScrollArea className="h-full">
+                  <DashboardControlPanel
+                    cityId={selectedCity}
+                    cityName="Vijayawada / Amaravati"
+                    summary={summary}
+                    selectedGridId={selectedGridId}
+                    zoneDetail={zoneDetail}
+                    priorityZones={priorityZones}
+                    currentLang="en"
+                    onSelectGrid={handleSelectGrid}
+                    onClearSelectedGrid={() => {
+                      setSelectedGridId(null);
+                      setZoneDetail(null);
+                    }}
+                    onApplyScenarioToMap={(mult) => {
+                      if (summary == null) return;
+                      fetchCurrentRiskMap(selectedCity, summary.current_rainfall_24h_mm * mult)
+                        .then((res) => setMapData(res.geojson))
+                        .catch((err) => setMapError(err.message));
+                    }}
+                    onResetScenarioOnMap={() => {
+                      fetchCurrentRiskMap(selectedCity)
+                        .then((res) => {
+                          setMapData(res.geojson);
+                          setSummary(res.summary);
+                          setMapError(null);
+                        })
+                        .catch((err) => setMapError(err.message));
+                    }}
+                    healthStatus={healthStatus || { status: "OFFLINE", model_version: "" }}
+                    onTriggerCascade={handleTriggerCascade}
+                    onOpenFleetOptimizer={() => setIsFleetOptimizerOpen(true)}
+                    activeCascadePath={cascadePath}
+                    onClearCascade={() => setCascadePath(null)}
+                  />
+                  </ScrollArea>
+                </div>
               </div>
-
-              {/* Right Column: Consolidated Municipal Information & Control Panel (~35-40% Desktop Width) */}
-              <div className="lg:col-span-5 xl:col-span-4 h-full overflow-hidden flex flex-col">
-                <DashboardControlPanel
-                  cityId={selectedCity}
-                  cityName={cityIdToName(selectedCity)}
-                  summary={summary}
-                  selectedGridId={selectedGridId}
-                  zoneDetail={zoneDetail}
-                  priorityZones={priorityZones}
-                  currentLang={currentLang}
-                  onSelectGrid={handleSelectGrid}
-                  onClearSelectedGrid={() => {
-                    setSelectedGridId(null);
-                    setZoneDetail(null);
-                  }}
-                  onApplyScenarioToMap={(mult) => {
-                    if (summary) {
-                      fetchCurrentRiskMap(selectedCity, Math.round(summary.current_rainfall_24h_mm * mult))
-                        .then((res) => setMapData(res.geojson));
-                    }
-                  }}
-                  onResetScenarioOnMap={() => {
-                    fetchCurrentRiskMap(selectedCity)
-                      .then((res) => setMapData(res.geojson));
-                  }}
-                  healthStatus={healthStatus}
-                  onTriggerCascade={handleTriggerCascade}
-                  onOpenFleetOptimizer={() => setIsFleetOptimizerOpen(true)}
-                  activeCascadePath={cascadePath}
-                  onClearCascade={() => setCascadePath(null)}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Tab 2: Drain Assets Registry */}
-          {activeTab === "assets" && (
-            <DrainAssets
-              currentCityId={selectedCity}
-              currentLang={currentLang}
-            />
-          )}
-
-          {/* Tab 3: Alerts & Dispatches */}
-          {activeTab === "alerts" && (
-            <AlertsManager
-              currentCityId={selectedCity}
-              currentLang={currentLang}
-              currentUser={currentUser}
-              onNavigateToMap={(gid) => {
-                setActiveTab("map");
-                handleSelectGrid(gid);
-              }}
-            />
-          )}
-
-          {/* Tab 4: Priority Response List */}
-          {activeTab === "priority" && (
-            <PriorityList
-              cityId={selectedCity}
-              onSelectZone={(gid) => {
-                setActiveTab("map");
-                handleSelectGrid(gid);
-              }}
-            />
-          )}
-
-          {/* Tab 5: Historical Deluges */}
-          {activeTab === "historical" && <HistoricalEvents cityId={selectedCity} />}
-
-          {/* Tab 6: Model Analytics */}
-          {activeTab === "analytics" && <ModelAnalytics />}
-
-          {/* Tab 6b: Data Sources & Provenance */}
-          {activeTab === "sources" && <DataSources />}
-
-          {/* Tab 7: Municipal Reports */}
-          {activeTab === "reports" && (
-            <ReportsGenerator
-              currentCityId={selectedCity}
-              summary={summary}
-              priorityZones={priorityZones}
-              currentLang={currentLang}
-              currentUser={currentUser}
-            />
-          )}
-
-          {/* Tab 8: Settings & Admin Profile */}
-          {activeTab === "settings" && (
-            <SettingsPage
-              currentLang={currentLang}
-              onLanguageChange={handleLanguageChange}
-              currentTheme={theme}
-              onThemeToggle={handleThemeToggle}
-              currentUser={currentUser}
-              onLogout={handleLogout}
-              healthStatus={healthStatus}
-            />
-          )}
+            )}
+            {activeTab === "assets" && <DrainAssets currentCityId={selectedCity} currentLang="en" />}
+            {activeTab === "alerts" && (
+              <AlertsManager
+                currentCityId={selectedCity}
+                currentLang="en"
+                onNavigateToMap={(gid) => {
+                  setActiveTab("map");
+                  handleSelectGrid(gid);
+                }}
+              />
+            )}
+            {activeTab === "priority" && (
+              <PriorityList
+                cityId={selectedCity}
+                onSelectZone={(gid) => {
+                  setActiveTab("map");
+                  handleSelectGrid(gid);
+                }}
+              />
+            )}
+            {activeTab === "historical" && <HistoricalEvents cityId={selectedCity} />}
+            {activeTab === "analytics" && <ModelAnalytics />}
+            {activeTab === "sources" && <DataSources />}
+            {activeTab === "reports" && (
+              <ReportsGenerator
+                currentCityId={selectedCity}
+                summary={summary}
+                priorityZones={priorityZones}
+                currentLang="en"
+              />
+            )}
+            {activeTab === "settings" && (
+              <SettingsPage
+                currentLang="en"
+                healthStatus={healthStatus}
+              />
+            )}
+          </motion.div>
         </main>
       </div>
 
-      {/* Zone Detail Sliding Drawer - Mobile Only (on Desktop, details and TreeSHAP are embedded in DashboardControlPanel) */}
-      <div className="lg:hidden">
+      {compactLayout && (
         <ZoneDrawer
           zone={zoneDetail}
           onClose={() => {
@@ -512,14 +304,13 @@ export default function DashboardPage() {
             setSelectedGridId(null);
           }}
         />
-      </div>
+      )}
 
-      {/* Novelty 4: Autonomous Operations-Research Municipal Dispatch Optimizer Modal */}
       <ResourceOptimizerModal
         isOpen={isFleetOptimizerOpen}
         onClose={() => setIsFleetOptimizerOpen(false)}
         cityId={selectedCity}
-        cityName={cityIdToName(selectedCity)}
+        cityName="Vijayawada / Amaravati"
       />
     </div>
   );

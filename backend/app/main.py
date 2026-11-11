@@ -44,14 +44,17 @@ def health_check():
     model_loaded = predictor_service.model is not None
     model_version = predictor_service.metadata.get("model_version", "None") if predictor_service.metadata else "None"
     total_grids = len(predictor_service.all_grid_features_df) if predictor_service.all_grid_features_df is not None else 0
-    
+    observed = predictor_service.latest_observation or {}
+    latest = observed.get("date") or "unavailable"
+
     return {
         "status": "HEALTHY" if model_loaded else "DEGRADED",
         "database": "CONNECTED",
         "model_loaded": model_loaded,
         "model_version": model_version,
         "total_grids": total_grids,
-        "latest_data_timestamp": "2026-09-10T08:30:00Z"
+        "latest_data_timestamp": latest,
+        "load_error": predictor_service.load_error,
     }
 
 # Mount API router

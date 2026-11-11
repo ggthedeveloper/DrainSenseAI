@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { DispatchOptimizationResponse } from "../types";
 import { fetchOptimizeDispatch } from "../lib/api";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface ResourceOptimizerModalProps {
   isOpen: boolean;
@@ -33,29 +34,30 @@ export const ResourceOptimizerModal: React.FC<ResourceOptimizerModalProps> = ({
   onClose,
   cityId,
   cityName,
-  officerName = "Gaurav (Administrator)"
+  officerName = "Municipal desk"
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<"allocations" | "memorandum">("allocations");
   const [loading, setLoading] = useState<boolean>(true);
   const [dispatchData, setDispatchData] = useState<DispatchOptimizationResponse | null>(null);
-  const [isMobilizing, setIsMobilizing] = useState<boolean>(false);
-  const [mobilizeSuccess, setMobilizeSuccess] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      setMobilizeSuccess(false);
-      fetchOptimizeDispatch(cityId, undefined, officerName)
-        .then((data) => {
-          setDispatchData(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }
+    if (!isOpen) return;
+    setLoading(true);
+    setError(null);
+    setDispatchData(null);
+    fetchOptimizeDispatch(cityId, undefined, officerName)
+      .then((data) => {
+        setDispatchData(data);
+        setLoading(false);
+      })
+      .catch((err: Error) => {
+        setDispatchData(null);
+        setError(err.message || "The dispatch service did not respond.");
+        setLoading(false);
+      });
   }, [isOpen, cityId, officerName]);
-
-  if (!isOpen) return null;
 
   const handleCopyMemo = () => {
     if (dispatchData?.ndma_memo_text) {
@@ -96,17 +98,10 @@ export const ResourceOptimizerModal: React.FC<ResourceOptimizerModalProps> = ({
     }
   };
 
-  const handleMobilize = () => {
-    setIsMobilizing(true);
-    setTimeout(() => {
-      setIsMobilizing(false);
-      setMobilizeSuccess(true);
-    }, 1200);
-  };
-
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-700/80 bg-slate-900 shadow-2xl overflow-hidden text-slate-100">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="flex max-h-[90vh] w-full max-w-5xl flex-col gap-0 overflow-hidden border-[#D5E2E0] bg-[#FBFDFC] p-0 text-[#12262A] sm:rounded-xl">
+      <DialogTitle className="sr-only">Fleet dispatch plan</DialogTitle>
         
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-950/40 via-slate-900 to-indigo-950/40">
@@ -148,6 +143,10 @@ export const ResourceOptimizerModal: React.FC<ResourceOptimizerModalProps> = ({
         )}
 
         {/* Loaded Content */}
+        {!loading && error && (
+          <p className="px-6 py-10 text-sm text-[#4C5E62]">{error}</p>
+        )}
+
         {!loading && dispatchData && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Top KPI Summary Banner */}
@@ -317,57 +316,23 @@ export const ResourceOptimizerModal: React.FC<ResourceOptimizerModalProps> = ({
             )}
 
             {/* Modal Footer / Mobilization Trigger */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {mobilizeSuccess ? (
-                  <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Directive Transmitted to Municipal Wireless VHF Network & Field Depots!
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                    Authorization requires Senior Municipal Disaster Officer credential.
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={handleMobilize}
-                  disabled={isMobilizing || mobilizeSuccess}
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all disabled:opacity-50"
-                >
-                  {isMobilizing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Broadcasting Directive...
-                    </>
-                  ) : mobilizeSuccess ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      Fleet Mobilized
-                    </>
-                  ) : (
-                    <>
-                      <SendHorizontal className="w-4 h-4" />
-                      Authorize & Mobilize Response Fleet
-                    </>
-                  )}
-                </button>
-              </div>
+            <div className="p-4 border-t border-[#D5E2E0] bg-[#F3F7F6] flex items-center justify-between gap-3">
+              <span className="text-[11px] text-[#4C5E62] flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-[#8A6116]" />
+                This screen does not send a field order.
+              </span>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#115E59] text-white"
+              >
+                Close
+              </button>
             </div>
 
           </div>
         )}
 
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

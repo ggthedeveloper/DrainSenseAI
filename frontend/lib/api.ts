@@ -1,9 +1,9 @@
-import { 
-  RiskMapGeoJSON, 
-  RiskSummary, 
-  ZoneDetail, 
-  SimulationResult, 
-  PriorityZoneItem, 
+import {
+  RiskMapGeoJSON,
+  RiskSummary,
+  ZoneDetail,
+  SimulationResult,
+  PriorityZoneItem,
   HistoricalEventItem,
   DrainAsset,
   AlertItem,
@@ -11,395 +11,174 @@ import {
   CascadeTraceResponse,
   PhysicsAuditResponse,
   TemporalNowcastResponse,
-  DispatchOptimizationResponse
+  DispatchOptimizationResponse,
 } from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export class ApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+async function request<T>(url: string, init?: RequestInit): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(url, { cache: "no-store", ...init });
+  } catch {
+    throw new ApiError("The service is unreachable.");
+  }
+  if (!res.ok) {
+    throw new ApiError(`Request failed (${res.status}).`);
+  }
+  return (await res.json()) as T;
+}
+
+function rainQuery(rain24h?: number) {
+  if (rain24h == null || Number.isNaN(rain24h)) return "";
+  return `&rain_24h=${encodeURIComponent(String(rain24h))}`;
+}
+
 export async function fetchHealthStatus() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/health`, { cache: "no-store" });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    // Return offline status
-  }
-  return {
-    status: "OFFLINE",
-    database: "DISCONNECTED",
-    model_loaded: true,
-    model_version: "v1.0 (Calibrated XGBoost)",
-    total_grids: 5827,
-    latest_data_timestamp: "2026-09-10T08:30:00Z"
-  };
+  return request<{ status: string; model_version?: string; database?: string; model_loaded?: boolean }>(
+    `${API_BASE_URL}/health`
+  );
 }
 
-export async function fetchCurrentRiskMap(cityId: string = "VJA", rain24h: number = 145.0): Promise<{ summary: RiskSummary; geojson: RiskMapGeoJSON }> {
+export async function fetchCurrentRiskMap(
+  cityId: string,
+  rain24h?: number
+): Promise<{ summary: RiskSummary; geojson: RiskMapGeoJSON }> {
   const cid = cityId.toUpperCase();
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/risk/map?city_id=${cid}&rain_24h=${rain24h}`, { cache: "no-store" });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn(`Backend unavailable, loading cached fallback for ${cid}.`);
-  }
-  // Local fallback from public assets
-  const fallback = await fetch(`/data/current_risk_${cid.toLowerCase()}.json`);
-  return await fallback.json();
+  const rain = rain24h == null ? "" : `&rain_24h=${encodeURIComponent(String(rain24h))}`;
+  return request(`${API_BASE_URL}/api/v1/risk/map?city_id=${cid}${rain}`);
 }
 
-export async function fetchZoneDetail(gridId: string, rain24h: number = 145.0): Promise<ZoneDetail> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/risk/${gridId}?rain_24h=${rain24h}`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Backend unavailable, synthesizing detail from cached geojson.");
-  }
-
-  // Derive city from grid prefix
-  const cid = gridId.split("_")[0] || "VJA";
-  const mapData = await fetchCurrentRiskMap(cid, rain24h);
-  const match = mapData.geojson.features.find((f) => f.properties.grid_id === gridId);
-  const p = match ? match.properties : {
-    grid_id: gridId,
-    city_id: cid,
-    zone_name: "Urban Monitoring Sector",
-    latitude: 16.512,
-    longitude: 80.640,
-    elevation_m: 22.0,
-    slope_deg: 1.2,
-    flow_accumulation: 35.0,
-    risk_score: 50,
-    risk_level: "ELEVATED" as const
-  };
-
-  return {
-    grid_id: p.grid_id,
-    city_id: cid,
-    zone_name: p.zone_name,
-    latitude: p.latitude,
-    longitude: p.longitude,
-    risk_probability: (p.risk_score || 50) / 100.0,
-    risk_score: p.risk_score || 50,
-    risk_level: p.risk_level,
-    prediction_horizon_hours: 3,
-    model_version: "v1.0 (Calibrated XGBoost)",
-    terrain: {
-      elevation_m: p.elevation_m,
-      slope_deg: p.slope_deg,
-      flow_accumulation: p.flow_accumulation,
-      drainage_density: 1.8,
-      distance_to_water_m: 1200.0
-    },
-    rainfall_summary: {
-      rain_1h_mm: 24.5,
-      rain_3h_mm: 48.0,
-      rain_6h_mm: 85.0,
-      rain_24h_mm: rain24h
-    },
-    top_factors: [
-      {
-        factor: "24-Hour Cumulative Rainfall",
-        impact: "+ CRITICAL",
-        value: `${rain24h} mm`,
-        direction: "escalating",
-        explanation: "Exceeds standard 120mm municipal stormwater discharge threshold."
-      },
-      {
-        factor: "Low Ground Elevation",
-        impact: "+ HIGH",
-        value: `${p.elevation_m} m AMSL`,
-        direction: "escalating",
-        explanation: "Topographic sump prone to overland storm runoff stagnation."
-      }
-    ],
-    recommended_actions: [
-      "Deploy auxiliary high-capacity pumps along vulnerable culverts.",
-      "Issue road waterlogging advisory for low-lying underpasses.",
-      "Hourly monitoring of river/canal gauge levels."
-    ]
-  };
+export async function fetchZoneDetail(gridId: string, rain24h?: number): Promise<ZoneDetail> {
+  return request(`${API_BASE_URL}/api/v1/risk/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`);
 }
 
-export async function runSimulation(cityId: string = "VJA", multiplier: number = 1.25, baseRain24h: number = 145.0): Promise<SimulationResult> {
-  const cid = cityId.toUpperCase();
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/simulate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        city_id: cid,
-        multiplier,
-        base_rain_24h_mm: baseRain24h,
-        base_rain_6h_mm: baseRain24h * 0.58,
-        base_rain_3h_mm: baseRain24h * 0.33,
-        base_rain_1h_mm: baseRain24h * 0.17
-      })
-    });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Backend simulation endpoint unavailable, using mathematical projection.");
-  }
-
-  const baseMap = await fetchCurrentRiskMap(cid, baseRain24h);
-  const baseSummary = baseMap.summary;
-  const simRain = Math.round(baseRain24h * multiplier * 10) / 10;
-  const pctEscalation = Math.min(1.0, (multiplier - 1.0) * 1.6);
-  const newCritical = Math.round(baseSummary.high_risk_zones * pctEscalation + 22 * (multiplier - 1.0));
-
-  return {
-    city_id: cid,
-    simulation_scenario: {
+export async function runSimulation(
+  cityId: string,
+  multiplier: number,
+  baseRain24h: number
+): Promise<SimulationResult> {
+  return request(`${API_BASE_URL}/api/v1/simulate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      city_id: cityId.toUpperCase(),
       multiplier,
-      percentage_increase: `+${Math.round((multiplier - 1.0) * 100)}%`,
-      scenario_rainfall_24h_mm: simRain,
-      baseline_rainfall_24h_mm: baseRain24h
-    },
-    baseline_summary: baseSummary,
-    scenario_summary: {
-      ...baseSummary,
-      critical_zones: baseSummary.critical_zones + newCritical,
-      high_risk_zones: Math.max(0, baseSummary.high_risk_zones - newCritical + 28),
-      current_rainfall_24h_mm: simRain
-    },
-    impact_deltas: {
-      new_critical_zones: newCritical,
-      new_high_risk_zones: 28,
-      total_newly_escalated_zones: newCritical + 28,
-      newly_escalated_grid_ids: [`${cid}_0012`, `${cid}_0045`, `${cid}_0088`, `${cid}_0120`]
-    },
-    scientific_note: "Model scenario projection based on calibrated hydrological susceptibility curve."
-  };
+      base_rain_24h_mm: baseRain24h,
+    }),
+  });
 }
 
-export async function fetchPriorityZones(cityId: string = "VJA"): Promise<{ total_prioritized: number; zones: PriorityZoneItem[] }> {
-  const cid = cityId.toUpperCase();
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/risk/priority-zones?city_id=${cid}&limit=10`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Backend unavailable, loading cached priority zones.");
-  }
-
-  const mapData = await fetchCurrentRiskMap(cid);
-  const sorted = [...mapData.geojson.features]
-    .sort((a, b) => b.properties.priority_score - a.properties.priority_score)
-    .slice(0, 10);
-
-  return {
-    total_prioritized: sorted.length,
-    zones: sorted.map((f) => ({
-      grid_id: f.properties.grid_id,
-      city_id: cid,
-      zone_name: f.properties.zone_name,
-      risk_level: f.properties.risk_level,
-      risk_score: f.properties.risk_score,
-      priority_score: f.properties.priority_score,
-      elevation_m: f.properties.elevation_m,
-      distance_to_water_m: 650.0,
-      reason: `Critical inundation susceptibility (${f.properties.risk_score}%) in low-elevation sector (${f.properties.elevation_m}m AMSL).`,
-      suggested_action: "Stage 100+ HP dewatering pumps and clear arterial culverts."
-    }))
-  };
+export async function fetchPriorityZones(
+  cityId: string
+): Promise<{ total_prioritized: number; zones: PriorityZoneItem[] }> {
+  return request(`${API_BASE_URL}/api/v1/risk/priority-zones?city_id=${cityId.toUpperCase()}&limit=10`);
 }
 
 export async function fetchHistoricalEvents(cityId?: string): Promise<HistoricalEventItem[]> {
-  try {
-    const url = cityId ? `${API_BASE_URL}/api/v1/historical-events?city_id=${cityId.toUpperCase()}` : `${API_BASE_URL}/api/v1/historical-events`;
-    const res = await fetch(url);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Backend unavailable, loading local historical events.");
-  }
-  const fallback = await fetch("/data/historical_events.json");
-  const allEvents: HistoricalEventItem[] = await fallback.json();
-  if (cityId) {
-    return allEvents.filter((e) => e.city_id.toUpperCase() === cityId.toUpperCase());
-  }
-  return allEvents;
+  const query = cityId ? `?city_id=${cityId.toUpperCase()}` : "";
+  return request(`${API_BASE_URL}/api/v1/historical-events${query}`);
 }
 
 export async function fetchEvaluationReport() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/statistics`);
-    if (res.ok) {
-      const data = await res.json();
-      return data.evaluation;
-    }
-  } catch (e) {
-    console.warn("Backend unavailable, loading local evaluation report.");
+    const data = await request<{ evaluation?: unknown }>(`${API_BASE_URL}/api/v1/statistics`);
+    if (data.evaluation) return data.evaluation;
+  } catch {
+    // The published evaluation file is a real report, not a synthesized score.
   }
-  const fallback = await fetch("/data/evaluation.json");
-  return await fallback.json();
+  return request("/data/evaluation.json");
 }
 
 export async function askAICopilot(
-  cityId: string = "VJA",
+  cityId: string,
   query: string,
-  currentRain24h: number = 145.0,
+  currentRain24h?: number,
   apiKey?: string,
   provider: string = "auto",
   conversationHistory: Array<{ role: string; content: string }> = []
 ): Promise<AICopilotResponse> {
-  const cid = cityId.toUpperCase();
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/ai/copilot`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        city_id: cid,
-        query,
-        current_rainfall_24h_mm: currentRain24h,
-        api_key: apiKey || undefined,
-        provider: provider || "auto",
-        conversation_history: conversationHistory
-      })
-    });
-    if (res.ok) return await res.json();
-    const errData = await res.json().catch(() => ({}));
-    if (errData.detail) {
-      throw new Error(errData.detail);
-    }
-  } catch (e: any) {
-    if (e.message) throw e;
-    console.warn("AI copilot backend unavailable, using local synthesis.");
-  }
-
-  return {
-    city_id: cid,
-    city_name: cid,
-    query,
-    ai_situation_assessment: `Real-time AI situational assessment for ${cid} under ${currentRain24h}mm 24h precipitation. Low-lying arterial stormwater basins are under elevated hydraulic stress with localized surface ponding.`,
-    risk_level_summary: "ELEVATED ALERT / ACTIVE MONITORING",
-    tactical_recommendations: [
-      `Pre-stage high-capacity dewatering pump sets along primary low-lying canal outlets in ${cid}.`,
-      "Verify sluice gate closures to prevent high-water backflow into low-elevation residential wards.",
-      "Deploy municipal ward inspection teams to clear arterial drain culverts and catch-basin trash grates."
-    ],
-    critical_infrastructure_alerts: [
-      "Arterial vehicular underpasses and railway culverts at risk of rapid water accumulation.",
-      "Ground-mounted electrical distribution transformers in low ground require feeder isolation if water level exceeds 30cm."
-    ],
-    evacuation_and_traffic_advisories: [
-      `Issue commuter advisory avoiding low-elevation underpass routes in ${cid}.`,
-      "Advise ground-floor residents along canal buffer zones to move essential equipment to upper stories."
-    ],
-    model_confidence_score: 0.94
-  };
+  return request(`${API_BASE_URL}/api/v1/ai/copilot`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      city_id: cityId.toUpperCase(),
+      query,
+      current_rainfall_24h_mm: currentRain24h,
+      api_key: apiKey || undefined,
+      provider,
+      conversation_history: conversationHistory,
+    }),
+  });
 }
 
 export async function fetchDrainAssets(cityId?: string): Promise<{ total: number; assets: DrainAsset[] }> {
-  try {
-    const url = cityId ? `${API_BASE_URL}/api/v1/assets?city_id=${cityId.toUpperCase()}` : `${API_BASE_URL}/api/v1/assets`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        return { total: data.length, assets: data };
-      }
-      return data;
-    }
-  } catch (e) {
-    console.warn("Backend assets API unavailable, falling back to local synthesis.");
-  }
-  return { total: 0, assets: [] };
+  const query = cityId ? `?city_id=${cityId.toUpperCase()}` : "";
+  const data = await request<DrainAsset[] | { total: number; assets: DrainAsset[] }>(
+    `${API_BASE_URL}/api/v1/assets${query}`
+  );
+  if (Array.isArray(data)) return { total: data.length, assets: data };
+  return data;
 }
 
 export async function fetchAlerts(cityId?: string): Promise<{ total: number; alerts: AlertItem[] }> {
-  try {
-    const url = cityId ? `${API_BASE_URL}/api/v1/alerts?city_id=${cityId.toUpperCase()}` : `${API_BASE_URL}/api/v1/alerts`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        return { total: data.length, alerts: data };
-      }
-      return data;
-    }
-  } catch (e) {
-    console.warn("Backend alerts API unavailable, falling back to local synthesis.");
-  }
-  return { total: 0, alerts: [] };
+  const query = cityId ? `?city_id=${cityId.toUpperCase()}` : "";
+  const data = await request<AlertItem[] | { total: number; alerts: AlertItem[] }>(
+    `${API_BASE_URL}/api/v1/alerts${query}`
+  );
+  if (Array.isArray(data)) return { total: data.length, alerts: data };
+  return data;
 }
 
-export async function acknowledgeAlert(alertId: string, acknowledgedBy: string = "Gaurav (Administrator)"): Promise<{ success: boolean; message: string; alert?: AlertItem }> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/alerts/${alertId}/acknowledge?officer_name=${encodeURIComponent(acknowledgedBy)}`, {
-      method: "POST"
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return { success: true, message: "Alert acknowledged", alert: data };
-    }
-  } catch (e) {
-    console.warn("Error acknowledging alert:", e);
-  }
-  return { success: false, message: "Failed to connect to dispatch server" };
+export async function acknowledgeAlert(alertId: string, acknowledgedBy = "Municipal desk"): Promise<AlertItem> {
+  return request<AlertItem>(
+    `${API_BASE_URL}/api/v1/alerts/${encodeURIComponent(alertId)}/acknowledge?officer_name=${encodeURIComponent(acknowledgedBy)}`,
+    { method: "POST" }
+  );
 }
 
-export async function resolveAlert(alertId: string): Promise<{ success: boolean; message: string; alert?: AlertItem }> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/alerts/${alertId}/resolve`, {
-      method: "POST"
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return { success: true, message: "Alert resolved", alert: data };
-    }
-  } catch (e) {
-    console.warn("Error resolving alert:", e);
-  }
-  return { success: false, message: "Failed to resolve alert" };
+export async function resolveAlert(alertId: string): Promise<AlertItem> {
+  return request<AlertItem>(
+    `${API_BASE_URL}/api/v1/alerts/${encodeURIComponent(alertId)}/resolve`,
+    { method: "POST" }
+  );
 }
 
-export async function fetchCascadeTrace(gridId: string, rain24h: number = 145.0): Promise<CascadeTraceResponse | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/cascade/${gridId}?rain_24h=${rain24h}`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Cascade API unavailable:", e);
-  }
-  return null;
+export async function fetchCascadeTrace(gridId: string, rain24h?: number): Promise<CascadeTraceResponse> {
+  return request(`${API_BASE_URL}/api/v1/hydrology/cascade/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`);
 }
 
-export async function fetchPhysicsAudit(gridId: string, rain24h: number = 145.0): Promise<PhysicsAuditResponse | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/physics-audit/${gridId}?rain_24h=${rain24h}`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Physics audit API unavailable:", e);
-  }
-  return null;
+export async function fetchPhysicsAudit(gridId: string, rain24h?: number): Promise<PhysicsAuditResponse> {
+  return request(
+    `${API_BASE_URL}/api/v1/hydrology/physics-audit/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`
+  );
 }
 
-export async function fetchTemporalNowcast(cityId: string = "VJA", rain24h: number = 145.0): Promise<TemporalNowcastResponse | null> {
-  try {
-    const cid = cityId.toUpperCase();
-    const res = await fetch(`${API_BASE_URL}/api/v1/hydrology/nowcast/${cid}?rain_24h=${rain24h}`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Nowcast API unavailable:", e);
-  }
-  return null;
+export async function fetchTemporalNowcast(cityId: string, rain24h?: number): Promise<TemporalNowcastResponse> {
+  return request(
+    `${API_BASE_URL}/api/v1/hydrology/nowcast/${cityId.toUpperCase()}?${rainQuery(rain24h).replace(/^&/, "")}`
+  );
 }
 
 export async function fetchOptimizeDispatch(
-  cityId: string = "VJA",
+  cityId: string,
   availableFleet?: Record<string, number>,
-  officerName: string = "Gaurav (Administrator)"
-): Promise<DispatchOptimizationResponse | null> {
-  try {
-    const cid = cityId.toUpperCase();
-    const res = await fetch(`${API_BASE_URL}/api/v1/operations/optimize-dispatch`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        city_id: cid,
-        available_fleet: availableFleet,
-        officer_name: officerName
-      })
-    });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.warn("Dispatch optimizer API unavailable:", e);
-  }
-  return null;
+  officerName = "Municipal desk"
+): Promise<DispatchOptimizationResponse> {
+  return request(`${API_BASE_URL}/api/v1/operations/optimize-dispatch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      city_id: cityId.toUpperCase(),
+      available_fleet: availableFleet,
+      officer_name: officerName,
+    }),
+  });
 }

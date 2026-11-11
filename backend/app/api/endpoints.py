@@ -15,7 +15,7 @@ from backend.app.schemas.risk import (
     HealthResponse, CityItem, PredictionRequest, PredictionResponse,
     SimulationRequest, SimulationResponse, HistoricalEvent,
     PriorityZone, AdminActionResponse, AICopilotRequest, AICopilotResponse,
-    LoginRequest, LoginResponse, DrainAsset, AlertItem, DispatchOptimizationRequest
+    DrainAsset, AlertItem, DispatchOptimizationRequest
 )
 from backend.app.services.resource_optimizer import optimize_municipal_dispatch
 from ml.src.inference.predictor import predictor_service
@@ -33,41 +33,9 @@ CITIES_REGISTRY = [
         "default_lat": 16.5120,
         "default_lon": 80.6400,
         "zoom_level": 12
-    },
-    {
-        "city_id": "CHE",
-        "city_name": "Chennai",
-        "state": "Tamil Nadu",
-        "country": "India",
-        "status": "VERIFIED_REAL_DATA",
-        "bounding_box": {"min_lat": 12.920, "max_lat": 13.120, "min_lon": 80.140, "max_lon": 80.290},
-        "default_lat": 13.0400,
-        "default_lon": 80.2200,
-        "zoom_level": 11
-    },
-    {
-        "city_id": "BOM",
-        "city_name": "Mumbai",
-        "state": "Maharashtra",
-        "country": "India",
-        "status": "VERIFIED_REAL_DATA",
-        "bounding_box": {"min_lat": 18.960, "max_lat": 19.220, "min_lon": 72.800, "max_lon": 72.960},
-        "default_lat": 19.0760,
-        "default_lon": 72.8770,
-        "zoom_level": 11
-    },
-    {
-        "city_id": "BLR",
-        "city_name": "Bengaluru",
-        "state": "Karnataka",
-        "country": "India",
-        "status": "VERIFIED_REAL_DATA",
-        "bounding_box": {"min_lat": 12.870, "max_lat": 13.070, "min_lon": 77.520, "max_lon": 77.720},
-        "default_lat": 12.9716,
-        "default_lon": 77.6200,
-        "zoom_level": 11
     }
 ]
+
 
 @api_router.get("/cities", response_model=List[CityItem], tags=["Metadata"])
 def get_cities():
@@ -99,24 +67,16 @@ def get_current_risk(city_id: str = Query("VJA")):
 
 @api_router.get("/risk/map", tags=["Risk Analysis"])
 def get_risk_map(
-    city_id: str = Query("VJA", description="City ID: VJA, CHE, BOM, BLR"),
-    rain_1h: float = Query(24.5, description="1h rainfall in mm"),
-    rain_3h: float = Query(48.0, description="3h rainfall in mm"),
-    rain_6h: float = Query(85.0, description="6h rainfall in mm"),
-    rain_24h: float = Query(145.0, description="24h rainfall in mm"),
-    rain_72h: float = Query(180.0, description="72h rainfall in mm")
+    city_id: str = Query("VJA"),
+    rain_24h: Optional[float] = Query(None, description="24h rainfall in mm. Omitted values use the latest telemetry row."),
 ):
     """
-    Return GeoJSON FeatureCollection for specified city with attached risk probabilities.
+    Return GeoJSON FeatureCollection for Vijayawada with model risk probabilities.
     """
     try:
         res = predictor_service.get_current_risk_map(
             city_id=city_id,
-            rain_1h_mm=rain_1h,
-            rain_3h_mm=rain_3h,
-            rain_6h_mm=rain_6h,
             rain_24h_mm=rain_24h,
-            rain_72h_mm=rain_72h
         )
         return JSONResponse(content=res)
     except Exception as e:
@@ -173,19 +133,13 @@ def get_priority_zones(
 @api_router.get("/risk/{grid_id}", response_model=PredictionResponse, tags=["Risk Analysis"])
 def get_zone_detail(
     grid_id: str,
-    rain_1h: float = Query(24.5),
-    rain_3h: float = Query(48.0),
-    rain_6h: float = Query(85.0),
-    rain_24h: float = Query(145.0)
+    rain_24h: Optional[float] = Query(None),
 ):
-    """Inspect a specific 500m grid cell across any city."""
+    """Inspect one Vijayawada grid cell."""
     try:
         res = predictor_service.predict_grid(
             grid_id=grid_id,
-            rain_1h_mm=rain_1h,
-            rain_3h_mm=rain_3h,
-            rain_6h_mm=rain_6h,
-            rain_24h_mm=rain_24h
+            rain_24h_mm=rain_24h,
         )
         return res
     except ValueError as ve:
@@ -241,13 +195,63 @@ def get_historical_events(city_id: Optional[str] = Query(None)):
             return events
     return []
 
+def _public_evaluation(raw: Any) -> dict:
+    """Flatten today's training report into the fields the console reads."""
+    if not isinstance(raw, dict):
+        return {"status": "Evaluation report not generated yet."}
+    comparison = raw.get("tier_2_binary_benchmarking") or raw.get("model_comparison") or {}
+    production = comparison.get("Calibrated XGBoost (Production)") or {}
+    split = raw.get("split_summary") or {}
+    benchmarks = []
+    if isinstance(comparison, dict):
+        for name, metrics in comparison.items():
+            if not isinstance(metrics, dict):
+                continue
+            benchmarks.append({
+                "name": name,
+                "roc_auc": metrics.get("roc_auc"),
+                "pr_auc": metrics.get("pr_auc"),
+                "f1": metrics.get("f1_score"),
+                "precision": metrics.get("precision"),
+                "recall": metrics.get("recall"),
+                "brier": metrics.get("brier_score"),
+                "highlight": name == (raw.get("production_model") or "Calibrated XGBoost (Production)"),
+            })
+    shaped = {
+        "model_version": raw.get("model_version"),
+        "training_timestamp": raw.get("training_timestamp"),
+        "production_model": raw.get("production_model"),
+        "roc_auc": production.get("roc_auc"),
+        "pr_auc": production.get("pr_auc"),
+        "brier_score": production.get("brier_score"),
+        "evaluation_samples": split.get("test_samples"),
+        "feature_importances": raw.get("feature_importances") or [],
+        "benchmarks": benchmarks,
+    }
+    matrix = production.get("confusion_matrix")
+    if (
+        isinstance(matrix, list)
+        and len(matrix) == 2
+        and all(isinstance(row, list) and len(row) == 2 for row in matrix)
+    ):
+        shaped["confusion_matrix"] = {
+            "tn": matrix[0][0],
+            "fp": matrix[0][1],
+            "fn": matrix[1][0],
+            "tp": matrix[1][1],
+        }
+    if isinstance(raw.get("calibration_curve"), list):
+        shaped["calibration_curve"] = raw["calibration_curve"]
+    return shaped
+
+
 @api_router.get("/statistics", tags=["Analytics"])
 def get_analytics_statistics():
-    """Return model performance curves, calibration metrics, and risk distributions."""
+    """Return the 2026-11-11 holdout report for the calibrated model."""
     stats = {}
     if os.path.exists(settings.EVALUATION_REPORT_PATH):
         with open(settings.EVALUATION_REPORT_PATH, "r") as f:
-            stats["evaluation"] = json.load(f)
+            stats["evaluation"] = _public_evaluation(json.load(f))
     else:
         stats["evaluation"] = {"status": "Evaluation report not generated yet."}
 
@@ -260,10 +264,10 @@ def get_model_governance():
     return predictor_service.get_model_info()
 
 @api_router.get("/model/explain/{grid_id}", tags=["Explainability"])
-def explain_grid_model(grid_id: str, rain_24h: float = Query(145.0), rain_6h: float = Query(85.0)):
+def explain_grid_model(grid_id: str, rain_24h: Optional[float] = Query(None)):
     """Expose feature contributions and explainability rationale for specific cell."""
     try:
-        pred = predictor_service.predict_grid(grid_id=grid_id, rain_24h_mm=rain_24h, rain_6h_mm=rain_6h)
+        pred = predictor_service.predict_grid(grid_id=grid_id, rain_24h_mm=rain_24h)
         return {
             "grid_id": grid_id,
             "city_id": pred.get("city_id", "VJA"),
@@ -301,7 +305,8 @@ def retrain_model_admin(authorized: bool = Depends(verify_admin_token)):
 @api_router.post("/admin/refresh-data", response_model=AdminActionResponse, tags=["Admin"])
 def refresh_telemetry_admin(authorized: bool = Depends(verify_admin_token)):
     try:
-        csv_path = "data/raw/multi_city_hourly_rainfall.csv"
+        csv_path = os.path.join(os.path.dirname(settings.GRID_FEATURES_PATH), "..", "raw", "multi_city_hourly_rainfall.csv")
+        csv_path = os.path.normpath(csv_path)
         if os.path.exists(csv_path):
             df = pd.read_csv(csv_path)
         else:
@@ -332,11 +337,10 @@ def ai_incident_copilot(req: AICopilotRequest):
         raise HTTPException(status_code=422, detail="Query cannot be empty. Please ask an operational question.")
 
     try:
-        rain = req.current_rainfall_24h_mm or 145.0
+        rain = req.current_rainfall_24h_mm
         risk_data = predictor_service.get_current_risk_map(
             city_id=cid,
             rain_24h_mm=rain,
-            rain_6h_mm=rain * 0.58
         )
         summary = risk_data["summary"]
         peak_zone = summary.get("highest_risk_zone", {})
@@ -366,100 +370,10 @@ def ai_incident_copilot(req: AICopilotRequest):
 
 
 # ==========================================
-# AUTHENTICATION ENDPOINTS
-# ==========================================
-
-DEMO_USERS = {
-    "gaurav": {
-        "name": "Gaurav",
-        "username": "gaurav",
-        "role": "Administrator",
-        "email": "gaurav@drainsense.gov.in",
-        "department": "Municipal Urban Flood & Drainage Command",
-        "badge_id": "DS-ADMIN-01"
-    }
-}
-
-@api_router.post("/auth/login", response_model=LoginResponse, tags=["Authentication"])
-def login(credentials: LoginRequest):
-    """
-    Secure authentication endpoint.
-    Admin identity 'Gaurav' (Administrator) authenticated with configured environment password
-    or fallback secure demo authentication.
-    """
-    uname = credentials.username.strip().lower()
-    pwd = credentials.password.strip()
-
-    admin_pass = os.getenv("ADMIN_PASSWORD", "DrainSense@2026")
-    
-    # Check admin account
-    if uname in ["gaurav", "admin"]:
-        if pwd in [admin_pass, "admin123", "DrainSense@2026"]:
-            user_info = DEMO_USERS.get("gaurav")
-            return {
-                "access_token": f"ds_jwt_{uname}_{int(datetime.utcnow().timestamp())}",
-                "token_type": "bearer",
-                "user": user_info
-            }
-        else:
-            raise HTTPException(status_code=401, detail="Invalid administrator password. For reviewer access use demo password.")
-    elif len(uname) >= 3 and len(pwd) >= 6:
-        # Fallback officer login
-        return {
-            "access_token": f"ds_jwt_{uname}_{int(datetime.utcnow().timestamp())}",
-            "token_type": "bearer",
-            "user": {
-                "name": credentials.username.capitalize(),
-                "username": uname,
-                "role": credentials.role or "Zonal Officer",
-                "email": f"{uname}@drainsense.gov.in",
-                "department": "Zonal Disaster Response Team",
-                "badge_id": f"DS-OFFICER-{uname[:3].upper()}"
-            }
-        }
-    else:
-        raise HTTPException(status_code=401, detail="Invalid username or password. For demo access use username 'Gaurav'.")
-
-@api_router.get("/auth/me", tags=["Authentication"])
-def get_current_user(authorization: Optional[str] = Header(None)):
-    """Retrieve active session identity."""
-    if not authorization:
-        return DEMO_USERS["gaurav"]
-    return DEMO_USERS["gaurav"]
-
-# ==========================================
 # DRAIN ASSET MANAGEMENT
 # ==========================================
 
-DRAIN_ASSETS_DATA: List[Dict[str, Any]] = [
-    # Vijayawada (AP)
-    {"asset_id": "VJA-DR-001", "city_id": "VJA", "asset_name": "Budameru Inundation Diversion Weir", "asset_type": "Primary Spillway Canal", "location_desc": "Budameru Regulator, Singh Nagar", "latitude": 16.552, "longitude": 80.630, "capacity_discharge_m3s": 350.0, "siltation_level_pct": 42, "condition": "Degraded", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "VMC Zonal Drainage Squad A", "operational_status": "Heavy Flow: Emergency Pumping"},
-    {"asset_id": "VJA-DR-002", "city_id": "VJA", "asset_name": "Prakasam Barrage Sluice Channel 4", "asset_type": "Riverine Outfall Sluice", "location_desc": "Krishna Riverfront Lock", "latitude": 16.507, "longitude": 80.605, "capacity_discharge_m3s": 850.0, "siltation_level_pct": 18, "condition": "Good", "risk_level": "MODERATE", "last_inspection_date": "2026-09-09", "assigned_team": "Irrigation Dept Barrage Unit", "operational_status": "Operational: Flap Open"},
-    {"asset_id": "VJA-DR-003", "city_id": "VJA", "asset_name": "Ajit Singh Nagar High-Head Dewatering Unit", "asset_type": "High-Capacity Pump Station", "location_desc": "Ward 24 Lowland Sump", "latitude": 16.538, "longitude": 80.628, "capacity_discharge_m3s": 45.0, "siltation_level_pct": 65, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-07", "assigned_team": "VMC Emergency Pump Unit", "operational_status": "3 of 4 Pumps Running"},
-    {"asset_id": "VJA-DR-004", "city_id": "VJA", "asset_name": "Eluru Canal Urban Culvert Bridge", "asset_type": "Box Culvert", "location_desc": "Governorpet / Gandhinagar Crossing", "latitude": 16.518, "longitude": 80.632, "capacity_discharge_m3s": 80.0, "siltation_level_pct": 28, "condition": "Moderate", "risk_level": "ELEVATED", "last_inspection_date": "2026-09-06", "assigned_team": "VMC Central Ward Division", "operational_status": "Operational"},
-    {"asset_id": "VJA-DR-005", "city_id": "VJA", "asset_name": "Bhavanipuram Lowland Gravity Drain", "asset_type": "Open Masonry Conduit", "location_desc": "Bhavanipuram Sump Outfall", "latitude": 16.525, "longitude": 80.590, "capacity_discharge_m3s": 60.0, "siltation_level_pct": 35, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-05", "assigned_team": "VMC West Division", "operational_status": "Operational"},
-    {"asset_id": "VJA-DR-006", "city_id": "VJA", "asset_name": "Ryves Canal Outfall Siphon", "asset_type": "Primary Spillway Canal", "location_desc": "Governorpet South Embankment", "latitude": 16.510, "longitude": 80.640, "capacity_discharge_m3s": 110.0, "siltation_level_pct": 24, "condition": "Good", "risk_level": "ELEVATED", "last_inspection_date": "2026-09-08", "assigned_team": "VMC Central Ward Division", "operational_status": "Operational"},
-
-    # Chennai (TN) - Verified Real Infrastructure Assets
-    {"asset_id": "CHE-DR-001", "city_id": "CHE", "asset_name": "Adyar Estuary Flap Valve Barrier", "asset_type": "Tidal Barrier Sluice", "location_desc": "Foreshore Estate Outfall", "latitude": 13.008, "longitude": 80.274, "capacity_discharge_m3s": 600.0, "siltation_level_pct": 38, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "GCC Stormwater Division 4", "operational_status": "Operational: High Tide Watch"},
-    {"asset_id": "CHE-DR-002", "city_id": "CHE", "asset_name": "Velachery Lake Surplus Drain Channel", "asset_type": "Primary Storm Canal", "location_desc": "Velachery Bypass Canal", "latitude": 12.978, "longitude": 80.218, "capacity_discharge_m3s": 120.0, "siltation_level_pct": 58, "condition": "Choked", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "GCC South Zone Crew", "operational_status": "Excavator Desilting in Progress"},
-    {"asset_id": "CHE-DR-003", "city_id": "CHE", "asset_name": "Kotturpuram Dewatering Pump House", "asset_type": "High-Capacity Pump Station", "location_desc": "Adyar Riverbank Sump", "latitude": 13.018, "longitude": 80.240, "capacity_discharge_m3s": 50.0, "siltation_level_pct": 22, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-07", "assigned_team": "GCC Electrical & Mechanical", "operational_status": "Standby: Auto-trigger Ready"},
-    {"asset_id": "CHE-DR-004", "city_id": "CHE", "asset_name": "Buckingham Canal Basin Regulator", "asset_type": "Primary Spillway Canal", "location_desc": "Mylapore / Santhome Section", "latitude": 13.032, "longitude": 80.268, "capacity_discharge_m3s": 350.0, "siltation_level_pct": 45, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "GCC Central Canals Wing", "operational_status": "Heavy Tidal Runoff Monitoring"},
-    {"asset_id": "CHE-DR-005", "city_id": "CHE", "asset_name": "Otteri Nullah Lowland Storm Sump", "asset_type": "High-Capacity Pump Station", "location_desc": "North Chennai Drainage Corridor", "latitude": 13.095, "longitude": 80.245, "capacity_discharge_m3s": 75.0, "siltation_level_pct": 52, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "GCC North Zone Squad", "operational_status": "Submersible Pumps Running"},
-    {"asset_id": "CHE-DR-006", "city_id": "CHE", "asset_name": "Cooum River Tidal Sluice Gate", "asset_type": "Tidal Barrier Sluice", "location_desc": "Marina Beach Confluence", "latitude": 13.068, "longitude": 80.285, "capacity_discharge_m3s": 520.0, "siltation_level_pct": 30, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-08", "assigned_team": "PWD Water Resources Dept", "operational_status": "High Tide Flap Active"},
-
-    # Mumbai (MH) - Verified Real Infrastructure Assets
-    {"asset_id": "BOM-DR-001", "city_id": "BOM", "asset_name": "Mithi River Tidal Outfall Sluice", "asset_type": "Tidal Barrier Sluice", "location_desc": "Mahim Causeway Confluence", "latitude": 19.048, "longitude": 72.842, "capacity_discharge_m3s": 750.0, "siltation_level_pct": 48, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "MCGM Storm Water Drains Dept", "operational_status": "High Tide Sluice Watch Active"},
-    {"asset_id": "BOM-DR-002", "city_id": "BOM", "asset_name": "Milan Subway High-Head Dewatering Station", "asset_type": "High-Capacity Pump Station", "location_desc": "Santacruz Underpass Sump", "latitude": 19.082, "longitude": 72.842, "capacity_discharge_m3s": 65.0, "siltation_level_pct": 25, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-09", "assigned_team": "MCGM K-West Ward Squad", "operational_status": "Auto Sump Pumps Operational"},
-    {"asset_id": "BOM-DR-003", "city_id": "BOM", "asset_name": "Hindmata Underground Holding Pond Pumping Unit", "asset_type": "Primary Spillway Canal", "location_desc": "Pramod Mahajan Kala Park Basin", "latitude": 19.015, "longitude": 72.845, "capacity_discharge_m3s": 90.0, "siltation_level_pct": 30, "condition": "Good", "risk_level": "HIGH", "last_inspection_date": "2026-09-07", "assigned_team": "MCGM F-South Ward Crew", "operational_status": "Holding Tank Standby Active"},
-    {"asset_id": "BOM-DR-004", "city_id": "BOM", "asset_name": "Kurla West Kranti Nagar Siphon Drain", "asset_type": "Box Culvert", "location_desc": "Mithi River Lowland Basin", "latitude": 19.070, "longitude": 72.875, "capacity_discharge_m3s": 85.0, "siltation_level_pct": 60, "condition": "Choked", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "MCGM L-Ward Emergency Response", "operational_status": "Continuous Dewatering Pumping"},
-
-    # Bengaluru (KA) - Verified Real Infrastructure Assets
-    {"asset_id": "BLR-DR-001", "city_id": "BLR", "asset_name": "Bellandur Lake Surplus Waste Weir Sluice", "asset_type": "Primary Spillway Canal", "location_desc": "Bellandur Lake East Outfall", "latitude": 12.935, "longitude": 77.675, "capacity_discharge_m3s": 220.0, "siltation_level_pct": 55, "condition": "Needs Desilting", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-08", "assigned_team": "BBMP Lakes & Stormwater Dept", "operational_status": "Surplus Gate 2 Partially Raised"},
-    {"asset_id": "BLR-DR-002", "city_id": "BLR", "asset_name": "Outer Ring Road EcoSpace Primary Storm Culvert", "asset_type": "Box Culvert", "location_desc": "Bellandur Tech Corridor Low Point", "latitude": 12.925, "longitude": 77.685, "capacity_discharge_m3s": 55.0, "siltation_level_pct": 40, "condition": "Moderate", "risk_level": "HIGH", "last_inspection_date": "2026-09-09", "assigned_team": "BBMP Mahadevapura Zone", "operational_status": "Dewatering Pumps Active"},
-    {"asset_id": "BLR-DR-003", "city_id": "BLR", "asset_name": "Koramangala Valley Rajakaluve Primary Drain", "asset_type": "Open Masonry Conduit", "location_desc": "Koramangala 4th Block Outfall", "latitude": 12.935, "longitude": 77.625, "capacity_discharge_m3s": 110.0, "siltation_level_pct": 32, "condition": "Good", "risk_level": "ELEVATED", "last_inspection_date": "2026-09-07", "assigned_team": "BBMP South Zone Stormwater Unit", "operational_status": "Gravity Discharge Normal"},
-    {"asset_id": "BLR-DR-004", "city_id": "BLR", "asset_name": "Rainbow Drive / Sarjapur Road Sump Regulator", "asset_type": "High-Capacity Pump Station", "location_desc": "Sarjapur Low Basin Outfall", "latitude": 12.905, "longitude": 77.690, "capacity_discharge_m3s": 48.0, "siltation_level_pct": 38, "condition": "Moderate", "risk_level": "CRITICAL", "last_inspection_date": "2026-09-09", "assigned_team": "BBMP East Emergency Response", "operational_status": "High Discharge Pumps on Standby"}
-]
+DRAIN_ASSETS_DATA: List[Dict[str, Any]] = []
 
 @api_router.get("/assets", response_model=List[DrainAsset], tags=["Assets"])
 def get_drain_assets(city_id: Optional[str] = Query(None, description="Optional city code filter")):
@@ -473,64 +387,7 @@ def get_drain_assets(city_id: Optional[str] = Query(None, description="Optional 
 # ALERTS & INCIDENT WORKFLOW
 # ==========================================
 
-ALERTS_DATA: List[Dict[str, Any]] = [
-    {
-        "alert_id": "ALT-VJA-2026-01",
-        "city_id": "VJA",
-        "zone_name": "Ajit Singh Nagar & Payakapuram",
-        "grid_id": "VJA_0036",
-        "severity": "CRITICAL",
-        "title": "Severe Lowland Backflow Risk",
-        "message": "Budameru rivulet stage exceeds 18.5m AMSL. High-density runoff converging in Ward 24 sump.",
-        "trigger_metric": "24h Rain: 145mm | Flow Acc: 82/100",
-        "timestamp": "2026-09-11T02:15:00Z",
-        "status": "ACTIVE",
-        "acknowledged_by": None,
-        "acknowledged_at": None
-    },
-    {
-        "alert_id": "ALT-VJA-2026-02",
-        "city_id": "VJA",
-        "zone_name": "Bhavanipuram Riverfront Sector",
-        "grid_id": "VJA_0045",
-        "severity": "HIGH",
-        "title": "Krishna Barrage Outfall Surcharge",
-        "message": "Prakasam Barrage discharge elevation rising. Lowland gravity sluices under backflow watch.",
-        "trigger_metric": "Krishna Barrage Stage: 17.2m AMSL",
-        "timestamp": "2026-09-11T03:00:00Z",
-        "status": "ACTIVE",
-        "acknowledged_by": None,
-        "acknowledged_at": None
-    },
-    {
-        "alert_id": "ALT-CHE-2026-01",
-        "city_id": "CHE",
-        "zone_name": "Velachery Residential Sump Sector",
-        "grid_id": "CHE_0110",
-        "severity": "CRITICAL",
-        "title": "Lake Surplus Sluice Choking",
-        "message": "Heavy antecedent precipitation leading to marshland tailback across residential culverts.",
-        "trigger_metric": "6h Burst: 82mm | Lowland Basin",
-        "timestamp": "2026-09-11T02:45:00Z",
-        "status": "ACTIVE",
-        "acknowledged_by": None,
-        "acknowledged_at": None
-    },
-    {
-        "alert_id": "ALT-CHE-2026-02",
-        "city_id": "CHE",
-        "zone_name": "Kotturpuram Adyar Embankment",
-        "grid_id": "CHE_0185",
-        "severity": "HIGH",
-        "title": "Adyar River Tidal Barrier High Tide Alert",
-        "message": "High tide synchronization with coastal runoff. Flap gates closed; pump stations on auto-run.",
-        "trigger_metric": "Tidal Ingress 1.8m + 110mm Rain",
-        "timestamp": "2026-09-11T03:30:00Z",
-        "status": "ACKNOWLEDGED",
-        "acknowledged_by": "Gaurav (Administrator)",
-        "acknowledged_at": "2026-09-11T03:35:00Z"
-    }
-]
+ALERTS_DATA: List[Dict[str, Any]] = []
 
 @api_router.get("/alerts", response_model=List[AlertItem], tags=["Alerts"])
 def get_alerts(city_id: Optional[str] = Query(None)):
@@ -541,7 +398,7 @@ def get_alerts(city_id: Optional[str] = Query(None)):
     return ALERTS_DATA
 
 @api_router.post("/alerts/{alert_id}/acknowledge", response_model=AlertItem, tags=["Alerts"])
-def acknowledge_alert(alert_id: str, officer_name: Optional[str] = Query("Gaurav (Administrator)")):
+def acknowledge_alert(alert_id: str, officer_name: Optional[str] = Query("Municipal desk")):
     """Acknowledge an active alert and trigger field dispatch protocol."""
     for alert in ALERTS_DATA:
         if alert["alert_id"] == alert_id:
@@ -566,7 +423,7 @@ def resolve_alert(alert_id: str):
 # ==============================================================================
 
 @api_router.get("/hydrology/cascade/{grid_id}", tags=["Novel Hydrology"])
-def trace_downstream_cascade(grid_id: str, rain_24h: float = Query(145.0, description="Rainfall depth in mm")):
+def trace_downstream_cascade(grid_id: str, rain_24h: Optional[float] = Query(None)):
     """
     NOVELTY 1: Directed Acyclic Hydrological Flow Graph (DAHG) Cascade Engine.
     Traces downstream flood pulse propagation, Manning's flow velocity, and arrival lag times (tau_lag)
@@ -582,7 +439,7 @@ def trace_downstream_cascade(grid_id: str, rain_24h: float = Query(145.0, descri
 
 
 @api_router.get("/hydrology/physics-audit/{grid_id}", tags=["Novel Hydrology"])
-def audit_physics_concordance(grid_id: str, rain_24h: float = Query(145.0, description="Rainfall depth in mm")):
+def audit_physics_concordance(grid_id: str, rain_24h: Optional[float] = Query(None)):
     """
     NOVELTY 2: Physics-Informed SCS-CN Mass-Balance Guardrail (PIML).
     Evaluates USDA-NRCS Curve Number runoff physics equations against machine learning risk inferences
@@ -596,7 +453,7 @@ def audit_physics_concordance(grid_id: str, rain_24h: float = Query(145.0, descr
 
 
 @api_router.get("/hydrology/nowcast/{city_id}", tags=["Novel Hydrology"])
-def get_temporal_nowcast(city_id: str = "VJA", rain_24h: float = Query(145.0, description="Base 24h rainfall in mm")):
+def get_temporal_nowcast(city_id: str = "VJA", rain_24h: Optional[float] = Query(None)):
     """
     NOVELTY 3: Dynamic Multi-Horizon Temporal Nowcaster (T+0 to T+6h).
     Generates forward temporal risk trajectories based on convective storm hyetograph profiles,
@@ -626,7 +483,7 @@ def optimize_fleet_dispatch(req: DispatchOptimizationRequest):
             city_id=cid,
             priority_zones=priority_zones,
             available_fleet=req.available_fleet,
-            officer_name=req.officer_name or "Gaurav (Administrator)"
+            officer_name=req.officer_name or "Municipal desk"
         )
         return dispatch_result
     except Exception as e:

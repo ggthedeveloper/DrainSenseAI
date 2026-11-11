@@ -51,6 +51,8 @@ export interface RiskSummary {
   moderate_zones: number;
   low_zones: number;
   current_rainfall_24h_mm: number;
+  rainfall_source?: string | null;
+  rainfall_observed_on?: string | null;
   highest_risk_zone: {
     grid_id: string;
     zone_name: string;
@@ -86,6 +88,11 @@ export interface ZoneDetail {
   };
   top_factors: TopFactor[];
   recommended_actions: string[];
+  failure_mode?: string;
+  surface_archetype?: {
+    name: string;
+    risk_tendency: string;
+  };
 }
 
 export interface SimulationResult {

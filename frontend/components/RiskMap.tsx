@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { CascadeTraceResponse, TemporalNowcastResponse } from "../types";
 import { fetchTemporalNowcast } from "../lib/api";
+import "leaflet/dist/leaflet.css";
 
 interface RiskMapProps {
   cityId: string;
@@ -35,11 +36,11 @@ interface RiskMapProps {
   selectedGridId?: string | null;
   cascadePath?: CascadeTraceResponse | null;
   onClearCascade?: () => void;
+  baseRain24h?: number | null;
 }
 
 const CITY_NAME_LOOKUP: Record<string, string> = {
   VJA: "Vijayawada / Amaravati",
-  CHE: "Chennai"
 };
 
 const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; landmarks: Array<{ lat: number; lon: number; title: string; color: string }> }> = {
@@ -49,22 +50,19 @@ const CITY_LANDMARKS: Record<string, { center: [number, number]; zoom: number; l
     landmarks: [
       { lat: 16.5075, lon: 80.6056, title: "Prakasam Barrage (Krishna River)", color: "#3b82f6" },
       { lat: 16.5520, lon: 80.6300, title: "Budameru Inundation Corridor", color: "#06b6d4" },
-      { lat: 16.5140, lon: 80.6080, title: "Indrakeeladri (Temple Ridge - 110m)", color: "#a855f7" }
+      { lat: 16.5140, lon: 80.6080, title: "Indrakeeladri", color: "#115E59" }
     ]
   },
-  CHE: {
-    center: [13.040, 80.220],
-    zoom: 11,
-    landmarks: [
-      { lat: 13.008, lon: 80.250, title: "Adyar River Mouth (Saidapet/Kotturpuram)", color: "#3b82f6" },
-      { lat: 13.070, lon: 80.250, title: "Cooum River Basin", color: "#06b6d4" },
-      { lat: 12.940, lon: 80.210, title: "Pallikaranai Marshland Reserve", color: "#10b981" },
-      { lat: 12.980, lon: 80.220, title: "Velachery Lowland Sump", color: "#f43f5e" }
-    ]
-  }
 };
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+function leafletCellStyle(feat: { properties: GridProperties }, selectedGridId?: string | null) {
+  const level = feat.properties.risk_level;
+  const fill = level === "CRITICAL" ? "#B42318" : level === "HIGH" ? "#B54708" : level === "ELEVATED" ? "#8A6116" : level === "MODERATE" ? "#175CD3" : "#067647";
+  const selected = feat.properties.grid_id === selectedGridId;
+  return { color: selected ? "#12262A" : "#FBFDFC", weight: selected ? 2 : 0.4, fillColor: fill, fillOpacity: 0.62 };
+}
 
 const DARK_MAP_STYLES = [
   { elementType: "geometry", stylers: [{ color: "#0b1220" }] },
@@ -87,7 +85,7 @@ function loadGoogleMaps(): Promise<any> {
       return;
     }
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&v=weekly&language=en`;
     script.async = true;
     script.defer = true;
     script.dataset.drainsenseGoogleMaps = "true";
@@ -103,11 +101,13 @@ export const RiskMap: React.FC<RiskMapProps> = ({
   onSelectGrid, 
   selectedGridId,
   cascadePath,
-  onClearCascade
+  onClearCascade,
+  baseRain24h,
 }) => {
   const mapWrapperRef = useRef<HTMLDivElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const leafletLibRef = useRef<any>(null);
   const geojsonLayerRef = useRef<any[]>([]);
   const markersLayerRef = useRef<any[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -133,16 +133,24 @@ export const RiskMap: React.FC<RiskMapProps> = ({
 
   // Fetch nowcast data when city changes
   useEffect(() => {
+    if (baseRain24h == null || Number.isNaN(baseRain24h)) {
+      setNowcastData(null);
+      setIsNowcastLoading(false);
+      return;
+    }
     setIsNowcastLoading(true);
-    fetchTemporalNowcast(cityId)
+    fetchTemporalNowcast(cityId, baseRain24h)
       .then((data) => {
         setNowcastData(data);
         setActiveHorizonIdx(0);
         setIsPlayingNowcast(false);
         setIsNowcastLoading(false);
       })
-      .catch(() => setIsNowcastLoading(false));
-  }, [cityId]);
+      .catch(() => {
+        setNowcastData(null);
+        setIsNowcastLoading(false);
+      });
+  }, [cityId, baseRain24h]);
 
   // Nowcast auto-play timeline interval
   useEffect(() => {
@@ -177,6 +185,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({
   const handleResetView = () => {
     if (mapInstanceRef.current) {
       const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
+      if (!GOOGLE_MAPS_API_KEY && mapInstanceRef.current.setView) {
+        mapInstanceRef.current.setView([cityCfg.center[0], cityCfg.center[1]], cityCfg.zoom);
+        return;
+      }
       mapInstanceRef.current.panTo({ lat: cityCfg.center[0], lng: cityCfg.center[1] });
       mapInstanceRef.current.setZoom(cityCfg.zoom);
     }
@@ -228,6 +240,30 @@ export const RiskMap: React.FC<RiskMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current) return;
     const container = mapContainerRef.current;
+    if (!GOOGLE_MAPS_API_KEY) {
+      let cancelled = false;
+      let leafletMap: any = null;
+      import("leaflet").then((mod) => {
+        if (cancelled || !mapContainerRef.current) return;
+        const L = mod.default;
+        leafletLibRef.current = L;
+        leafletMap = L.map(mapContainerRef.current).setView([16.512, 80.635], 12);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap",
+          maxZoom: 18,
+        }).addTo(leafletMap);
+        mapInstanceRef.current = leafletMap;
+        setMapError(null);
+        setIsMapReady(true);
+      }).catch((error) => {
+        setMapError(error instanceof Error ? error.message : "The map could not be loaded");
+      });
+      return () => {
+        cancelled = true;
+        leafletMap?.remove();
+        mapInstanceRef.current = null;
+      };
+    }
     let isMounted = true;
     loadGoogleMaps().then((googleMaps) => {
       if (!isMounted || !mapContainerRef.current) return;
@@ -286,14 +322,14 @@ export const RiskMap: React.FC<RiskMapProps> = ({
 
   // Switch supported Google map types without replacing the map instance.
   useEffect(() => {
-    if (!mapInstanceRef.current || !isMapReady) return;
+    if (!GOOGLE_MAPS_API_KEY || !mapInstanceRef.current || !isMapReady) return;
     mapInstanceRef.current.setMapTypeId(getGoogleMapType(baseMapMode));
     mapInstanceRef.current.setOptions({ styles: baseMapMode === "dark" ? DARK_MAP_STYLES : undefined });
   }, [baseMapMode, isMapReady]);
 
   // Smooth fly transition when cityId changes
   useEffect(() => {
-    if (!mapInstanceRef.current || !isMapReady) return;
+    if (!GOOGLE_MAPS_API_KEY || !mapInstanceRef.current || !isMapReady) return;
 
     const map = mapInstanceRef.current;
     const cityCfg = CITY_LANDMARKS[cityId] || CITY_LANDMARKS["VJA"];
@@ -321,6 +357,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({
         });
         const cLat = latSum / coords.length;
         const cLon = lonSum / coords.length;
+        if (!GOOGLE_MAPS_API_KEY && mapInstanceRef.current.setView) {
+          mapInstanceRef.current.setView([cLat, cLon], 14);
+          return;
+        }
         mapInstanceRef.current.panTo({ lat: cLat, lng: cLon });
         mapInstanceRef.current.setZoom(Math.max(mapInstanceRef.current.getZoom(), 13));
       } catch (e) {
@@ -388,9 +428,37 @@ export const RiskMap: React.FC<RiskMapProps> = ({
     }
   }, [cascadePath, isMapReady]);
 
+  useEffect(() => {
+    if (GOOGLE_MAPS_API_KEY || !leafletLibRef.current || !mapInstanceRef.current || !mapData || !isMapReady) return;
+    const L = leafletLibRef.current;
+    const map = mapInstanceRef.current;
+    if (geojsonLayerRef.current[0]) map.removeLayer(geojsonLayerRef.current[0]);
+    const layer = L.geoJSON(mapData, {
+      style: (feat: any) => leafletCellStyle(feat, selectedGridId),
+      onEachFeature: (feat: any, lyr: any) => {
+        lyr.on("click", () => onSelectGrid(feat.properties.grid_id));
+      },
+    }).addTo(map);
+    geojsonLayerRef.current = [layer];
+    try {
+      map.fitBounds(layer.getBounds(), { padding: [16, 16] });
+    } catch {
+      /* The layer has no rings yet. */
+    }
+    map.invalidateSize();
+    setIsDataRendering(false);
+  }, [GOOGLE_MAPS_API_KEY, mapData, isMapReady, onSelectGrid]);
+
+  useEffect(() => {
+    if (GOOGLE_MAPS_API_KEY || !geojsonLayerRef.current[0]?.setStyle) return;
+    const paint = (feat: any) => leafletCellStyle(feat, selectedGridId);
+    geojsonLayerRef.current[0].setStyle(paint);
+  }, [selectedGridId]);
+
   // Draw every risk cell on Google Maps. GeoJSON is [lng, lat], while the
   // Maps API receives {lat, lng}; converting explicitly keeps the cells aligned.
   useEffect(() => {
+    if (!GOOGLE_MAPS_API_KEY) return;
     if (!mapInstanceRef.current || !mapData || !isMapReady) return;
 
     setIsDataRendering(true);
@@ -502,10 +570,10 @@ export const RiskMap: React.FC<RiskMapProps> = ({
             <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
             <div>
               <div className="text-xs font-bold text-white tracking-wide">
-                Initializing Google Map Engine
+                Loading the ward grid
               </div>
               <div className="text-[10px] text-slate-400">
-                Loading satellite tiles and spatial boundaries...
+                Fetching the Vijayawada cells and the base map.
               </div>
             </div>
           </div>
@@ -528,7 +596,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       >
-        {/* Base Map Selector (Google Satellite, Google Streets, Terrain, Dark) */}
+        {GOOGLE_MAPS_API_KEY && (
         <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl flex items-center gap-1 text-xs">
           <span className="text-slate-400 font-semibold pl-1 text-[11px] hidden sm:inline">
             Google Maps:
@@ -588,6 +656,7 @@ export const RiskMap: React.FC<RiskMapProps> = ({
             </button>
           </div>
         </div>
+        )}
 
         {/* Data Layer Selector */}
         <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl flex items-center gap-1 text-xs">
@@ -607,6 +676,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({
             >
               Risk
             </button>
+            {GOOGLE_MAPS_API_KEY ? (
+              <>
             <button
               type="button"
               onClick={() => setColorMode("elevation")}
@@ -629,6 +700,8 @@ export const RiskMap: React.FC<RiskMapProps> = ({
             >
               Flow
             </button>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

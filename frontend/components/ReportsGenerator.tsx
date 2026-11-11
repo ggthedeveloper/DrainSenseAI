@@ -18,29 +18,26 @@ import {
 } from "lucide-react";
 import { RiskSummary, PriorityZoneItem } from "../types";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
-import { UserSession } from "../lib/auth";
+
 
 interface ReportsGeneratorProps {
   currentCityId: string;
   summary: RiskSummary | null;
   priorityZones: PriorityZoneItem[];
   currentLang: SupportedLanguage;
-  currentUser: UserSession | null;
 }
 
 export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
   currentCityId,
   summary,
   priorityZones,
-  currentLang,
-  currentUser
+  currentLang
 }) => {
   const t = getTranslation(currentLang);
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
 
   const cityNameMap: Record<string, string> = {
     VJA: "Vijayawada Municipal Corporation (Andhra Pradesh)",
-    CHE: "Greater Chennai Corporation (Tamil Nadu)"
   };
 
   const currentCityName = cityNameMap[currentCityId] || currentCityId;
@@ -110,15 +107,15 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
         city_id: currentCityId,
         municipality: currentCityName,
         generated_at: new Date().toISOString(),
-        auditor: currentUser ? `${currentUser.name} (${currentUser.role})` : "Gaurav (Administrator)",
+        auditor: "Municipal desk",
         time_horizon: horizon
       },
       hydrological_summary: summary,
       priority_sectors: priorityZones,
       compliance_certification: {
-        methodology: "Calibrated XGBoost (IS 17387:2020 Urban Drainage Standards)",
-        digital_elevation: "NASA SRTM 30m Global DEM",
-        telemetry: "Open-Meteo ERA5 Reanalysis & GFS Forecast"
+        methodology: "Stored model. Metrics are in the evaluation report.",
+        digital_elevation: "See data/processed/vijayawada_grid_static_factors.csv",
+        telemetry: "Rainfall is the value on the risk summary, when the service returned one"
       }
     };
 
@@ -233,7 +230,7 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
           <div className="text-right space-y-1 text-xs">
             <div className="font-mono text-slate-300 font-bold">Ref: DS-AUD-{currentCityId}-{Date.now().toString().slice(-6)}</div>
             <div className="text-slate-400">Date: {reportDate} • {reportTime}</div>
-            <div className="text-blue-400 font-medium">Auditor: {currentUser ? `${currentUser.name} (${currentUser.role})` : "Gaurav (Administrator)"}</div>
+            <div className="text-blue-400 font-medium">Auditor: Municipal desk</div>
           </div>
         </div>
 
@@ -252,23 +249,23 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
             <div className="text-[10px] uppercase font-bold text-slate-400">Catchment Area</div>
-            <div className="text-lg font-black text-slate-200 font-mono mt-1">{summary?.monitored_area_sqkm || 0} km²</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">{summary?.total_grids || 0} Grids (500m²)</div>
+            <div className="text-lg font-black text-slate-200 font-mono mt-1">{summary ? `${summary.monitored_area_sqkm} km²` : "n/a"}</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">{summary ? `${summary.total_grids} cells` : "n/a"}</div>
           </div>
           <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-900/30">
             <div className="text-[10px] uppercase font-bold text-rose-400">Critical Risk Sectors</div>
-            <div className="text-lg font-black text-rose-300 font-mono mt-1">{summary?.critical_zones || 0}</div>
+            <div className="text-lg font-black text-rose-300 font-mono mt-1">{summary ? summary.critical_zones : "n/a"}</div>
             <div className="text-[10px] text-rose-400/70 mt-0.5">Probability &gt; 80%</div>
           </div>
           <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-900/30">
             <div className="text-[10px] uppercase font-bold text-amber-400">High / Elevated Sectors</div>
-            <div className="text-lg font-black text-amber-300 font-mono mt-1">{(summary?.high_risk_zones || 0) + (summary?.elevated_zones || 0)}</div>
+            <div className="text-lg font-black text-amber-300 font-mono mt-1">{summary ? summary.high_risk_zones + summary.elevated_zones : "n/a"}</div>
             <div className="text-[10px] text-amber-400/70 mt-0.5">Probability 40% to 80%</div>
           </div>
           <div className="p-3.5 rounded-xl bg-blue-950/20 border border-blue-900/30">
             <div className="text-[10px] uppercase font-bold text-blue-400">Peak 24h Rain</div>
-            <div className="text-lg font-black text-blue-300 font-mono mt-1">{summary?.current_rainfall_24h_mm || 0} mm</div>
-            <div className="text-[10px] text-blue-400/70 mt-0.5">ERA5 / IMD Telemetry</div>
+            <div className="text-lg font-black text-blue-300 font-mono mt-1">{summary ? `${summary.current_rainfall_24h_mm} mm` : "n/a"}</div>
+            <div className="text-[10px] text-blue-400/70 mt-0.5">From the risk summary</div>
           </div>
         </div>
 
@@ -342,8 +339,7 @@ export const ReportsGenerator: React.FC<ReportsGeneratorProps> = ({
             <div>Calibrated XGBoost Model v1.0 • NASA SRTM 30m Digital Elevation Model</div>
           </div>
           <div className="text-center sm:text-right space-y-1">
-            <div className="font-mono text-slate-300 font-bold">Officer Sign-Off: {currentUser?.name || "Gaurav (Administrator)"}</div>
-            <div className="text-[10px] text-slate-500">Badge ID: {currentUser?.badge_id || "MUNI-ADM-001"} • Cryptographically Audited</div>
+            <div className="font-mono text-slate-300 font-bold">Sign-off: Municipal desk</div>
           </div>
         </div>
       </div>

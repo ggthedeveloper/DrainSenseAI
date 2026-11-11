@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ZoneDetail } from "../types";
 import { 
   X, 
@@ -35,7 +36,9 @@ export const ZoneDrawer: React.FC<ZoneDrawerProps> = ({ zone, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-slate-900/98 backdrop-blur-md border-l border-slate-800 shadow-2xl z-[9999] overflow-y-auto flex flex-col transition-all">
+    <Sheet open={!!zone} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <SheetContent side="right" className="w-full overflow-y-auto border-l border-[#D5E2E0] bg-[#FBFDFC] p-0 sm:max-w-lg">
+    <SheetTitle className="sr-only">{zone.zone_name || "Zone detail"}</SheetTitle>
       {/* Header */}
       <div className="p-5 border-b border-slate-800 flex items-start justify-between bg-slate-950/90 sticky top-0 z-10 backdrop-blur">
         <div>
@@ -181,8 +184,9 @@ export const ZoneDrawer: React.FC<ZoneDrawerProps> = ({ zone, onClose }) => {
 
       {/* Scientific Disclaimer Footer */}
       <div className="p-4 border-t border-slate-800 bg-slate-950 text-[11px] text-slate-500 text-center">
-        ⚠️ Decision-support estimation based on ML feature models. Not an official statutory disaster warning.
+        Decision-support estimate from the model. Not a statutory disaster warning.
       </div>
-    </div>
+    </SheetContent>
+    </Sheet>
   );
 };

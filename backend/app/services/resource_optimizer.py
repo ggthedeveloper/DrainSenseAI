@@ -41,7 +41,7 @@ def optimize_municipal_dispatch(
     city_id: str,
     priority_zones: List[Dict[str, Any]],
     available_fleet: Optional[Dict[str, int]] = None,
-    officer_name: str = "Gaurav (Administrator)"
+    officer_name: str = "Municipal desk"
 ) -> Dict[str, Any]:
     """
     Allocates municipal response fleet to highest-threat sectors using multi-objective prioritization.

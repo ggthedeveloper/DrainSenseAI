@@ -5,7 +5,7 @@ Unit and algorithmic tests for ML pipeline, data transformations, and validation
 import pytest
 import numpy as np
 import pandas as pd
-from ml.src.ingestion.spatial_loader import generate_grid_cells, haversine_distance_m
+from ml.src.ingestion.spatial_loader import haversine_distance_m
 from ml.src.preprocessing.validator import (
     validate_rainfall_dataframe,
     validate_spatial_features,
@@ -24,14 +24,14 @@ def test_haversine_distance():
     assert 500 < d < 2500
 
 def test_spatial_grid_generation():
-    df = generate_grid_cells()
-    assert len(df) == 810
-    assert "grid_id" in df.columns
+    from backend.app.core.config import REPO_ROOT
+    df = pd.read_csv(REPO_ROOT / "data/processed/vijayawada_grid_with_archetypes.csv")
+    assert len(df) == 1100
+    assert df["grid_id"].str.startswith("VJA250_").all()
+    assert set(df["city_id"]) == {"VJA"}
     assert "elevation_m" in df.columns
-    assert "flow_accumulation" in df.columns
-    # Check bounds
     assert df["latitude"].min() >= 16.44
-    assert df["latitude"].max() <= 16.58
+    assert df["latitude"].max() <= 16.60
     assert df["longitude"].min() >= 80.55
     assert df["longitude"].max() <= 80.71
 

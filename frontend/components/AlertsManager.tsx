@@ -17,19 +17,17 @@ import {
 import { AlertItem } from "../types";
 import { fetchAlerts, acknowledgeAlert, resolveAlert } from "../lib/api";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
-import { UserSession } from "../lib/auth";
+
 
 interface AlertsManagerProps {
   currentCityId?: string;
   currentLang: SupportedLanguage;
-  currentUser: UserSession | null;
   onNavigateToMap?: (gridId: string) => void;
 }
 
 export const AlertsManager: React.FC<AlertsManagerProps> = ({
   currentCityId,
   currentLang,
-  currentUser,
   onNavigateToMap
 }) => {
   const t = getTranslation(currentLang);
@@ -57,18 +55,10 @@ export const AlertsManager: React.FC<AlertsManagerProps> = ({
   const handleAcknowledge = async (alertId: string) => {
     setActionInProgress(alertId);
     try {
-      const officerName = currentUser?.name ? `${currentUser.name} (${currentUser.role || "Administrator"})` : "Gaurav (Administrator)";
+      const officerName = "Municipal desk";
       const res = await acknowledgeAlert(alertId, officerName);
-      if (res.success && res.alert) {
-        setAlerts((prev) => prev.map((a) => a.alert_id === alertId ? (res.alert as AlertItem) : a));
-      } else {
-        // Optimistic update
-        setAlerts((prev) => prev.map((a) => a.alert_id === alertId ? {
-          ...a,
-          status: "ACKNOWLEDGED",
-          acknowledged_by: officerName,
-          acknowledged_at: new Date().toISOString()
-        } : a));
+      if (res.alert_id) {
+        setAlerts((prev) => prev.map((a) => (a.alert_id === alertId ? res : a)));
       }
     } catch (err) {
       console.error("Error acknowledging alert:", err);
@@ -81,14 +71,8 @@ export const AlertsManager: React.FC<AlertsManagerProps> = ({
     setActionInProgress(alertId);
     try {
       const res = await resolveAlert(alertId);
-      if (res.success && res.alert) {
-        setAlerts((prev) => prev.map((a) => a.alert_id === alertId ? (res.alert as AlertItem) : a));
-      } else {
-        // Optimistic update
-        setAlerts((prev) => prev.map((a) => a.alert_id === alertId ? {
-          ...a,
-          status: "RESOLVED"
-        } : a));
+      if (res && typeof res === "object" && "alert_id" in res) {
+        setAlerts((prev) => prev.map((a) => (a.alert_id === alertId ? (res as AlertItem) : a)));
       }
     } catch (err) {
       console.error("Error resolving alert:", err);

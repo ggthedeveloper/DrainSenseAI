@@ -39,32 +39,28 @@ export const ModelAnalytics: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const featureData = [
-    { name: "24h Rain", feature: "rain_24h_mm", importance: 58.1, fill: "#3b82f6" },
-    { name: "Elevation", feature: "elevation_m", importance: 30.4, fill: "#06b6d4" },
-    { name: "Flow Accum.", feature: "flow_accumulation", importance: 3.7, fill: "#a855f7" },
-    { name: "Terrain Slope", feature: "slope_deg", importance: 2.0, fill: "#eab308" },
-    { name: "Impervious", feature: "impervious_ratio", importance: 1.8, fill: "#f97316" },
-    { name: "Drainage", feature: "drainage_density", importance: 1.6, fill: "#10b981" },
-    { name: "Road Density", feature: "road_density", importance: 1.3, fill: "#64748b" },
-    { name: "Water Dist.", feature: "distance_to_water", importance: 0.65, fill: "#6366f1" }
-  ];
+  const importanceColors = ["#115E59", "#3E63DD", "#E15759", "#F28E2B", "#067647", "#175CD3", "#8A6116", "#B54708", "#4C5E62"];
+  const featureData: Array<{ name: string; importance: number; fill: string }> = Array.isArray(report?.feature_importances)
+    ? report.feature_importances.map((row: { feature: string; importance: number }, index: number) => ({
+        name: row.feature,
+        importance: Math.round(row.importance * 1000) / 10,
+        fill: importanceColors[index % importanceColors.length],
+      }))
+    : [];
 
-  const calibrationData = [
-    { bin: "0-10%", predicted: 0.05, observed: 0.048, ideal: 0.05 },
-    { bin: "10-20%", predicted: 0.15, observed: 0.146, ideal: 0.15 },
-    { bin: "20-40%", predicted: 0.30, observed: 0.292, ideal: 0.30 },
-    { bin: "40-60%", predicted: 0.50, observed: 0.485, ideal: 0.50 },
-    { bin: "60-80%", predicted: 0.70, observed: 0.694, ideal: 0.70 },
-    { bin: "80-100%", predicted: 0.95, observed: 0.938, ideal: 0.95 }
-  ];
+  const calibrationData = Array.isArray(report?.calibration_curve)
+    ? report.calibration_curve.map((row: { predicted_mean_prob: number; observed_positive_rate: number }) => ({
+        bin: Number(row.predicted_mean_prob).toFixed(2),
+        predicted: row.predicted_mean_prob,
+        observed: row.observed_positive_rate,
+        ideal: row.predicted_mean_prob,
+      }))
+    : [];
 
-  const modelComparison = [
-    { name: "DrainSense Calibrated XGBoost", roc_auc: "0.9823", pr_auc: "0.9346", f1: "0.8508", precision: "81.5%", recall: "89.0%", brier: "0.0446", highlight: true },
-    { name: "Uncalibrated XGBoost (v1.0)", roc_auc: "0.9824", pr_auc: "0.9350", f1: "0.8281", precision: "73.4%", recall: "95.0%", brier: "0.0553", highlight: false },
-    { name: "Random Forest (100 Trees)", roc_auc: "0.9805", pr_auc: "0.9270", f1: "0.8199", precision: "72.2%", recall: "94.9%", brier: "0.0576", highlight: false },
-    { name: "Stratified Dummy Baseline", roc_auc: "0.4981", pr_auc: "0.1973", f1: "0.1952", precision: "19.5%", recall: "19.5%", brier: "0.3190", highlight: false }
-  ];
+  const modelComparison: Array<Record<string, string | number | boolean>> = Array.isArray(report?.benchmarks)
+    ? report.benchmarks
+    : [];
+  const confusion = report?.confusion_matrix;
 
   return (
     <div className="space-y-6">
@@ -78,13 +74,13 @@ export const ModelAnalytics: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-slate-100">Model Evaluation & Explainability Governance</h2>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Verification of calibrated XGBoost classifier on 155,378 holdout spatio-temporal test records across Budameru 2024 and Michaung 2023 deluge seasons.
+              Metrics and feature-gain weights come from the 11 Nov 2026 training report.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs px-2.5 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-300 font-medium font-mono">
-              drainsense_xgb_v1.0 (Calibrated)
+              {report?.training_timestamp ? `Calibrated model ${report.training_timestamp}` : "Calibrated model"}
             </span>
           </div>
         </div>
@@ -94,23 +90,23 @@ export const ModelAnalytics: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-slate-900/70 p-4 rounded-xl border border-slate-800 shadow-lg">
           <div className="text-xs font-semibold text-slate-400 uppercase">ROC-AUC Score</div>
-          <div className="text-2xl font-black text-emerald-400 mt-1 font-mono">0.9823</div>
+          <div className="text-2xl font-black text-emerald-400 mt-1 font-mono">{report?.roc_auc ?? "n/a"}</div>
           <div className="text-[10px] text-slate-400 mt-0.5">High real terrain discrimination</div>
         </div>
         <div className="bg-slate-900/70 p-4 rounded-xl border border-slate-800 shadow-lg">
           <div className="text-xs font-semibold text-slate-400 uppercase">PR-AUC (Avg Precision)</div>
-          <div className="text-2xl font-black text-blue-400 mt-1 font-mono">0.9346</div>
+          <div className="text-2xl font-black text-blue-400 mt-1 font-mono">{report?.pr_auc ?? "n/a"}</div>
           <div className="text-[10px] text-slate-400 mt-0.5">Precision-Recall on positive flood class</div>
         </div>
         <div className="bg-slate-900/70 p-4 rounded-xl border border-slate-800 shadow-lg">
           <div className="text-xs font-semibold text-slate-400 uppercase">Brier Calibration Score</div>
-          <div className="text-2xl font-black text-amber-400 mt-1 font-mono">0.0446</div>
+          <div className="text-2xl font-black text-amber-400 mt-1 font-mono">{report?.brier_score ?? "n/a"}</div>
           <div className="text-[10px] text-slate-400 mt-0.5">3-Fold Sigmoid Calibrated</div>
         </div>
         <div className="bg-slate-900/70 p-4 rounded-xl border border-slate-800 shadow-lg">
           <div className="text-xs font-semibold text-slate-400 uppercase">Holdout Test Records</div>
-          <div className="text-2xl font-black text-slate-100 mt-1 font-mono">155,378</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">20% Stratified test slice</div>
+          <div className="text-2xl font-black text-slate-100 mt-1 font-mono">{report?.evaluation_samples ?? "n/a"}</div>
+          <div className="text-[10px] text-slate-400 mt-0.5">Holdout test rows</div>
         </div>
       </div>
 
@@ -151,7 +147,7 @@ export const ModelAnalytics: React.FC = () => {
           </div>
 
           <div className="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-            <strong>Key Insight:</strong> Rainfall volume (58.1%) and ground elevation (30.4%) account for 88.5% of model predictive variance.
+            Weights are the gain shares in the 11 Nov 2026 training report.
           </div>
         </div>
 
@@ -165,7 +161,7 @@ export const ModelAnalytics: React.FC = () => {
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">Predicted risk probability vs observed flood fraction</p>
             </div>
-            <span className="text-[10px] text-emerald-400 font-mono font-bold">Brier: 0.0446</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold">Brier: {report?.brier_score ?? "n/a"}</span>
           </div>
 
           <div className="h-64 w-full">
@@ -198,14 +194,14 @@ export const ModelAnalytics: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Award className="w-4 h-4 text-amber-400" />
-              Machine Learning Benchmark Comparison (N = 155,378 Holdout Test Records)
+              Holdout comparison ({report?.evaluation_samples ?? "n/a"} test rows)
             </h3>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Empirical validation across baseline, ensemble tree, and calibrated architectures on real Copernicus DEM and ERA5 telemetry.
+              Each row is a model from the 11 Nov 2026 training report.
             </p>
           </div>
           <span className="text-[10px] text-slate-400 font-mono bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0">
-            5-Fold Stratified CV
+            Holdout
           </span>
         </div>
 
@@ -223,6 +219,11 @@ export const ModelAnalytics: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
+              {modelComparison.length === 0 && (
+                <tr>
+                  <td className="py-3 text-slate-400" colSpan={7}>The evaluation response has no model comparison.</td>
+                </tr>
+              )}
               {modelComparison.map((m, idx) => (
                 <tr 
                   key={idx} 
@@ -256,37 +257,33 @@ export const ModelAnalytics: React.FC = () => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Target className="w-4 h-4 text-emerald-400" />
-              Holdout Confusion Matrix (N = 155,378)
+              Production confusion matrix ({report?.evaluation_samples ?? "n/a"} rows)
             </h3>
             <span className="text-[10px] text-slate-400 font-mono">Threshold P ≥ 0.50</span>
           </div>
 
+          {confusion ? (
           <div className="grid grid-cols-2 gap-3 text-center my-3">
             <div className="bg-emerald-950/40 border border-emerald-800/60 p-3 rounded-lg">
               <div className="text-[10px] uppercase font-bold text-emerald-300">True Negatives (TN)</div>
-              <div className="text-xl font-black text-emerald-200 mt-1 font-mono">118,402</div>
-              <div className="text-[10px] text-emerald-400/80 mt-0.5">Dry/Safe cells correctly identified (95.0%)</div>
+              <div className="text-xl font-black text-emerald-200 mt-1 font-mono">{confusion.tn}</div>
             </div>
             <div className="bg-slate-950 border border-slate-800 p-3 rounded-lg">
               <div className="text-[10px] uppercase font-bold text-slate-400">False Positives (FP)</div>
-              <div className="text-xl font-black text-slate-300 mt-1 font-mono">6,229</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">False alarms (FPR: 5.0%)</div>
+              <div className="text-xl font-black text-slate-300 mt-1 font-mono">{confusion.fp}</div>
             </div>
             <div className="bg-slate-950 border border-slate-800 p-3 rounded-lg">
               <div className="text-[10px] uppercase font-bold text-slate-400">False Negatives (FN)</div>
-              <div className="text-xl font-black text-slate-300 mt-1 font-mono">3,373</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Missed deluge alerts (FNR: 10.97%)</div>
+              <div className="text-xl font-black text-slate-300 mt-1 font-mono">{confusion.fn}</div>
             </div>
             <div className="bg-blue-950/40 border border-blue-800/60 p-3 rounded-lg">
               <div className="text-[10px] uppercase font-bold text-blue-300">True Positives (TP)</div>
-              <div className="text-xl font-black text-blue-200 mt-1 font-mono">27,374</div>
-              <div className="text-[10px] text-blue-400/80 mt-0.5">Inundation zones detected (Recall: 89.03%)</div>
+              <div className="text-xl font-black text-blue-200 mt-1 font-mono">{confusion.tp}</div>
             </div>
           </div>
-
-          <div className="text-[11px] text-slate-400">
-            Sensitivity / Recall on extreme flood events is <strong>89.03%</strong> with a specificity of <strong>95.00%</strong> and precision of <strong>81.46%</strong> (F1-Score: <strong>0.8508</strong>).
-          </div>
+          ) : (
+            <p className="my-3 text-[11px] text-slate-400">The evaluation response has no confusion matrix.</p>
+          )}
         </div>
 
         {/* Model Governance Checklist */}
@@ -307,7 +304,7 @@ export const ModelAnalytics: React.FC = () => {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Class Weight Balancing:</strong> XGBoost tuned with `scale_pos_weight = 8.55` to address flood class imbalance without artificial data inflation.</span>
+                <span><strong>Class weight:</strong> The trainer sets a positive-class weight from the training labels. This screen does not reprint a weight that is absent from the evaluation report.</span>
               </li>
             </ul>
           </div>

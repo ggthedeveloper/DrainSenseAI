@@ -75,55 +75,88 @@ class RiskInferenceService:
         self.all_grid_features_df = None
         self.city_geojsons = {}
         self.cascade_graphs = {}
+        self.load_error: Optional[str] = None
+        self.latest_observation: Optional[dict] = None
 
         self.reload()
 
     def reload(self):
-        """Loads DrainSenseAI 2.0 model artifacts, scaler, and spatial grids."""
+        """Loads the 2026-11-11 model artifacts, scaler, and the Vijayawada grid."""
         self.cascade_graphs.clear()
+        self.load_error = None
+        self.model = None
         try:
-            # 1. Load Calibrated Binary Model (Tier 2)
-            if os.path.exists(self.model_path):
-                self.model = joblib.load(self.model_path)
-                logger.info(f"Loaded DrainSense 2.0 Calibrated XGBoost from {self.model_path}")
+            if not os.path.exists(self.model_path):
+                raise FileNotFoundError(f"Calibrated model not found at {self.model_path}")
+            self.model = joblib.load(self.model_path)
+            logger.info(f"Loaded calibrated XGBoost from {self.model_path}")
+        except Exception as e:
+            self.model = None
+            self.load_error = str(e)
+            logger.error(f"Calibrated model failed to load: {e}", exc_info=True)
 
-            # 2. Load Model Metadata
+        try:
             if os.path.exists(self.metadata_path):
                 with open(self.metadata_path, "r") as f:
                     self.metadata = json.load(f)
-                logger.info(f"Loaded Model Metadata version {self.metadata.get('model_version')}")
+                logger.info(
+                    "Loaded model metadata version %s trained %s",
+                    self.metadata.get("model_version"),
+                    self.metadata.get("training_timestamp"),
+                )
 
-            # 3. Load Multi-Class Attribution Model (Tier 3)
             if os.path.exists(self.attribution_model_path):
                 self.attribution_model = joblib.load(self.attribution_model_path)
-                logger.info("Loaded Tier 3 Failure Mode Attribution model")
+                logger.info("Loaded failure-mode attribution model from %s", self.attribution_model_path)
 
             if os.path.exists(self.attribution_encoder_path):
                 self.attribution_encoder = joblib.load(self.attribution_encoder_path)
 
-            # 4. Load Archetype Model (Tier 1)
             if os.path.exists(self.archetype_model_path):
                 self.archetype_model = joblib.load(self.archetype_model_path)
 
-            # 5. Load Production Scaler
             if os.path.exists(self.scaler_path):
                 self.scaler = joblib.load(self.scaler_path)
 
-            # 6. Load Spatial Grid
             if os.path.exists(self.grid_features_path):
                 self.all_grid_features_df = pd.read_csv(self.grid_features_path)
-                logger.info(f"Loaded {len(self.all_grid_features_df)} grid spatial records.")
+                logger.info("Loaded %s grid rows from %s", len(self.all_grid_features_df), self.grid_features_path)
 
-            # 7. Load GeoJSONs
             if os.path.exists(self.grid_geojson_path):
                 with open(self.grid_geojson_path, "r") as f:
-                    vja_geojson = json.load(f)
-                    self.city_geojsons["VJA"] = vja_geojson
+                    self.city_geojsons["VJA"] = json.load(f)
             else:
-                logger.warning(f"GeoJSON not found at {self.grid_geojson_path}")
+                logger.warning("GeoJSON not found at %s", self.grid_geojson_path)
 
+            self.latest_observation = self._read_latest_observation()
         except Exception as e:
+            if self.load_error is None:
+                self.load_error = str(e)
             logger.error(f"Error loading resources: {e}", exc_info=True)
+
+    def _read_latest_observation(self) -> dict:
+        path = settings.EVENT_TELEMETRY_PATH
+        frame = pd.read_csv(path)
+        frame["_parsed"] = pd.to_datetime(frame["date"], dayfirst=True, errors="coerce")
+        frame = frame.dropna(subset=["_parsed"])
+        row = frame.loc[frame["_parsed"].idxmax()]
+        observed = row["_parsed"].strftime("%Y-%m-%d")
+        return {
+            "date": observed,
+            "rain_24h_mm": float(row["rain_24h_mm"]),
+            "prakasam_stage_m": float(row["prakasam_stage_mean_m"]),
+            "source": "data/processed/vijayawada_event_telemetry.csv",
+        }
+
+    def resolve_observation(self, rain_24h_mm: Optional[float] = None, prakasam_stage_m: Optional[float] = None) -> dict:
+        obs = self.latest_observation or self._read_latest_observation()
+        used_file = rain_24h_mm is None
+        return {
+            "rain_24h_mm": float(obs["rain_24h_mm"] if rain_24h_mm is None else rain_24h_mm),
+            "prakasam_stage_m": float(obs["prakasam_stage_m"] if prakasam_stage_m is None else prakasam_stage_m),
+            "rainfall_source": obs["source"] if used_file else "request",
+            "rainfall_observed_on": obs["date"] if used_file else None,
+        }
 
     @property
     def grid_features_df(self):
@@ -221,9 +254,9 @@ class RiskInferenceService:
         rain_3h_mm: float = 0.0,
         rain_6h_mm: float = 0.0,
         rain_12h_mm: Optional[float] = None,
-        rain_24h_mm: float = 0.0,
+        rain_24h_mm: Optional[float] = None,
         rain_72h_mm: Optional[float] = None,
-        prakasam_stage_m: float = 3.75,
+        prakasam_stage_m: Optional[float] = None,
         prediction_horizon_hours: int = 3
     ) -> dict:
         if self.all_grid_features_df is None or self.model is None:
@@ -234,7 +267,10 @@ class RiskInferenceService:
             raise ValueError(f"Grid ID '{grid_id}' not found in spatial registry.")
 
         row = matched.iloc[0].to_dict()
-        
+        observed = self.resolve_observation(rain_24h_mm, prakasam_stage_m)
+        rain_24h_mm = observed["rain_24h_mm"]
+        prakasam_stage_m = observed["prakasam_stage_m"]
+
         if rain_12h_mm is None:
             rain_12h_mm = max(rain_6h_mm, round(rain_24h_mm * 0.70, 2))
         if rain_72h_mm is None:
@@ -317,18 +353,21 @@ class RiskInferenceService:
         rain_1h_mm: float = 24.5,
         rain_3h_mm: float = 48.0,
         rain_6h_mm: float = 85.0,
-        rain_24h_mm: float = 145.0,
+        rain_24h_mm: Optional[float] = None,
         rain_72h_mm: float = 180.0,
-        prakasam_stage_m: float = 3.75
+        prakasam_stage_m: Optional[float] = None
     ) -> dict:
         cid = city_id.upper()
         if self.all_grid_features_df is None or self.model is None:
-            raise RuntimeError("Model or spatial registry not loaded.")
+            raise RuntimeError(self.load_error or "Model or spatial registry not loaded.")
+
+        observed = self.resolve_observation(rain_24h_mm, prakasam_stage_m)
+        rain_24h_mm = observed["rain_24h_mm"]
+        prakasam_stage_m = observed["prakasam_stage_m"]
 
         df = self.all_grid_features_df[self.all_grid_features_df["city_id"] == cid].copy()
         if df.empty:
-            df = self.all_grid_features_df[self.all_grid_features_df["city_id"] == "VJA"].copy()
-            cid = "VJA"
+            raise ValueError(f"No trained grid is loaded for city '{cid}'.")
 
         df["rain_24h_mm"] = float(rain_24h_mm)
         df["prakasam_stage_m"] = float(prakasam_stage_m)
@@ -426,6 +465,8 @@ class RiskInferenceService:
             "low_zones": low_count,
             "current_rainfall_24h_mm": rain_24h_mm,
             "current_prakasam_stage_m": prakasam_stage_m,
+            "rainfall_source": observed["rainfall_source"],
+            "rainfall_observed_on": observed["rainfall_observed_on"],
             "highest_risk_zone": {
                 "grid_id": highest_risk_row["grid_id"],
                 "zone_name": highest_risk_row["zone_name"],
@@ -433,7 +474,7 @@ class RiskInferenceService:
                 "risk_level": highest_risk_row["risk_level"],
                 "failure_mode": highest_risk_row["failure_mode"]
             },
-            "last_updated": "2026-11-11T17:30:00Z"
+            "last_updated": observed["rainfall_observed_on"] or "request"
         }
 
         return {
@@ -519,7 +560,7 @@ class RiskInferenceService:
             self.cascade_graphs[cid] = HydrologicalCascadeGraph(city_df)
         return self.cascade_graphs[cid]
 
-    def trace_cascade(self, grid_id: str, rain_24h_mm: float = 145.0) -> dict:
+    def trace_cascade(self, grid_id: str, rain_24h_mm: Optional[float] = None) -> dict:
         gid = str(grid_id).strip()
         cid = "VJA"
         if self.all_grid_features_df is not None:
@@ -530,9 +571,10 @@ class RiskInferenceService:
         graph = self.get_cascade_graph(cid)
         if not graph:
             raise ValueError(f"Could not build cascade graph for city '{cid}'.")
+        rain_24h_mm = self.resolve_observation(rain_24h_mm)["rain_24h_mm"]
         return graph.trace_cascade_path(start_grid_id=gid, current_rain_mm=rain_24h_mm)
 
-    def get_physics_audit(self, grid_id: str, rain_24h_mm: float = 145.0) -> dict:
+    def get_physics_audit(self, grid_id: str, rain_24h_mm: Optional[float] = None) -> dict:
         pred = self.predict_grid(grid_id=grid_id, rain_24h_mm=rain_24h_mm)
         terrain = pred.get("terrain", {})
         elev = float(terrain.get("elevation_m", 15.0))
@@ -552,8 +594,9 @@ class RiskInferenceService:
         audit["risk_level"] = pred.get("risk_level", "MODERATE")
         return audit
 
-    def get_temporal_nowcast(self, city_id: str = "VJA", base_rain_24h_mm: float = 145.0) -> dict:
+    def get_temporal_nowcast(self, city_id: str = "VJA", base_rain_24h_mm: Optional[float] = None) -> dict:
         cid = city_id.upper()
+        base_rain_24h_mm = self.resolve_observation(base_rain_24h_mm)["rain_24h_mm"]
         horizons_config = [
             {"horizon_hours": 0, "label": "T+0h (Current Telemetry)", "multiplier": 1.0, "stage": "Baseline Telemetry", "desc": "Current observed antecedent moisture."},
             {"horizon_hours": 1, "label": "T+1h (Convective Onset)", "multiplier": 1.35, "stage": "Surge Initiation", "desc": "Rapid surface pooling along tertiary masonry drains."},

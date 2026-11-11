@@ -12,6 +12,7 @@ class HealthResponse(BaseModel):
     model_version: str
     total_grids: int
     latest_data_timestamp: str
+    load_error: Optional[str] = None
 
 class CityItem(BaseModel):
     city_id: str
@@ -176,4 +177,4 @@ class AlertItem(BaseModel):
 class DispatchOptimizationRequest(BaseModel):
     city_id: str = "VJA"
     available_fleet: Optional[Dict[str, int]] = None
-    officer_name: Optional[str] = "Gaurav (Administrator)"
+    officer_name: Optional[str] = "Municipal desk"

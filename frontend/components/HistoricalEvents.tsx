@@ -45,11 +45,11 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
               <History className="w-4 h-4" />
-              Verified Disaster Ground Truth (Kaggle & IMD Records)
+              Events from the historical-events service
             </div>
             <h2 className="text-xl font-bold text-slate-100">Documented Historical Cloudbursts & Deluges</h2>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Chronological flood case studies from Vijayawada (Budameru Flash Cloudburst) and Chennai (Cyclone Michaung & 2015 Deluge), cross-referenced with Kaggle flood datasets and IMD radar archives.
+              Flood events returned by the historical-events service for the trained catchment.
             </p>
           </div>
 
@@ -60,9 +60,7 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
               onChange={(e) => setFilterCity(e.target.value)}
               className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
             >
-              <option value="ALL">All Catchments (VJA & CHE)</option>
               <option value="VJA">Vijayawada / Amaravati (AP)</option>
-              <option value="CHE">Chennai (TN)</option>
             </select>
           </div>
         </div>
@@ -133,7 +131,7 @@ export const HistoricalEvents: React.FC<HistoricalEventsProps> = ({ cityId }) =>
               <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
                 <span className="text-emerald-400 font-semibold font-mono flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  Kaggle &amp; IMD Benchmark
+                  Service record
                 </span>
                 <span className="text-slate-400 text-[9px] truncate max-w-[180px]">
                   {(evt as any).kaggle_dataset_ref.split('(')[0]}

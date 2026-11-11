@@ -37,6 +37,7 @@ models/*.tmp
 # Build & Archives
 dist/
 *.zip
+DrainSenseAI_v2_Dataset_Models_Notebook/
 
 # OS & IDE
 .DS_Store

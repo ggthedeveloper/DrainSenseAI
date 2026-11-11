@@ -11,24 +11,6 @@ export const TRANSLATIONS = {
     appTagline: "Urban Waterlogging Early Warning & Response Intelligence",
     officialDisclaimer: "Estimates zone-level waterlogging susceptibility. Decision support only.",
 
-    // Auth & Login
-    loginTitle: "Command Center Authentication",
-    loginSubtitle: "Sign in with your municipal command credentials to access live flood telemetry and drainage infrastructure controls.",
-    username: "Officer / Admin Username",
-    usernamePlaceholder: "Enter your username (e.g. Gaurav)",
-    password: "Password",
-    passwordPlaceholder: "Enter your password",
-    role: "Operational Role",
-    roleAdmin: "Administrator (Full Control)",
-    roleOfficer: "Zonal Municipal Officer",
-    roleResponder: "Emergency Field Responder",
-    loginButton: "Access Command Center",
-    loginDemoHelper: "Quick Demo Fill (Admin: Gaurav)",
-    loginError: "Invalid credentials. For reviewer access, click Quick Demo Fill.",
-    securityNotice: "Protected government-grade municipal decision support platform. Unauthorized access is monitored.",
-    logout: "Sign Out",
-    logoutConfirm: "Are you sure you want to sign out of the command session?",
-
     // Navigation / Sidebar
     navDashboard: "Dashboard",
     navMap: "Live Monitoring & Map",
@@ -47,7 +29,7 @@ export const TRANSLATIONS = {
 
     // Header & City
     citySelectLabel: "Active Municipal Catchment",
-    monitoredCitiesCount: "2 Verified Metros (VJA & CHE)",
+    monitoredCitiesCount: "1 trained catchment (VJA)",
     liveTelemetry: "Telemetry Live",
     juryDemoButton: "Jury Demo Mode",
 
@@ -106,12 +88,12 @@ export const TRANSLATIONS = {
     lastInspection: "Last Inspection",
     assignedTeam: "Assigned Zonal Team",
     status: "Operational Status",
-    allCities: "All 12 Cities",
+    allCities: "Vijayawada",
     allConditions: "All Conditions",
 
     // Alerts
     alertsTitle: "Emergency Waterlogging Alerts & Field Dispatch",
-    alertsSubtitle: "Real-time automated incident triggers based on ERA5 telemetry, terrain choke points, and flood hazard models.",
+    alertsSubtitle: "Alerts returned by the alert service. The list stays empty until that service has a live feed.",
     activeAlerts: "Active Emergency Alerts",
     acknowledgedAlerts: "Acknowledged Alerts",
     resolvedAlerts: "Resolved Incidents",
@@ -158,8 +140,8 @@ export const TRANSLATIONS = {
     systemDiagnostics: "System & Model Diagnostics",
     modelStatus: "Active ML Model",
     modelEngine: "Calibrated XGBoost Classifier v1.0",
-    totalMonitoredCells: "2,295 Verified 500m Grids",
-    telemetrySource: "Open-Meteo ERA5 Hourly Telemetry",
+    totalMonitoredCells: "Grid count comes from the risk service",
+    telemetrySource: "Rainfall value comes from the risk service",
     demSource: "NASA SRTM 30m Digital Elevation Model",
 
     // Common / Utility
@@ -180,24 +162,6 @@ export const TRANSLATIONS = {
     appTagline: "शहरी जलभराव पूर्व चेतावनी एवं प्रतिक्रिया आसूचना प्रणाली",
     officialDisclaimer: "500 मीटर ग्रिड स्तर पर जलभराव की संवेदनशीलता का अनुमान लगाता है। केवल निर्णय समर्थन के लिए।",
 
-    // Auth & Login
-    loginTitle: "कमांड सेंटर प्रमाणीकरण",
-    loginSubtitle: "लाइव बाढ़ टेलीमेट्री और ड्रेनेज नियंत्रण एक्सेस करने के लिए नगरपालिका क्रेडेंशियल्स दर्ज करें।",
-    username: "अधिकारी / व्यवस्थापक नाम",
-    usernamePlaceholder: "उपयोगकर्ता नाम दर्ज करें (उदा. Gaurav)",
-    password: "पासवर्ड",
-    passwordPlaceholder: "पासवर्ड दर्ज करें",
-    role: "परिचालन भूमिका",
-    roleAdmin: "व्यवस्थापक (Administrator - पूर्ण नियंत्रण)",
-    roleOfficer: "जोनल नगरपालिका अधिकारी",
-    roleResponder: "आपातकालीन प्रतिक्रिया दल",
-    loginButton: "कमांड सेंटर में प्रवेश करें",
-    loginDemoHelper: "डेमो ऑटो-फिल (एडमिन: गौरव)",
-    loginError: "अमान्य क्रेडेंशियल्स। परीक्षक एक्सेस के लिए 'डेमो ऑटो-फिल' पर क्लिक करें।",
-    securityNotice: "सरकारी स्तर का सुरक्षित आपदा प्रबंधन प्लेटफॉर्म। अनाधिकृत पहुंच की निगरानी की जाती है।",
-    logout: "लॉगआउट करें",
-    logoutConfirm: "क्या आप वाकई सत्र समाप्त करना चाहते हैं?",
-
     // Navigation / Sidebar
     navDashboard: "डैशबोर्ड",
     navMap: "लाइव मॉनिटरिंग और मानचित्र",
@@ -216,7 +180,7 @@ export const TRANSLATIONS = {
 
     // Header & City
     citySelectLabel: "सक्रिय नगरपालिका जलक्षेत्र",
-    monitoredCitiesCount: "2 सत्यापित शहर (VJA और CHE)",
+    monitoredCitiesCount: "1 प्रशिक्षित जलग्रहण (VJA)",
     liveTelemetry: "टेलीमेट्री सक्रिय",
     juryDemoButton: "जूरी डेमो मोड",
 
@@ -275,12 +239,12 @@ export const TRANSLATIONS = {
     lastInspection: "अंतिम निरीक्षण",
     assignedTeam: "नियुक्त जोनल टीम",
     status: "परिचालन स्थिति",
-    allCities: "सभी 12 शहर",
+    allCities: "विजयवाड़ा",
     allConditions: "सभी स्थितियां",
 
     // Alerts
     alertsTitle: "आपातकालीन जलभराव अलर्ट और फील्ड प्रेषण",
-    alertsSubtitle: "ERA5 टेलीमेट्री, इलाके की बाधाओं और बाढ़ मॉडल पर आधारित स्वचालित चेतावनी।",
+    alertsSubtitle: "चेतावनी सेवा से लौटे अलर्ट। लाइव फ़ीड के बिना सूची खाली रहती है।",
     activeAlerts: "सक्रिय आपातकालीन अलर्ट",
     acknowledgedAlerts: "स्वीकृत अलर्ट",
     resolvedAlerts: "समाधानित घटनाएं",
@@ -327,7 +291,7 @@ export const TRANSLATIONS = {
     systemDiagnostics: "सिस्टम और मॉडल निदान",
     modelStatus: "सक्रिय ML मॉडल",
     modelEngine: "कैलिब्रेटेड XGBoost क्लासिफायर v1.0",
-    totalMonitoredCells: "2,295 सत्यापित 500 मीटर ग्रिड",
+    totalMonitoredCells: "ग्रिड संख्या जोखिम सेवा से आती है",
     telemetrySource: "ओपन-मेटियो ERA5 प्रति घंटा टेलीमेट्री",
     demSource: "नासा SRTM 30m डिजिटल एलिवेशन मॉडल",
 
@@ -349,24 +313,6 @@ export const TRANSLATIONS = {
     appTagline: "పట్టణ వరద ముందస్తు హెచ్చరిక & ప్రతిస్పందన సమాచార వ్యవస్థ",
     officialDisclaimer: "500 మీటర్ల గ్రిడ్ స్థాయిలో వరద ప్రమాదాన్ని అంచనా వేస్తుంది. నిర్ణయ మద్దతు కొరకు మాత్రమే.",
 
-    // Auth & Login
-    loginTitle: "కమాండ్ సెంటర్ ప్రమాణీకరణ",
-    loginSubtitle: "ప్రత్యక్ష వరద సమాచారం మరియు డ్రైనేజీ నిర్వహణ కొరకు మున్సిపల్ ఆధారాలతో లాగిన్ అవ్వండి.",
-    username: "అధికారి / అడ్మిన్ యూజర్‌నేమ్",
-    usernamePlaceholder: "యూజర్‌నేమ్ నమోదు చేయండి (ఉదా: Gaurav)",
-    password: "పాస్‌వర్డ్",
-    passwordPlaceholder: "పాస్‌వర్డ్ నమోదు చేయండి",
-    role: "నిర్వహణ పాత్ర",
-    roleAdmin: "అడ్మినిస్ట్రేటర్ (Administrator - పూర్తి నియంత్రణ)",
-    roleOfficer: "జోనల్ మున్సిపల్ అధికారి",
-    roleResponder: "అత్యవసర రెస్పాన్స్ బృందం",
-    loginButton: "కమాండ్ సెంటర్‌లోకి ప్రవేశించండి",
-    loginDemoHelper: "డెమో ఆటో-ఫిల్ (అడ్మిన్: గౌరవ్)",
-    loginError: "చెల్లని వివరాలు. పరీక్షించడానికి 'డెమో ఆటో-ఫిల్' క్లిక్ చేయండి.",
-    securityNotice: "సురక్షితమైన ప్రభుత్వ మున్సిపల్ విపత్తు నిర్వహణ వ్యవస్థ. అనధికార ప్రవేశం నిషేధించబడింది.",
-    logout: "లాగౌట్ చేయండి",
-    logoutConfirm: "మీరు నిజంగా సెషన్ నుండి నిష్క్రమించాలనుకుంటున్నారా?",
-
     // Navigation / Sidebar
     navDashboard: "డ్యాష్‌బోర్డ్",
     navMap: "ప్రత్యక్ష పర్యవేక్షణ & మ్యాప్",
@@ -385,7 +331,7 @@ export const TRANSLATIONS = {
 
     // Header & City
     citySelectLabel: "ప్రస్తుత మున్సిపల్ పరిధి",
-    monitoredCitiesCount: "2 ధృవీకరించబడిన నగరాలు (VJA & CHE)",
+    monitoredCitiesCount: "1 శిక్షణ పొందిన పరీవాహకం (VJA)",
     liveTelemetry: "టెలిమెట్రీ సక్రియం",
     juryDemoButton: "జ్యూరీ డెమో మోడ్",
 
@@ -444,12 +390,12 @@ export const TRANSLATIONS = {
     lastInspection: "చివరి తనిఖీ తేదీ",
     assignedTeam: "కేటాయించిన జోనల్ బృందం",
     status: "కార్యాచరణ స్థితి",
-    allCities: "అన్ని 12 నగరాలు",
+    allCities: "విజయవాడ",
     allConditions: "అన్ని పరిస్థితులు",
 
     // Alerts
     alertsTitle: "అత్యవసర వరద హెచ్చరికలు & ఫీల్డ్ నిర్వహణ",
-    alertsSubtitle: "ERA5 వర్షపాతం మరియు వరద అంచనాల ఆధారంగా ఆటోమేటిక్ హెచ్చరికలు.",
+    alertsSubtitle: "హెచ్చరిక సేవ నుండి వచ్చిన అలర్ట్‌లు. లైవ్ ఫీడ్ లేకపోతే జాబితా ఖాళీగా ఉంటుంది.",
     activeAlerts: "ప్రస్తుత అత్యవసర హెచ్చరికలు",
     acknowledgedAlerts: "ఆమోదించిన హెచ్చరికలు",
     resolvedAlerts: "పరిష్కరించిన సంఘటనలు",
@@ -496,7 +442,7 @@ export const TRANSLATIONS = {
     systemDiagnostics: "సిస్టమ్ & మోడల్ వివరాలు",
     modelStatus: "సక్రియ ML మోడల్",
     modelEngine: "క్యాలిబ్రేటెడ్ XGBoost క్లాసిఫైయర్ v1.0",
-    totalMonitoredCells: "2,295 ధృవీకరించబడిన 500 మీటర్ల గ్రిడ్లు",
+    totalMonitoredCells: "గ్రిడ్ సంఖ్య రిస్క్ సేవ నుండి వస్తుంది",
     telemetrySource: "ఓపెన్-మెటియో గంటవారీ వర్షపాతం",
     demSource: "నాసా SRTM 30m డిజిటల్ ఎలివేషన్ మోడల్",
 

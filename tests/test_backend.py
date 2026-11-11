@@ -2,6 +2,7 @@
 Integration and unit tests for DrainSense India FastAPI backend.
 """
 
+import json
 import pytest
 from fastapi.testclient import TestClient
 from backend.app.main import app
@@ -14,26 +15,27 @@ def test_health_endpoint():
     data = response.json()
     assert data["status"] in ["HEALTHY", "DEGRADED"]
     assert data["database"] == "CONNECTED"
-    assert data["total_grids"] >= 810  # 5,827 total across 4 cities (810 for VJA)
+    assert data["total_grids"] == 1100
     assert data["model_loaded"] is True
+    assert data["model_version"] == "2.0"
+    assert data["latest_data_timestamp"] == "2025-10-30"
 
 def test_cities_endpoint():
     response = client.get("/api/v1/cities")
     assert response.status_code == 200
     cities = response.json()
-    assert len(cities) == 4
-    assert any(c["city_id"] == "VJA" for c in cities)
-    assert any(c["city_id"] == "CHE" for c in cities)
-    assert any(c["city_id"] == "BOM" for c in cities)
-    assert any(c["city_id"] == "BLR" for c in cities)
-    assert all(c["status"] == "VERIFIED_REAL_DATA" for c in cities)
+    assert len(cities) == 1
+    assert cities[0]["city_id"] == "VJA"
+    assert cities[0]["status"] == "VERIFIED_REAL_DATA"
 
 def test_current_risk_summary():
     response = client.get("/api/v1/risk/current")
     assert response.status_code == 200
     data = response.json()
     assert "monitored_city" in data
-    assert data["total_grids"] == 810
+    assert data["total_grids"] == 1100
+    assert data["current_rainfall_24h_mm"] == 34.0
+    assert data["rainfall_source"] == "data/processed/vijayawada_event_telemetry.csv"
     assert "highest_risk_zone" in data
 
 def test_risk_map_geojson():
@@ -43,24 +45,24 @@ def test_risk_map_geojson():
     assert "summary" in data
     assert "geojson" in data
     assert data["geojson"]["type"] == "FeatureCollection"
-    assert len(data["geojson"]["features"]) == 810
+    assert len(data["geojson"]["features"]) == 1100
     first = data["geojson"]["features"][0]["properties"]
-    assert "grid_id" in first
+    assert first["grid_id"].startswith("VJA250_")
     assert "risk_level" in first
     assert "risk_score" in first
 
 def test_zone_detail_and_explanation():
-    response = client.get("/api/v1/risk/VJA_0001?rain_24h=145.0")
+    response = client.get("/api/v1/risk/VJA250_R7287_C1850?rain_24h=145.0")
     assert response.status_code == 200
     data = response.json()
-    assert data["grid_id"] == "VJA_0001"
+    assert data["grid_id"] == "VJA250_R7287_C1850"
     assert "top_factors" in data
     assert len(data["top_factors"]) > 0
     assert "recommended_actions" in data
 
 def test_predict_custom():
     payload = {
-        "grid_id": "VJA_0036",
+        "grid_id": "VJA250_R7287_C1850",
         "rain_1h_mm": 25.0,
         "rain_3h_mm": 45.0,
         "rain_6h_mm": 70.0,
@@ -69,7 +71,7 @@ def test_predict_custom():
     response = client.post("/api/v1/predict", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["grid_id"] == "VJA_0036"
+    assert data["grid_id"] == "VJA250_R7287_C1850"
     assert 0 <= data["risk_score"] <= 100
     assert data["risk_level"] in ["LOW", "MODERATE", "ELEVATED", "HIGH", "CRITICAL"]
 
@@ -102,7 +104,16 @@ def test_model_info():
     data = response.json()
     assert "model_version" in data
     assert "thresholds" in data
-    assert "feature_importances" in data
+    assert data["training_timestamp"] == "2026-11-11T10:57:15Z"
+    evaluation = client.get("/api/v1/statistics").json()["evaluation"]
+    assert evaluation["roc_auc"] == 0.992
+    assert evaluation["pr_auc"] == 0.9752
+    assert evaluation["brier_score"] == 0.0638
+    assert evaluation["evaluation_samples"] == 17600
+    assert evaluation["feature_importances"][0]["feature"] == "rain_24h_mm"
+    assert evaluation["confusion_matrix"] == {"tn": 11641, "fp": 58, "fn": 759, "tp": 5142}
+    assert evaluation["benchmarks"][-1]["name"] == "Calibrated XGBoost (Production)"
+    assert evaluation["benchmarks"][-1]["highlight"] is True
 
 def test_priority_zones():
     response = client.get("/api/v1/risk/priority-zones?limit=5")
@@ -130,75 +141,40 @@ def test_ai_copilot_endpoint():
     response = client.post(
         "/api/v1/ai/copilot",
         json={
-            "city_id": "DEL",
-            "query": "What are the priority underpass closures in Delhi?",
+            "city_id": "VJA",
+            "query": "Which wards should the desk inspect first?",
             "current_rainfall_24h_mm": 160.0
         }
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["city_id"] == "DEL"
+    assert data["city_id"] == "VJA"
+    assert "810" not in json.dumps(data)
     assert "ai_situation_assessment" in data
     assert len(data["tactical_recommendations"]) >= 1
     assert len(data["critical_infrastructure_alerts"]) >= 1
 
-def test_auth_login():
-    # Valid login
+def test_auth_login_removed():
     res = client.post(
         "/api/v1/auth/login",
-        json={"username": "Gaurav", "password": "DrainSense@2026", "role": "Administrator"}
+        json={"username": "anyone", "password": "not-used", "role": "Administrator"}
     )
-    assert res.status_code == 200
-    data = res.json()
-    assert "access_token" in data
-    assert data["user"]["name"] == "Gaurav"
-    assert data["user"]["role"] == "Administrator"
+    assert res.status_code == 404
 
-    # Invalid login
-    res_bad = client.post(
-        "/api/v1/auth/login",
-        json={"username": "Gaurav", "password": "WrongPassword"}
-    )
-    assert res_bad.status_code == 401
-
-def test_drain_assets():
+def test_drain_assets_empty_without_register():
     res = client.get("/api/v1/assets")
     assert res.status_code == 200
-    assets = res.json()
-    assert isinstance(assets, list)
-    assert len(assets) >= 10
-    first = assets[0]
-    assert "capacity_discharge_m3s" in first
-    assert "siltation_level_pct" in first
+    assert res.json() == []
 
-    # City filtered
-    res_vja = client.get("/api/v1/assets?city_id=VJA")
-    assert res_vja.status_code == 200
-    vja_assets = res_vja.json()
-    assert all(a["city_id"] == "VJA" for a in vja_assets)
-
-def test_alerts_lifecycle():
+def test_alerts_empty_without_live_feed():
     res = client.get("/api/v1/alerts")
     assert res.status_code == 200
-    alerts = res.json()
-    assert isinstance(alerts, list)
-    assert len(alerts) >= 1
-    first_id = alerts[0]["alert_id"]
-
-    # Acknowledge
-    ack_res = client.post(
-        f"/api/v1/alerts/{first_id}/acknowledge?officer_name=Gaurav%20(Administrator)"
-    )
-    assert ack_res.status_code == 200
-    assert ack_res.json()["status"] == "ACKNOWLEDGED"
-
-    # Resolve
-    res_res = client.post(f"/api/v1/alerts/{first_id}/resolve")
-    assert res_res.status_code == 200
-    assert res_res.json()["status"] == "RESOLVED"
+    assert res.json() == []
+    missing = client.post("/api/v1/alerts/does-not-exist/acknowledge")
+    assert missing.status_code == 404
 
 def test_novel_hydrology_cascade():
-    res = client.get("/api/v1/hydrology/cascade/VJA_0036?rain_24h=145.0")
+    res = client.get("/api/v1/hydrology/cascade/VJA250_R7287_C1850?rain_24h=145.0")
     assert res.status_code == 200
     data = res.json()
     assert "cascade_path" in data
@@ -207,7 +183,7 @@ def test_novel_hydrology_cascade():
     assert "initial_spillover_volume_m3" in data
 
 def test_novel_hydrology_physics_audit():
-    res = client.get("/api/v1/hydrology/physics-audit/VJA_0036?rain_24h=145.0")
+    res = client.get("/api/v1/hydrology/physics-audit/VJA250_R7287_C1850?rain_24h=145.0")
     assert res.status_code == 200
     data = res.json()
     assert "concordance_pct" in data
@@ -234,6 +210,6 @@ def test_novel_operations_dispatch_optimizer():
     assert "summary" in data
     assert "ndma_memo_text" in data
     assert "allocations" in data
-    assert len(data["allocations"]) >= 1
+    assert isinstance(data["allocations"], list)
 
 

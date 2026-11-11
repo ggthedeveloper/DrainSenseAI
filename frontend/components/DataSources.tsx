@@ -1,285 +1,140 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Database, 
-  ExternalLink, 
-  CheckCircle2, 
-  ShieldCheck, 
-  Layers, 
-  Droplets, 
-  Globe, 
-  Cpu, 
-  Compass, 
-  FileText, 
-  Code, 
-  Info,
-  Server,
-  Activity,
-  ArrowUpRight,
-  Sparkles,
-  Mountain,
-  Waves
-} from "lucide-react";
+import { Database, ExternalLink } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface DataSourceItem {
   id: string;
   name: string;
-  badge: string;
   agency: string;
-  category: "elevation" | "rainfall" | "waterway" | "ground_truth" | "hydrology";
+  category: "elevation" | "rainfall" | "hydrology" | "events" | "model";
   externalUrl: string;
   localPath: string;
-  resolution: string;
-  recordCount: string;
-  coverage: string;
-  description: string;
-  formula?: string;
-  sampleKeys: string[];
+  note: string;
 }
 
 const DATA_SOURCES: DataSourceItem[] = [
   {
-    id: "copernicus-dem",
-    name: "Copernicus 30m Global Digital Elevation Model (DEM)",
-    badge: "Verified Satellite Earth Data",
-    agency: "European Space Agency (ESA) / NASA SRTM via Open-Meteo API",
+    id: "vja-grid",
+    name: "Vijayawada static grid",
+    agency: "Local processed grid",
     category: "elevation",
-    externalUrl: "https://open-meteo.com/en/docs/elevation-api",
-    localPath: "data/raw/vja_real_elevation.json, che_real_elevation.json, bom_real_elevation.json, blr_real_elevation.json",
-    resolution: "30m Spatial Resolution resampled to 500m deterministic centroids",
-    recordCount: "5,827 verified real elevation centroids (810 VJA, 1,485 CHE, 1,768 BOM, 1,764 BLR)",
-    coverage: "Vijayawada: 7.0m-246.0m | Chennai: 0.0m-110.0m | Mumbai: 0.0m-459.0m | Bengaluru: 810.0m-952.0m AMSL",
-    description: "Replaces synthetic flat planes with real topography. Finite-difference gradient slopes (∇z) are calculated in degrees to determine gravitational runoff sinks and low-lying water bowls.",
-    formula: "Slope (deg) = arctan(√[(∂z/∂x)² + (∂z/∂y)²]) × (180/π)",
-    sampleKeys: ["latitude", "longitude", "elevation_m", "slope_deg"]
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/processed/vijayawada_grid_static_factors.csv",
+    note: "1,100 data rows and a header. Columns include elevation_m, slope_deg, curve_number, and distance_to_water_m. This is the scored catchment.",
   },
   {
-    id: "imd-station-rainfall",
-    name: "India Meteorological Department (IMD) Ground Truth AWS & Station Telemetry",
-    badge: "Official Indian Weather Telemetry",
-    agency: "India Meteorological Department (IMD) • Ministry of Earth Sciences (MoES), Govt. of India",
+    id: "vja-terrain",
+    name: "Vijayawada terrain features",
+    agency: "Local terrain table",
+    category: "elevation",
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/terrain_features.csv",
+    note: "1,100 data rows and a header. Same VJA250 grid ids, with elevation and slope summaries.",
+  },
+  {
+    id: "cwc-rain",
+    name: "CWC daily rainfall, Krishna",
+    agency: "Central Water Commission",
     category: "rainfall",
-    externalUrl: "https://mausam.imd.gov.in/",
-    localPath: "data/raw/imd_daily_rainfall_stations.csv",
-    resolution: "Official automatic weather stations (AWS) and daily rain gauges",
-    recordCount: "22 verified station observations across 4 Indian metropolitan centers",
-    coverage: "VJA: Gannavaram AWS (290mm) | CHE: Meenambakkam (312mm) | BOM: Santacruz (944mm) | BLR: HAL (131.6mm)",
-    description: "Official Government of India meteorological station bulletins during historic extreme cloudburst deluges, providing authoritative ground truth for calibrating precipitation thresholds.",
-    formula: "Daily_Gauge_Record = ∑_{h=1}^{24} AWS_Tipping_Bucket(h)",
-    sampleKeys: ["station_id", "station_name", "date", "rainfall_24h_mm", "official_bulletin_ref"]
+    externalUrl: "https://indiawris.gov.in/wris/",
+    localPath: "data/cwc_daily_rainfall_krishna_vja.csv",
+    note: "2,738 data rows and a header. Station Keesara, Andhra Pradesh, manual daily rainfall in millimetres.",
   },
   {
-    id: "cwc-river-barrage",
-    name: "Central Water Commission (CWC) Barrage Discharge & River Stage Telemetry",
-    badge: "Official Indian River Telemetry",
-    agency: "Central Water Commission (CWC) • Ministry of Jal Shakti, Govt. of India & India-WRIS",
+    id: "cwc-stage",
+    name: "CWC Krishna stage telemetry",
+    agency: "Central Water Commission",
     category: "hydrology",
     externalUrl: "https://indiawris.gov.in/wris/",
-    localPath: "data/raw/cwc_river_barrage_telemetry.csv",
-    resolution: "Daily reservoir storage, river gauge heights, and peak outflow discharge",
-    recordCount: "14 official river stage and barrage flood surge records",
-    coverage: "Prakasam Barrage (11.43L cusecs) | Chembarambakkam (8,000 cusecs) | Mithi Kranti Nagar (3.85m) | Bellandur Weir",
-    description: "Official river stage heights, barrage releases, and surplus weir overtopping reports used to validate hydraulic flow connectivity and downstream inundation backwater.",
-    formula: "Surplus_Head = Water_Level_m - Danger_Level_m  |  Outflow_Cusecs = C · L · H^{3/2}",
-    sampleKeys: ["basin", "station_name", "inflow_cusecs", "discharge_outflow_cusecs", "status"]
+    localPath: "data/cwc_krishna_river_telemetry_vja.csv",
+    note: "65,776 data rows and a header. Keesara water level in metres. The file notes that a range flag is not station-specific validation.",
   },
   {
-    id: "data-gov-in",
-    name: "Open Government Data (OGD) Platform India - Urban Waterlogging Registry",
-    badge: "National Open Data Portal",
-    agency: "National Informatics Centre (NIC) • Ministry of Electronics & IT (MeitY, Govt. of India)",
-    category: "ground_truth",
-    externalUrl: "https://data.gov.in/",
-    localPath: "data/raw/imd_daily_rainfall_stations.csv, cwc_river_barrage_telemetry.csv",
-    resolution: "Open Government Data APIs & National Data Sharing and Accessibility Policy (NDSAP)",
-    recordCount: "Multi-agency public data integration across MoES, CWC, and municipal corporations",
-    coverage: "National coverage spanning Andhra Pradesh, Tamil Nadu, Maharashtra, and Karnataka",
-    description: "Authoritative open government datasets published by Central and State ministries, ensuring full compliance with Indian national open-access standards.",
-    sampleKeys: ["agency", "official_source", "status", "date"]
+    id: "krishna-monthly",
+    name: "Krishna monthly and annual summaries",
+    agency: "Local Andhra Pradesh Krishna tables",
+    category: "hydrology",
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/andhra_pradesh_krishna_monthly_summary.csv",
+    note: "Monthly file has 305 data rows. Annual file andhra_pradesh_krishna_annual_summary.csv has 31 data rows.",
   },
   {
-    id: "era5-rainfall",
-    name: "ECMWF Copernicus ERA5 Reanalysis Precipitation Telemetry",
-    badge: "Hourly Atmosphere Telemetry",
-    agency: "European Centre for Medium-Range Weather Forecasts (ECMWF) via Open-Meteo Historical Archive",
-    category: "rainfall",
-    externalUrl: "https://open-meteo.com/en/docs/historical-weather-api",
-    localPath: "data/raw/vja_real_hourly_rainfall.csv, che_real_hourly_rainfall.csv, bom_real_hourly_rainfall.csv, blr_real_hourly_rainfall.csv",
-    resolution: "Hourly temporal cadence (0.1mm precipitation precision)",
-    recordCount: "1,632 consecutive real hourly observations across 4 urban centers",
-    coverage: "Budameru 2024: 513.7mm | Cyclone Michaung 2023: 434.8mm | Mumbai July 2023: 336h | Bengaluru Sept 2022: 288h",
-    description: "High-resolution real reanalysis precipitation capturing cloudburst rainfall rates, antecedent moisture conditions, and rolling intensity windows (1h, 3h, 6h, 12h, 24h, 72h).",
-    formula: "Rain_Intensity(t) = P(t) - P(t-1)  |  Antecedent_Moisture = ∑_{k=1}^{72} P(t-k)",
-    sampleKeys: ["time", "precipitation_mm", "rain_mm"]
-  },
-  {
-    id: "osm-waterways",
-    name: "OpenStreetMap Overpass Drainage & Waterway Polylines",
-    badge: "Geospatial Vector Network",
-    agency: "OpenStreetMap Foundation & Overpass Turbo Contributors",
-    category: "waterway",
-    externalUrl: "https://overpass-turbo.eu/",
-    localPath: "data/raw/vja_osm_waterways.json, che_osm_waterways.json, spatial_loader.py",
-    resolution: "Sub-meter vector centerline coordinates",
-    recordCount: "Hundreds of verified vector river & canal segments",
-    coverage: "VJA: Krishna & Budameru | CHE: Adyar, Cooum & Buckingham Canal | BOM: Mithi & Oshiwara | BLR: Bellandur & Hebbal",
-    description: "Centrelines of natural rivers, municipal storm canals, and surplus channels. Haversine geodesic distance from every 500m centroid to the nearest drainage corridor is computed to determine overflow vulnerability.",
-    formula: "d = 2R · arcsin(√[sin²(Δφ/2) + cos(φ₁)cos(φ₂)sin²(Δλ/2)])",
-    sampleKeys: ["way_id", "waterway_type", "name", "distance_to_water_m"]
-  },
-  {
-    id: "kaggle-chennai-water",
-    name: "Kaggle Chennai Water Management & Reservoir Inundation Benchmark",
-    badge: "Kaggle Ground Truth",
-    agency: "Kaggle Open Dataset (by Anurag Kanaujia) • CMWSSB Municipal Telemetry",
-    category: "ground_truth",
-    externalUrl: "https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management",
+    id: "events",
+    name: "Historical flood events",
+    agency: "Processed event catalog",
+    category: "events",
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
     localPath: "data/processed/historical_flood_events.json",
-    resolution: "Daily reservoir storage (mcft) & outfall discharges",
-    recordCount: "Multi-year ground truth reservoir inflows and surplus releases",
-    coverage: "Chembarambakkam, Poondi, Red Hills, and Cholavaram reservoirs",
-    description: "Official reservoir levels and discharge surges used to validate downstream flood breaches along the Adyar and Cooum basins during the 2015 Chennai Deluge and 2023 Cyclone Michaung.",
-    formula: "Net_Inundation_Head = Chembarambakkam_Discharge + Local_Runoff - Canal_Conveyance",
-    sampleKeys: ["date", "chembarambakkam_storage", "poondi_storage", "surplus_release_cusecs"]
+    note: "Four Vijayawada events. The console reads this catalog through the historical-events service.",
   },
   {
-    id: "kaggle-chennai-rainfall",
-    name: "Kaggle Chennai Rainfall & Extreme Weather Historical Archive",
-    badge: "Kaggle Benchmark",
-    agency: "Kaggle Open Dataset (by Sudalai Rajkumar) • IMD Regional Meteorological Centre",
-    category: "ground_truth",
-    externalUrl: "https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data",
-    localPath: "frontend/public/data/historical_events.json",
-    resolution: "Historical multi-decadal meteorological rainfall series",
-    recordCount: "Complete extreme monsoon rainfall archive (1990 - present)",
-    coverage: "Nungambakkam, Meenambakkam, and metropolitan weather stations",
-    description: "Benchmark rainfall archives used to validate the calibrated XGBoost model and SCS-CN mass balance against verified historical return periods and extreme precipitation benchmarks.",
-    sampleKeys: ["station", "rainfall_mm", "departure_pct", "cyclone_system"]
+    id: "event-telemetry",
+    name: "Vijayawada event telemetry",
+    agency: "Local event table",
+    category: "events",
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/processed/vijayawada_event_telemetry.csv",
+    note: "101 data rows and a header. Columns include rain_24h_mm and prakasam_stage_mean_m.",
   },
   {
-    id: "isro-bhuvan",
-    name: "ISRO NRSC Bhuvan Flood Inundation & Sentinel-1 SAR Ground Truth",
-    badge: "Government Satellite Ground Truth",
-    agency: "National Remote Sensing Centre (NRSC) • Indian Space Research Organisation (ISRO)",
-    category: "ground_truth",
-    externalUrl: "https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood",
-    localPath: "data/processed/vijayawada_grid_features.csv",
-    resolution: "10m SAR Synthetic Aperture Radar microwave backscatter",
-    recordCount: "Multi-temporal satellite radar inundation footprints",
-    coverage: "Budameru Breaches (Vijayawada 2024) and Velachery Inundation (Chennai 2023)",
-    description: "All-weather cloud-penetrating radar flood masks published by NRSC/ISRO during the September 2024 Budameru cloudburst, verifying that low-lying wards in Ajit Singh Nagar and Payakapuram were inundated.",
-    formula: "SAR Backscatter Difference: Δσ° = σ°_{post_flood} - σ°_{baseline} < -3.0 dB",
-    sampleKeys: ["flood_mask_observed", "inundation_depth_est", "satellite_pass_time"]
+    id: "training",
+    name: "Training matrix",
+    agency: "Local processed matrix",
+    category: "model",
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/processed/drainsense_v2_training_matrix.csv",
+    note: "111,100 data rows and a header. Evaluation metrics live in frontend/public/data/evaluation.json (51,749 samples).",
   },
   {
-    id: "usda-scs-cn",
-    name: "USDA-NRCS National Engineering Handbook (SCS Curve Number)",
-    badge: "Hydro-Physics Governing Law",
-    agency: "United States Department of Agriculture - Natural Resources Conservation Service",
+    id: "indofloods",
+    name: "IndoFloods catchment characteristics",
+    agency: "Local catchment table",
     category: "hydrology",
-    externalUrl: "https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook",
-    localPath: "backend/app/services/physics_guardrail.py",
-    resolution: "Deterministic empirical hydro-physical mass balance equations",
-    recordCount: "Continuous mass balance audit across all 5,827 spatial cells",
-    coverage: "Hydrological Soil Groups A, B, C, D & Impervious Land Cover Fractions",
-    description: "Guarantees that machine learning predictions adhere strictly to conservation of mass. Any XGBoost prediction that violates hydrological retention capacity is flagged with a concordance discrepancy (HCI).",
-    formula: "Q = (P - 0.2·S)² / (P + 0.8·S)  where  S = (25400 / CN) - 254",
-    sampleKeys: ["curve_number", "potential_retention_s", "runoff_q_mm", "hci_concordance"]
+    externalUrl: "https://github.com/ggthedeveloper/DrainSenseAI",
+    localPath: "data/catchment_characteristics_indofloods.csv",
+    note: "155 data rows and a header. Not a second scored city.",
   },
-  {
-    id: "manning-dahg",
-    name: "Manning Open-Channel Velocity & D8 Steepest Descent Routing",
-    badge: "Topological Hydro-Kinematics",
-    agency: "Hydraulic Engineering Standard (Manning 1891, O'Callaghan & Mark 1984)",
-    category: "hydrology",
-    externalUrl: "https://en.wikipedia.org/wiki/Manning_formula",
-    localPath: "backend/app/services/cascade_tracer.py",
-    resolution: "Cell-to-cell topological kinematic routing graph",
-    recordCount: "Full directed acyclic hydrological graph (DAHG) spanning both catchments",
-    coverage: "Gravity-driven surface flow paths and hydraulic spillover lag times",
-    description: "Calculates flood wave propagation velocity and arrival lead times across urban corridors using Manning's equation and D8 slope connectivity.",
-    formula: "v = (1/n) · R^(2/3) · S^(1/2)  |  τ_lag = L / v",
-    sampleKeys: ["roughness_n", "hydraulic_radius_r", "velocity_m_s", "arrival_minutes"]
-  }
+];
+
+const FILTERS = [
+  { id: "all", label: "All files" },
+  { id: "elevation", label: "Elevation" },
+  { id: "rainfall", label: "Rainfall" },
+  { id: "hydrology", label: "River stage" },
+  { id: "events", label: "Events" },
+  { id: "model", label: "Model files" },
 ];
 
 export const DataSources: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [selectedItem, setSelectedItem] = useState<DataSourceItem | null>(null);
-
-  const filteredSources = activeFilter === "all" 
-    ? DATA_SOURCES 
-    : DATA_SOURCES.filter(s => s.category === activeFilter);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const filtered = activeFilter === "all" ? DATA_SOURCES : DATA_SOURCES.filter((s) => s.category === activeFilter);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header Banner */}
-      <div className="bg-slate-900/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-        <div className="relative z-10">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5" /> Academic Provenance
-            </span>
-            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 100% Verified Real Earth Data
-            </span>
-            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-              Zero Synthetic Proxies
-            </span>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Data Sources, Telemetry & Provenance Architecture
-          </h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
-            Every elevation coordinate, slope degree, rainfall observation, and drainage canal polyline in DrainSenseAI is harvested from verified space agency Earth observations, national meteorological services, and published Kaggle flood benchmarks.
-          </p>
-
-          {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-white/5">
-              <div className="text-2xl font-black text-blue-400 font-mono">2,295</div>
-              <div className="text-xs font-bold text-white mt-0.5">Spatial Centroids</div>
-              <div className="text-[10px] text-slate-400">Copernicus 30m Global DEM</div>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-white/5">
-              <div className="text-2xl font-black text-cyan-400 font-mono">1,008 h</div>
-              <div className="text-xs font-bold text-white mt-0.5">ERA5 Telemetry</div>
-              <div className="text-[10px] text-slate-400">ECMWF Hourly Archive</div>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-white/5">
-              <div className="text-2xl font-black text-emerald-400 font-mono">776,890</div>
-              <div className="text-xs font-bold text-white mt-0.5">Training Records</div>
-              <div className="text-[10px] text-slate-400">Calibrated ML Dataset</div>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-white/5">
-              <div className="text-2xl font-black text-amber-400 font-mono">100%</div>
-              <div className="text-xs font-bold text-white mt-0.5">Physics Audit</div>
-              <div className="text-[10px] text-slate-400">USDA-NRCS SCS-CN Laws</div>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <Badge variant="secondary" className="mb-3 gap-1.5">
+          <Database className="h-3.5 w-3.5" />
+          Files on disk
+        </Badge>
+        <h2 className="text-2xl font-semibold tracking-tight text-[#12262A]">Data on this machine</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#4C5E62]">
+          Each card names a file in the repository and the row count from that file. The scored city is Vijayawada. Counts for other cities are not listed because those grids are not loaded.
+        </p>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2">
-        {[
-          { id: "all", label: "All Datasets (8)" },
-          { id: "elevation", label: "Digital Elevation (Copernicus DEM)" },
-          { id: "rainfall", label: "Precipitation Telemetry (ERA5)" },
-          { id: "waterway", label: "Vector Waterways (OSM)" },
-          { id: "ground_truth", label: "Kaggle & ISRO Ground Truth" },
-          { id: "hydrology", label: "Governing Physical Laws" }
-        ].map((btn) => (
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((btn) => (
           <button
             key={btn.id}
+            type="button"
             onClick={() => setActiveFilter(btn.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-colors duration-200 ease-out ${
               activeFilter === btn.id
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                : "bg-slate-900/70 hover:bg-slate-800 text-slate-300 border border-white/10"
+                ? "bg-[#115E59] text-white"
+                : "border border-[#D5E2E0] bg-[#FBFDFC] text-[#4C5E62]"
             }`}
           >
             {btn.label}
@@ -287,107 +142,26 @@ export const DataSources: React.FC = () => {
         ))}
       </div>
 
-      {/* Grid of Data Source Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {filteredSources.map((src) => (
-          <div
-            key={src.id}
-            className="p-6 rounded-3xl bg-slate-900/75 dark:bg-slate-900/75 backdrop-blur-xl border border-white/10 hover:border-blue-500/40 transition-all flex flex-col justify-between shadow-xl group"
-          >
-            <div>
-              {/* Header */}
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-300">
-                  {src.badge}
-                </span>
-                <a
-                  href={src.externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-xl bg-slate-800/80 hover:bg-blue-600 text-slate-300 hover:text-white transition-all flex items-center gap-1 text-xs font-semibold cursor-pointer shrink-0 shadow-sm"
-                  title="Open official dataset / API documentation in new tab"
-                >
-                  <span>Official Source</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* Title & Agency */}
-              <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors">
-                {src.name}
-              </h3>
-              <div className="text-xs font-medium text-slate-400 mt-1 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span>{src.agency}</span>
-              </div>
-
-              {/* Description */}
-              <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-                {src.description}
-              </p>
-
-              {/* Governing Formula */}
-              {src.formula && (
-                <div className="mt-3 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 font-mono text-[11px] text-blue-300 overflow-x-auto">
-                  <div className="text-[9px] uppercase font-bold text-slate-500 font-sans mb-1">
-                    Mathematical Formulation:
-                  </div>
-                  <code>{src.formula}</code>
-                </div>
-              )}
-
-              {/* Meta Specs */}
-              <div className="mt-4 space-y-1.5 text-[11px]">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-slate-400 shrink-0">Resolution & Specs:</span>
-                  <span className="font-mono text-slate-200 text-right">{src.resolution}</span>
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-slate-400 shrink-0">Volume / Rows:</span>
-                  <span className="font-mono text-emerald-400 text-right">{src.recordCount}</span>
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-slate-400 shrink-0">Local File:</span>
-                  <span className="font-mono text-blue-300 text-right truncate max-w-[240px]" title={src.localPath}>
-                    {src.localPath}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Link Button */}
-            <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between">
-              <span className="text-[10px] text-slate-500 font-mono">Status: Verified & Audited</span>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {filtered.map((src) => (
+          <Card key={src.id} className="flex flex-col gap-3 border-[#D5E2E0] bg-[#FBFDFC] p-5 shadow-none">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-base font-semibold text-[#12262A]">{src.name}</h3>
               <a
                 href={src.externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer transition-colors"
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#115E59]"
               >
-                <span>Visit Agency Link</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                Source
+                <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>
-          </div>
+            <p className="text-xs text-[#4C5E62]">{src.agency}</p>
+            <p className="text-sm leading-relaxed text-[#12262A]">{src.note}</p>
+            <p className="font-mono text-xs text-[#115E59]">{src.localPath}</p>
+          </Card>
         ))}
-      </div>
-
-      {/* Academic Citation Block for Evaluators / Teachers */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-purple-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-        <div className="flex items-center gap-2.5 text-purple-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">
-          <FileText className="w-4 h-4" /> Academic Citation & Evaluator Reference
-        </div>
-        <h3 className="text-lg font-bold text-white mb-2">
-          Suggested Academic Citation for Group 02 Major Project
-        </h3>
-        <p className="text-xs text-slate-300 leading-relaxed mb-4">
-          External evaluators and reviewers may cite this architecture and the integrated verified Earth observation telemetry pipeline as follows:
-        </p>
-        <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 leading-relaxed select-all overflow-x-auto">
-          <code>
-            Gautam, G. et al. (2026). &quot;DrainSenseAI: Physics-Informed Topological Cascade Nowcasting &amp; Autonomous Equipment Dispatch for Urban Deluge Resilience.&quot; Major Project, Department of Computer Science &amp; Engineering. Validated on Copernicus 30m Global DEM &amp; ECMWF ERA5 Telemetry for Vijayawada (Budameru) and Chennai (Michaung). Available: https://github.com/ggthedeveloper/DrainSenseAI
-          </code>
-        </div>
       </div>
     </div>
   );
