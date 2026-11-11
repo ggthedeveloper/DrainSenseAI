@@ -48,5 +48,7 @@ class Settings:
     HISTORICAL_EVENTS_PATH: str = _resolve("HISTORICAL_EVENTS_PATH", "data/processed/historical_flood_events.json")
     EVALUATION_REPORT_PATH: str = _resolve("EVALUATION_REPORT_PATH", "reports/model_training_evaluation_results.json")
     EVENT_TELEMETRY_PATH: str = _resolve("EVENT_TELEMETRY_PATH", "data/processed/vijayawada_event_telemetry.csv")
+    DAILY_RAINFALL_PATH: str = _resolve("DAILY_RAINFALL_PATH", "data/cwc_daily_rainfall_krishna_vja.csv")
+    STAGE_TELEMETRY_PATH: str = _resolve("STAGE_TELEMETRY_PATH", "data/cwc_krishna_river_telemetry_vja.csv")
 
 settings = Settings()

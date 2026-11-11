@@ -51,6 +51,7 @@ export interface RiskSummary {
   moderate_zones: number;
   low_zones: number;
   current_rainfall_24h_mm: number;
+  current_prakasam_stage_m?: number;
   rainfall_source?: string | null;
   rainfall_observed_on?: string | null;
   highest_risk_zone: {

@@ -40,6 +40,13 @@ export const ModelAnalytics: React.FC = () => {
   }, []);
 
   const importanceColors = ["#115E59", "#3E63DD", "#E15759", "#F28E2B", "#067647", "#175CD3", "#8A6116", "#B54708", "#4C5E62"];
+  const longestFeatureLabel = Array.isArray(report?.feature_importances)
+    ? report.feature_importances.reduce(
+        (longest: number, row: { feature?: string }) => Math.max(longest, String(row.feature ?? "").length),
+        0
+      )
+    : 0;
+  const yAxisWidth = Math.max(96, Math.ceil(longestFeatureLabel * 7.2) + 18);
   const featureData: Array<{ name: string; importance: number; fill: string }> = Array.isArray(report?.feature_importances)
     ? report.feature_importances.map((row: { feature: string; importance: number }, index: number) => ({
         name: row.feature,
@@ -125,13 +132,20 @@ export const ModelAnalytics: React.FC = () => {
             <span className="text-[10px] text-slate-400 font-mono">XGBoost Gain</span>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-72 w-full min-w-0">
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={featureData} layout="vertical" margin={{ top: 5, right: 20, left: 40, bottom: 5 }}>
+                <BarChart data={featureData} layout="vertical" margin={{ top: 5, right: 16, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
                   <XAxis type="number" stroke="#64748b" tick={{ fontSize: 10, fill: "#94a3b8" }} unit="%" />
-                  <YAxis dataKey="name" type="category" stroke="#64748b" tick={{ fontSize: 10, fill: "#cbd5e1" }} />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    width={yAxisWidth}
+                    interval={0}
+                    stroke="#8AA0A4"
+                    tick={{ fontSize: 11, fill: "#12262A" }}
+                  />
                   <Tooltip
                     contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "8px", fontSize: "12px", color: "#f8fafc" }}
                     formatter={(val: any) => [`${val}%`, "Importance"]}

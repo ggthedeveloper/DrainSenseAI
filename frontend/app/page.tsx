@@ -117,7 +117,40 @@ export default function DashboardPage() {
     localStorage.setItem("drainsense_sidebar_collapsed", String(collapsed));
   };
 
-  const rainNow = summary?.current_rainfall_24h_mm;
+  const [scenario, setScenario] = useState<{ rain: number | null; stage: number | null }>({ rain: null, stage: null });
+  const [calculating, setCalculating] = useState(false);
+  const rainNow = scenario.rain ?? summary?.current_rainfall_24h_mm;
+  const stageNow = scenario.stage ?? summary?.current_prakasam_stage_m;
+
+  const applyScenario = async (rain: number | null, stage: number | null) => {
+    setCalculating(true);
+    setScenario({ rain, stage });
+    try {
+      const [map, priority] = await Promise.all([
+        fetchCurrentRiskMap(selectedCity, rain, stage),
+        fetchPriorityZones(selectedCity, rain, stage),
+      ]);
+      setMapData(map.geojson);
+      setSummary(map.summary);
+      setPriorityZones(priority.zones || []);
+      setMapError(null);
+      setCascadePath(null);
+      if (selectedGridId) {
+        const detail = await fetchZoneDetail(
+          selectedGridId,
+          rain ?? map.summary.current_rainfall_24h_mm,
+          stage ?? map.summary.current_prakasam_stage_m
+        );
+        setZoneDetail(detail);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "The model did not score this input.";
+      setMapError(message);
+      throw err;
+    } finally {
+      setCalculating(false);
+    }
+  };
 
   const handleSelectGrid = async (gridId: string) => {
     setSelectedGridId(gridId);
@@ -126,7 +159,7 @@ export default function DashboardPage() {
       return;
     }
     try {
-      const detail = await fetchZoneDetail(gridId, rainNow);
+      const detail = await fetchZoneDetail(gridId, rainNow, stageNow);
       setZoneDetail(detail);
     } catch (e) {
       console.error(e);
@@ -230,21 +263,8 @@ export default function DashboardPage() {
                       setSelectedGridId(null);
                       setZoneDetail(null);
                     }}
-                    onApplyScenarioToMap={(mult) => {
-                      if (summary == null) return;
-                      fetchCurrentRiskMap(selectedCity, summary.current_rainfall_24h_mm * mult)
-                        .then((res) => setMapData(res.geojson))
-                        .catch((err) => setMapError(err.message));
-                    }}
-                    onResetScenarioOnMap={() => {
-                      fetchCurrentRiskMap(selectedCity)
-                        .then((res) => {
-                          setMapData(res.geojson);
-                          setSummary(res.summary);
-                          setMapError(null);
-                        })
-                        .catch((err) => setMapError(err.message));
-                    }}
+                    onCalculate={applyScenario}
+                    calculating={calculating}
                     healthStatus={healthStatus || { status: "OFFLINE", model_version: "" }}
                     onTriggerCascade={handleTriggerCascade}
                     onOpenFleetOptimizer={() => setIsFleetOptimizerOpen(true)}

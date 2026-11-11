@@ -706,19 +706,19 @@ export const RiskMap: React.FC<RiskMapProps> = ({
         </div>
       </div>
 
-      {/* Bottom Map Legend - Collapsible to avoid blocking map surface */}
+      {/* Top-Left Map Legend - Docked cleanly under the Map Control Bar to avoid overlapping bottom Nowcast */}
       <div
-        className="absolute bottom-3 left-3 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-xl text-xs pointer-events-auto transition-all"
+        className="absolute top-14 left-3 z-[1001] bg-[#FBFDFC] border border-[#D5E2E0] rounded-xl shadow-md text-xs pointer-events-auto transition-all text-[#12262A]"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-800/80 gap-3">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#E6EFEB] gap-3">
+          <span className="text-[10px] font-bold text-[#4C5E62] uppercase tracking-wider">
             {colorMode === "risk" ? "Risk Scale" : colorMode === "elevation" ? "Topography" : "Flow Index"}
           </span>
           <button
             type="button"
             onClick={() => setIsLegendOpen(!isLegendOpen)}
-            className="text-slate-400 hover:text-white p-0.5 rounded"
+            className="text-[#4C5E62] hover:text-[#12262A] p-0.5 rounded cursor-pointer"
             title={isLegendOpen ? "Collapse Legend" : "Expand Legend"}
           >
             {isLegendOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
@@ -728,42 +728,42 @@ export const RiskMap: React.FC<RiskMapProps> = ({
         {isLegendOpen && (
           <div className="p-2.5 animate-in fade-in duration-150">
             {colorMode === "risk" ? (
-              <div className="grid grid-cols-5 gap-1.5 text-center">
+              <div className="grid grid-cols-5 gap-2 text-center">
                 <div className="flex flex-col items-center">
                   <span className="w-6 h-2 rounded-sm bg-[#10b981] mb-1"></span>
-                  <span className="text-[9px] text-slate-400 font-mono">0-20%</span>
-                  <span className="text-[8px] font-bold text-emerald-400">LOW</span>
+                  <span className="text-[9px] text-[#4C5E62] font-mono">0-20%</span>
+                  <span className="text-[8px] font-bold text-emerald-700">LOW</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="w-6 h-2 rounded-sm bg-[#eab308] mb-1"></span>
-                  <span className="text-[9px] text-slate-400 font-mono">20-40%</span>
-                  <span className="text-[8px] font-bold text-yellow-400">MOD</span>
+                  <span className="text-[9px] text-[#4C5E62] font-mono">20-40%</span>
+                  <span className="text-[8px] font-bold text-amber-800">MOD</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="w-6 h-2 rounded-sm bg-[#f97316] mb-1"></span>
-                  <span className="text-[9px] text-slate-400 font-mono">40-60%</span>
-                  <span className="text-[8px] font-bold text-orange-400">ELEV</span>
+                  <span className="text-[9px] text-[#4C5E62] font-mono">40-60%</span>
+                  <span className="text-[8px] font-bold text-orange-700">ELEV</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="w-6 h-2 rounded-sm bg-[#ef4444] mb-1"></span>
-                  <span className="text-[9px] text-slate-400 font-mono">60-80%</span>
-                  <span className="text-[8px] font-bold text-red-400">HIGH</span>
+                  <span className="text-[9px] text-[#4C5E62] font-mono">60-80%</span>
+                  <span className="text-[8px] font-bold text-red-700">HIGH</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="w-6 h-2 rounded-sm bg-[#881337] mb-1"></span>
-                  <span className="text-[9px] text-slate-400 font-mono">80-100%</span>
-                  <span className="text-[8px] font-bold text-rose-400">CRIT</span>
+                  <span className="text-[9px] text-[#4C5E62] font-mono">80-100%</span>
+                  <span className="text-[8px] font-bold text-rose-900">CRIT</span>
                 </div>
               </div>
             ) : colorMode === "elevation" ? (
-              <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium">
+              <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium text-[#12262A]">
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Lowland &lt;10 m</div>
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]"></span> Plain 10–20 m</div>
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span> Slope 20–35 m</div>
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#a855f7]"></span> Ridge ≥35 m</div>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5 text-[11px] font-medium">
+              <div className="flex items-center gap-2.5 text-[11px] font-medium text-[#12262A]">
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Lowland</div>
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]"></span> Plain</div>
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#a855f7]"></span> Ridge</div>
@@ -815,55 +815,55 @@ export const RiskMap: React.FC<RiskMapProps> = ({
       {/* Novelty 3: Temporal Nowcast Timeline Player & Scrubber */}
       {nowcastData && nowcastData.timeline && nowcastData.timeline.length > 0 && (
         <div
-          className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[1001] bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl p-2 sm:px-3 sm:py-2 flex flex-col gap-1.5 max-w-[94vw] sm:max-w-xl pointer-events-auto transition-all"
+          className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[1001] bg-[#FBFDFC] border border-[#D5E2E0] rounded-2xl shadow-xl p-2 sm:px-3 sm:py-2.5 flex flex-col gap-1.5 max-w-[94vw] sm:max-w-xl pointer-events-auto transition-all text-[#12262A]"
           onMouseDown={(e) => e.stopPropagation()}
         >
           {/* Header Row: Stage Name, Time, Rain Depth, Play/Pause */}
           <div className="flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <button
                 type="button"
                 onClick={() => setIsPlayingNowcast(!isPlayingNowcast)}
-                className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center shrink-0 ${
                   isPlayingNowcast
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/50"
-                    : "bg-blue-600 hover:bg-blue-500 text-white border-blue-500 shadow-md"
+                    ? "bg-amber-100 text-amber-800 border-amber-300"
+                    : "bg-[#115E59] hover:bg-[#0D4844] text-white border-[#115E59] shadow-xs"
                 }`}
                 title={isPlayingNowcast ? "Pause Nowcast" : "Auto-play Nowcast Horizons"}
               >
                 {isPlayingNowcast ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               </button>
-              <div>
-                <div className="flex items-center gap-1.5 font-bold text-slate-200 text-[11px] leading-tight">
-                  <Clock className="w-3 h-3 text-blue-400" />
-                  <span>Nowcast: {nowcastData.timeline[activeHorizonIdx]?.label}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-bold text-[#12262A] text-[11px] leading-tight">
+                  <Clock className="w-3 h-3 text-[#115E59] shrink-0" />
+                  <span className="truncate">Nowcast: {nowcastData.timeline[activeHorizonIdx]?.label}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-mono font-bold shrink-0">
                     {nowcastData.timeline[activeHorizonIdx]?.rainfall_24h_mm}mm IMD
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-400 truncate max-w-[200px] sm:max-w-[280px]">
+                <div className="text-[10px] text-[#4C5E62] truncate max-w-[200px] sm:max-w-[280px]">
                   {nowcastData.timeline[activeHorizonIdx]?.stage}: {nowcastData.timeline[activeHorizonIdx]?.description}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono hidden md:flex">
-              <span className="text-rose-400 font-bold">
+            <div className="flex items-center gap-2 text-[10px] text-[#4C5E62] font-mono hidden md:flex shrink-0">
+              <span className="text-rose-700 font-bold">
                 {nowcastData.timeline[activeHorizonIdx]?.summary?.critical_zones ?? 0} Crit
               </span>
               <span>•</span>
-              <span className="text-amber-400">
+              <span className="text-amber-800 font-semibold">
                 {nowcastData.timeline[activeHorizonIdx]?.summary?.high_risk_zones ?? 0} High
               </span>
               <span>•</span>
-              <span className="text-cyan-400">
+              <span className="text-teal-800 font-semibold max-w-[140px] truncate" title={nowcastData.timeline[activeHorizonIdx]?.summary?.highest_risk_zone?.zone_name}>
                 Max: {nowcastData.timeline[activeHorizonIdx]?.summary?.highest_risk_zone?.zone_name} ({nowcastData.timeline[activeHorizonIdx]?.summary?.highest_risk_zone?.risk_score}%)
               </span>
             </div>
           </div>
 
           {/* Stepper Buttons / Horizon Pills */}
-          <div className="grid grid-cols-5 gap-1 pt-0.5 border-t border-slate-800/60">
+          <div className="grid grid-cols-5 gap-1 pt-1 border-t border-[#E6EFEB]">
             {nowcastData.timeline.map((step, idx) => {
               const isActive = idx === activeHorizonIdx;
               return (
@@ -874,14 +874,16 @@ export const RiskMap: React.FC<RiskMapProps> = ({
                     setActiveHorizonIdx(idx);
                     setIsPlayingNowcast(false);
                   }}
-                  className={`py-1 px-1.5 rounded-md text-[10px] font-mono transition-all text-center cursor-pointer ${
+                  className={`py-1 px-1.5 rounded-lg text-[10px] font-mono transition-all text-center cursor-pointer border ${
                     isActive
-                      ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-900/40 ring-1 ring-blue-400"
-                      : "bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800"
+                      ? "bg-[#115E59] text-white font-bold shadow-xs border-[#115E59]"
+                      : "bg-[#F3F7F6] hover:bg-slate-200 text-[#12262A] border-[#D5E2E0]"
                   }`}
                 >
-                  <div className="leading-tight">{step.label}</div>
-                  <div className="text-[8px] opacity-75 leading-tight">{step.rainfall_24h_mm}mm</div>
+                  <div className="leading-tight truncate">{step.label}</div>
+                  <div className={`text-[8px] font-semibold leading-tight ${isActive ? "text-emerald-100" : "text-[#4C5E62]"}`}>
+                    {step.rainfall_24h_mm}mm
+                  </div>
                 </button>
               );
             })}

@@ -31,14 +31,27 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     throw new ApiError("The service is unreachable.");
   }
   if (!res.ok) {
-    throw new ApiError(`Request failed (${res.status}).`);
+    let detail = "";
+    try {
+      const body = await res.json();
+      if (typeof body?.detail === "string") detail = body.detail;
+    } catch {
+      detail = "";
+    }
+    throw new ApiError(detail || `Request failed (${res.status}).`);
   }
   return (await res.json()) as T;
 }
 
-function rainQuery(rain24h?: number) {
-  if (rain24h == null || Number.isNaN(rain24h)) return "";
-  return `&rain_24h=${encodeURIComponent(String(rain24h))}`;
+function scenarioQuery(rain24h?: number | null, stageM?: number | null) {
+  const parts: string[] = [];
+  if (rain24h != null && !Number.isNaN(rain24h)) {
+    parts.push(`rain_24h=${encodeURIComponent(String(rain24h))}`);
+  }
+  if (stageM != null && !Number.isNaN(stageM)) {
+    parts.push(`prakasam_stage=${encodeURIComponent(String(stageM))}`);
+  }
+  return parts.length ? `&${parts.join("&")}` : "";
 }
 
 export async function fetchHealthStatus() {
@@ -47,17 +60,46 @@ export async function fetchHealthStatus() {
   );
 }
 
-export async function fetchCurrentRiskMap(
-  cityId: string,
-  rain24h?: number
-): Promise<{ summary: RiskSummary; geojson: RiskMapGeoJSON }> {
-  const cid = cityId.toUpperCase();
-  const rain = rain24h == null ? "" : `&rain_24h=${encodeURIComponent(String(rain24h))}`;
-  return request(`${API_BASE_URL}/api/v1/risk/map?city_id=${cid}${rain}`);
+export interface MomentObservation {
+  requested_at: string;
+  rain_24h_mm: number;
+  rain_date: string;
+  prakasam_stage_m: number;
+  stage_observed_at: string;
+  stage_offset_hours: number;
+  station: string;
 }
 
-export async function fetchZoneDetail(gridId: string, rain24h?: number): Promise<ZoneDetail> {
-  return request(`${API_BASE_URL}/api/v1/risk/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`);
+export async function fetchTelemetryCoverage() {
+  return request<{
+    overlap_start: string | null;
+    overlap_end: string | null;
+    stage_archive_end: string | null;
+    note: string;
+  }>(`${API_BASE_URL}/api/v1/telemetry/coverage`);
+}
+
+export async function fetchObservationAt(at: string): Promise<MomentObservation> {
+  return request(`${API_BASE_URL}/api/v1/telemetry/at?at=${encodeURIComponent(at)}`);
+}
+
+export async function fetchCurrentRiskMap(
+  cityId: string,
+  rain24h?: number | null,
+  stageM?: number | null
+): Promise<{ summary: RiskSummary; geojson: RiskMapGeoJSON }> {
+  const cid = cityId.toUpperCase();
+  return request(`${API_BASE_URL}/api/v1/risk/map?city_id=${cid}${scenarioQuery(rain24h, stageM)}`);
+}
+
+export async function fetchZoneDetail(
+  gridId: string,
+  rain24h?: number | null,
+  stageM?: number | null
+): Promise<ZoneDetail> {
+  return request(
+    `${API_BASE_URL}/api/v1/risk/${encodeURIComponent(gridId)}?${scenarioQuery(rain24h, stageM).replace(/^&/, "")}`
+  );
 }
 
 export async function runSimulation(
@@ -77,9 +119,13 @@ export async function runSimulation(
 }
 
 export async function fetchPriorityZones(
-  cityId: string
+  cityId: string,
+  rain24h?: number | null,
+  stageM?: number | null
 ): Promise<{ total_prioritized: number; zones: PriorityZoneItem[] }> {
-  return request(`${API_BASE_URL}/api/v1/risk/priority-zones?city_id=${cityId.toUpperCase()}&limit=10`);
+  return request(
+    `${API_BASE_URL}/api/v1/risk/priority-zones?city_id=${cityId.toUpperCase()}&limit=10${scenarioQuery(rain24h, stageM)}`
+  );
 }
 
 export async function fetchHistoricalEvents(cityId?: string): Promise<HistoricalEventItem[]> {
@@ -151,19 +197,19 @@ export async function resolveAlert(alertId: string): Promise<AlertItem> {
   );
 }
 
-export async function fetchCascadeTrace(gridId: string, rain24h?: number): Promise<CascadeTraceResponse> {
-  return request(`${API_BASE_URL}/api/v1/hydrology/cascade/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`);
+export async function fetchCascadeTrace(gridId: string, rain24h?: number | null): Promise<CascadeTraceResponse> {
+  return request(`${API_BASE_URL}/api/v1/hydrology/cascade/${encodeURIComponent(gridId)}?${scenarioQuery(rain24h).replace(/^&/, "")}`);
 }
 
-export async function fetchPhysicsAudit(gridId: string, rain24h?: number): Promise<PhysicsAuditResponse> {
+export async function fetchPhysicsAudit(gridId: string, rain24h?: number | null): Promise<PhysicsAuditResponse> {
   return request(
-    `${API_BASE_URL}/api/v1/hydrology/physics-audit/${encodeURIComponent(gridId)}?${rainQuery(rain24h).replace(/^&/, "")}`
+    `${API_BASE_URL}/api/v1/hydrology/physics-audit/${encodeURIComponent(gridId)}?${scenarioQuery(rain24h).replace(/^&/, "")}`
   );
 }
 
-export async function fetchTemporalNowcast(cityId: string, rain24h?: number): Promise<TemporalNowcastResponse> {
+export async function fetchTemporalNowcast(cityId: string, rain24h?: number | null): Promise<TemporalNowcastResponse> {
   return request(
-    `${API_BASE_URL}/api/v1/hydrology/nowcast/${cityId.toUpperCase()}?${rainQuery(rain24h).replace(/^&/, "")}`
+    `${API_BASE_URL}/api/v1/hydrology/nowcast/${cityId.toUpperCase()}?${scenarioQuery(rain24h).replace(/^&/, "")}`
   );
 }
 

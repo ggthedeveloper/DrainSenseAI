@@ -1,35 +1,30 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   RiskSummary, 
   ZoneDetail, 
   PriorityZoneItem, 
-  SimulationResult,
   PhysicsAuditResponse,
   CascadeTraceResponse
 } from "../types";
 import { SupportedLanguage, getTranslation } from "../lib/i18n";
-import { runSimulation, fetchPhysicsAudit } from "../lib/api";
+import { fetchObservationAt, fetchPhysicsAudit, fetchTelemetryCoverage } from "../lib/api";
 import {
   ShieldAlert,
   Activity,
   AlertTriangle,
-  Layers,
   Sparkles,
   Compass,
   TrendingUp,
   TrendingDown,
   Clock,
-  SlidersHorizontal,
   CheckCircle2,
-  RefreshCw,
   Droplets,
   Building2,
   MapPin,
   X,
   ArrowRight,
-  RotateCcw,
   Zap,
   ChevronRight,
   Truck,
@@ -50,8 +45,8 @@ interface DashboardControlPanelProps {
   currentLang: SupportedLanguage;
   onSelectGrid: (gridId: string) => void;
   onClearSelectedGrid: () => void;
-  onApplyScenarioToMap?: (multiplier: number) => void;
-  onResetScenarioOnMap?: () => void;
+  onCalculate: (rain: number | null, stage: number | null) => Promise<void>;
+  calculating?: boolean;
   healthStatus?: { status: string; model_version: string };
   onTriggerCascade?: (gridId: string) => void;
   onOpenFleetOptimizer?: () => void;
@@ -69,8 +64,8 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
   currentLang,
   onSelectGrid,
   onClearSelectedGrid,
-  onApplyScenarioToMap,
-  onResetScenarioOnMap,
+  onCalculate,
+  calculating = false,
   healthStatus,
   onTriggerCascade,
   onOpenFleetOptimizer,
@@ -79,13 +74,84 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
 }) => {
   const t = getTranslation(currentLang);
 
-  // What-If Simulator state
-  const [multiplier, setMultiplier] = useState<number>(1.0);
-  const [simResult, setSimResult] = useState<SimulationResult | null>(null);
-  const [simError, setSimError] = useState<string | null>(null);
-  const [simLoading, setSimLoading] = useState<boolean>(false);
-  const [scenarioActive, setScenarioActive] = useState<boolean>(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const situations = [
+    { id: "latest", label: "Latest telemetry", date: "2025-10-30", rain: null as number | null, stage: null as number | null },
+    { id: "dry", label: "Dry baseline", date: "2023-01-01", rain: 0, stage: 3.4 },
+    { id: "heavy", label: "Heavy storm", date: "2022-08-06", rain: 78.6, stage: 8.67 },
+    { id: "extreme", label: "Extreme storm", date: "2024-09-01", rain: 240.6, stage: 3.75 },
+  ];
+  const [rainInput, setRainInput] = useState("");
+  const [stageInput, setStageInput] = useState("");
+  const [activeSample, setActiveSample] = useState("latest");
+  const [calcError, setCalcError] = useState<string | null>(null);
+  const [momentAt, setMomentAt] = useState("2022-07-23T09:00");
+  const [momentNote, setMomentNote] = useState<string | null>(null);
+  const [coverageEnd, setCoverageEnd] = useState("2023-09-28T23:59");
+
+  useEffect(() => {
+    fetchTelemetryCoverage()
+      .then((span) => {
+        if (span.overlap_end) setCoverageEnd(`${span.overlap_end}T23:59`);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const showMoment = async () => {
+    setCalcError(null);
+    setMomentNote(null);
+    try {
+      const moment = await fetchObservationAt(momentAt);
+      setRainInput(String(moment.rain_24h_mm));
+      setStageInput(String(moment.prakasam_stage_m));
+      setActiveSample("moment");
+      const offset = moment.stage_offset_hours === 0
+        ? "at the time you picked"
+        : `${moment.stage_offset_hours} h from the time you picked`;
+      setMomentNote(
+        `Rain is the ${moment.rain_date} daily gauge maximum. Prakasam stage ${moment.prakasam_stage_m} m was read at ${moment.stage_observed_at.replace("T", " ")}, ${offset}.`
+      );
+      await runCalculation(moment.rain_24h_mm, moment.prakasam_stage_m);
+    } catch (err) {
+      setCalcError(err instanceof Error ? err.message : "That time has no paired rainfall and stage record.");
+    }
+  };
+
+  useEffect(() => {
+    if (activeSample !== "latest" || !summary) return;
+    setRainInput(String(summary.current_rainfall_24h_mm ?? ""));
+    setStageInput(String(summary.current_prakasam_stage_m ?? ""));
+  }, [activeSample, summary]);
+
+  const runCalculation = async (rain: number | null, stage: number | null) => {
+    setCalcError(null);
+    try {
+      await onCalculate(rain, stage);
+    } catch (err) {
+      setCalcError(err instanceof Error ? err.message : "The model did not score this input.");
+    }
+  };
+
+  const applySample = (sample: (typeof situations)[number]) => {
+    setActiveSample(sample.id);
+    if (sample.rain == null || sample.stage == null) {
+      void runCalculation(null, null);
+      return;
+    }
+    setRainInput(String(sample.rain));
+    setStageInput(String(sample.stage));
+    void runCalculation(sample.rain, sample.stage);
+  };
+
+  const calculateEdited = () => {
+    const rain = Number(rainInput);
+    const stage = Number(stageInput);
+    if (!Number.isFinite(rain) || rain < 0 || !Number.isFinite(stage) || stage < 0) {
+      setCalcError("Enter a rainfall of 0 mm or more and a barrage stage of 0 m or more.");
+      return;
+    }
+    setActiveSample("custom");
+    void runCalculation(rain, stage);
+  };
 
   // Physics SCS-CN audit state
   const [physicsAudit, setPhysicsAudit] = useState<PhysicsAuditResponse | null>(null);
@@ -104,60 +170,6 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
       setPhysicsAudit(null);
     }
   }, [selectedGridId, summary?.current_rainfall_24h_mm]);
-
-  // Run simulation on multiplier change
-  const handleMultiplierChange = (val: number) => {
-    setMultiplier(val);
-    if (val === 1.0) {
-      setSimResult(null);
-      setScenarioActive(false);
-      if (onResetScenarioOnMap) onResetScenarioOnMap();
-      return;
-    }
-
-    setSimLoading(true);
-    setSimError(null);
-    setSimResult(null);
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        const baseRain = summary?.current_rainfall_24h_mm;
-        if (baseRain == null) {
-          throw new Error("Live rainfall is not loaded, so the scenario was not run.");
-        }
-        const res = await runSimulation(cityId, val, baseRain);
-        setSimResult(res);
-        setScenarioActive(true);
-      } catch (e) {
-        setSimResult(null);
-        setScenarioActive(false);
-        setSimError(e instanceof Error ? e.message : "The scenario was not run.");
-      } finally {
-        setSimLoading(false);
-      }
-    }, 200);
-  };
-
-  const handleApplyToMap = () => {
-    if (onApplyScenarioToMap && multiplier > 1.0) {
-      onApplyScenarioToMap(multiplier);
-      setScenarioActive(true);
-    }
-  };
-
-  const handleResetScenario = () => {
-    setMultiplier(1.0);
-    setSimResult(null);
-    setScenarioActive(false);
-    if (onResetScenarioOnMap) onResetScenarioOnMap();
-  };
-
-  useEffect(() => {
-    setMultiplier(1.0);
-    setSimResult(null);
-    setScenarioActive(false);
-  }, [cityId]);
 
   const isRedAlert = (summary?.critical_zones || 0) > 50;
   const isOrangeAlert = (summary?.critical_zones || 0) > 0;
@@ -245,7 +257,7 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
             <div className="text-[10px] text-sky-800 font-mono font-medium mt-0.5">
               {summary.rainfall_observed_on
                 ? `Telemetry ${summary.rainfall_observed_on}`
-                : "From the risk summary"}
+                : "Custom model input"}
             </div>
           </div>
 
@@ -462,85 +474,92 @@ export const DashboardControlPanel: React.FC<DashboardControlPanelProps> = ({
         )}
       </div>
 
-      {/* 5. What-If Rainfall Scenario Simulator */}
       <div className="bg-[#FBFDFC] border border-[#D5E2E0] rounded-2xl p-3.5 shadow-sm shrink-0 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-amber-700" />
-            <h4 className="text-xs font-bold text-[#12262A] uppercase tracking-wider">
-              Stress Simulator
-            </h4>
-          </div>
-          {multiplier > 1.0 && (
-            <button
-              onClick={handleResetScenario}
-              className="text-[10px] font-bold text-amber-900 hover:text-amber-950 flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 border border-amber-300 cursor-pointer shadow-2xs"
-            >
-              <RotateCcw className="w-2.5 h-2.5" /> Reset
-            </button>
-          )}
+        <div>
+          <h4 className="text-xs font-bold text-[#12262A] uppercase tracking-wider">
+            Model inputs
+          </h4>
+          <p className="mt-1 text-[11px] leading-relaxed text-[#4C5E62]">
+            Pick a date and time. The score uses that day’s rainfall total and the Prakasam reading nearest to the clock. Both records overlap from 22 Feb 2021 through 28 Sep 2023. Terrain stays on each cell.
+          </p>
         </div>
-
-        {/* Quick Multiplier Buttons */}
-        <div className="grid grid-cols-4 gap-1">
-          {[
-            { label: "1.0×", val: 1.0 },
-            { label: "+25%", val: 1.25 },
-            { label: "+50%", val: 1.50 },
-            { label: "+100%", val: 2.0 }
-          ].map((b) => (
+        <label className="block text-[11px] font-medium text-[#12262A]">
+          Date and time
+          <input
+            type="datetime-local"
+            value={momentAt}
+            min="2021-02-22T00:00"
+            max={coverageEnd}
+            onChange={(event) => setMomentAt(event.target.value)}
+            className="mt-1 w-full rounded-lg border border-[#D5E2E0] bg-white px-2 py-1.5 font-mono text-sm text-[#12262A]"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => void showMoment()}
+          disabled={calculating || !momentAt}
+          className="w-full rounded-lg border border-[#115E59] bg-[#E6F3F1] py-2 text-xs font-semibold text-[#115E59] disabled:opacity-60"
+        >
+          {calculating ? "Calculating…" : "Show this moment"}
+        </button>
+        {momentNote ? <p className="text-[11px] leading-relaxed text-[#4C5E62]">{momentNote}</p> : null}
+        <div className="grid grid-cols-2 gap-1.5">
+          {situations.map((sample) => (
             <button
-              key={b.label}
+              key={sample.id}
               type="button"
-              onClick={() => handleMultiplierChange(b.val)}
-              className={`py-1 rounded-lg text-xs font-semibold font-mono transition cursor-pointer border ${
-                multiplier === b.val
-                  ? "bg-[#115E59] text-white border-[#115E59] font-bold shadow-2xs"
-                  : "bg-[#F3F7F6] hover:bg-slate-200 text-[#12262A] border-[#D5E2E0]"
+              disabled={calculating}
+              onClick={() => applySample(sample)}
+              className={`rounded-lg border px-2 py-1.5 text-left text-[11px] disabled:opacity-60 ${
+                activeSample === sample.id
+                  ? "border-[#115E59] bg-[#E6F3F1] text-[#115E59]"
+                  : "border-[#D5E2E0] bg-[#F3F7F6] text-[#12262A]"
               }`}
             >
-              {b.label}
+              <span className="block font-semibold">{sample.label}</span>
+              <span className="font-mono text-[10px] text-[#4C5E62]">
+                {sample.rain == null ? "Server file" : `${sample.rain} mm · ${sample.stage} m`}
+              </span>
             </button>
           ))}
         </div>
-
-        {/* Multiplier Slider */}
-        <input
-          type="range"
-          min="1.0"
-          max="2.5"
-          step="0.05"
-          value={multiplier}
-          onChange={(e) => handleMultiplierChange(parseFloat(e.target.value))}
-          className="w-full h-1.5 bg-[#D5E2E0] rounded-lg appearance-none cursor-pointer accent-[#115E59]"
-        />
-
-        {/* Simulation Output */}
-        {simLoading ? (
-          <div className="flex items-center justify-center gap-1.5 p-2 rounded-lg bg-[#F3F7F6] text-xs text-[#4C5E62] font-medium">
-            <RefreshCw className="w-3 h-3 animate-spin text-[#115E59]" />
-            <span>Computing deltas...</span>
-          </div>
-        ) : simError ? (
-          <p className="text-xs text-rose-700 font-medium">{simError}</p>
-        ) : simResult ? (
-          <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2 text-xs">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-[#4C5E62] font-semibold">Escalated Sectors:</span>
-              <span className="font-mono font-bold text-rose-700">
-                +{simResult.impact_deltas.new_critical_zones} Critical
-              </span>
-            </div>
-
-            <button
-              onClick={handleApplyToMap}
-              className="w-full py-1.5 bg-[#115E59] hover:bg-[#0D4844] text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs active:scale-[0.99]"
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Project on Map</span>
-            </button>
-          </div>
-        ) : null}
+        <label className="block text-[11px] font-medium text-[#12262A]">
+          24-hour rainfall (mm)
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            value={rainInput}
+            onChange={(event) => {
+              setRainInput(event.target.value);
+              setActiveSample("custom");
+            }}
+            className="mt-1 w-full rounded-lg border border-[#D5E2E0] bg-white px-2 py-1.5 font-mono text-sm text-[#12262A]"
+          />
+        </label>
+        <label className="block text-[11px] font-medium text-[#12262A]">
+          Prakasam barrage stage (m)
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={stageInput}
+            onChange={(event) => {
+              setStageInput(event.target.value);
+              setActiveSample("custom");
+            }}
+            className="mt-1 w-full rounded-lg border border-[#D5E2E0] bg-white px-2 py-1.5 font-mono text-sm text-[#12262A]"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={calculateEdited}
+          disabled={calculating}
+          className="w-full rounded-lg bg-[#115E59] py-2 text-xs font-semibold text-white disabled:opacity-60"
+        >
+          {calculating ? "Calculating…" : "Calculate"}
+        </button>
+        {calcError ? <p className="text-xs text-[#B42318]">{calcError}</p> : null}
       </div>
 
       {/* 6. Priority Response Queue */}

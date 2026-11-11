@@ -51,6 +51,35 @@ def test_risk_map_geojson():
     assert "risk_level" in first
     assert "risk_score" in first
 
+def test_custom_storm_inputs_change_the_map():
+    dry = client.get("/api/v1/risk/map?rain_24h=0&prakasam_stage=3.4")
+    heavy = client.get("/api/v1/risk/map?rain_24h=78.6&prakasam_stage=8.67")
+    assert dry.status_code == 200
+    assert heavy.status_code == 200
+    assert dry.json()["summary"]["low_zones"] == 1100
+    assert heavy.json()["summary"]["high_risk_zones"] > 0
+    assert heavy.json()["summary"]["current_rainfall_24h_mm"] == 78.6
+    assert heavy.json()["summary"]["current_prakasam_stage_m"] == 8.67
+
+def test_telemetry_at_returns_the_recorded_moment():
+    response = client.get("/api/v1/telemetry/at", params={"at": "2022-07-23T09:00"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["rain_24h_mm"] == 117.8
+    assert data["prakasam_stage_m"] == 1.67
+    assert data["stage_observed_at"] == "2022-07-23T09:00:00"
+    assert data["stage_offset_hours"] == 0
+    assert data["station"] == "Prakasam Barrage"
+
+def test_telemetry_at_refuses_a_day_without_barrage_stage():
+    response = client.get("/api/v1/telemetry/at", params={"at": "2024-09-01T08:30"})
+    assert response.status_code == 404
+    assert "stage archive" in response.json()["detail"]
+
+def test_telemetry_at_rejects_a_bad_timestamp():
+    response = client.get("/api/v1/telemetry/at", params={"at": "not-a-date"})
+    assert response.status_code == 400
+
 def test_zone_detail_and_explanation():
     response = client.get("/api/v1/risk/VJA250_R7287_C1850?rain_24h=145.0")
     assert response.status_code == 200

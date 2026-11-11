@@ -19,6 +19,8 @@ from backend.app.schemas.risk import (
 )
 from backend.app.services.resource_optimizer import optimize_municipal_dispatch
 from ml.src.inference.predictor import predictor_service
+from backend.app.services.moment_lookup import coverage as telemetry_coverage
+from backend.app.services.moment_lookup import observation_at
 
 api_router = APIRouter()
 
@@ -56,6 +58,25 @@ def get_zones(city_id: str = Query("VJA")):
     zones = city_df[["zone_name"]].drop_duplicates()["zone_name"].tolist()
     return {"city_id": cid, "zones": sorted(zones)}
 
+@api_router.get("/telemetry/coverage", tags=["Telemetry"])
+def get_telemetry_coverage():
+    """Return the dates where a daily rain total and a barrage reading both exist."""
+    return telemetry_coverage()
+
+
+@api_router.get("/telemetry/at", tags=["Telemetry"])
+def get_telemetry_at(at: str = Query(..., description="Local civil time, YYYY-MM-DDTHH:MM")):
+    """Return the rainfall total and barrage stage the model can use at this time."""
+    try:
+        moment = datetime.fromisoformat(at)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Use a local date and time, for example 2022-07-23T09:00.") from exc
+    try:
+        return observation_at(moment)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @api_router.get("/risk/current", tags=["Risk Analysis"])
 def get_current_risk(city_id: str = Query("VJA")):
     """Return overview KPIs and high-risk zones for specified city."""
@@ -69,6 +90,7 @@ def get_current_risk(city_id: str = Query("VJA")):
 def get_risk_map(
     city_id: str = Query("VJA"),
     rain_24h: Optional[float] = Query(None, description="24h rainfall in mm. Omitted values use the latest telemetry row."),
+    prakasam_stage: Optional[float] = Query(None, description="Prakasam barrage stage in metres. Omitted values use the latest telemetry row."),
 ):
     """
     Return GeoJSON FeatureCollection for Vijayawada with model risk probabilities.
@@ -77,6 +99,7 @@ def get_risk_map(
         res = predictor_service.get_current_risk_map(
             city_id=city_id,
             rain_24h_mm=rain_24h,
+            prakasam_stage_m=prakasam_stage,
         )
         return JSONResponse(content=res)
     except Exception as e:
@@ -84,14 +107,20 @@ def get_risk_map(
 
 @api_router.get("/risk/priority-zones", tags=["Risk Analysis"])
 def get_priority_zones(
-    city_id: str = Query("VJA", description="City ID: VJA, CHE, BOM, BLR"),
-    limit: int = 10
+    city_id: str = Query("VJA", description="City ID: VJA"),
+    limit: int = 10,
+    rain_24h: Optional[float] = Query(None),
+    prakasam_stage: Optional[float] = Query(None),
 ):
     """
     Return algorithmically prioritized municipal response list for selected city.
     """
     try:
-        res = predictor_service.get_current_risk_map(city_id=city_id)
+        res = predictor_service.get_current_risk_map(
+            city_id=city_id,
+            rain_24h_mm=rain_24h,
+            prakasam_stage_m=prakasam_stage,
+        )
         features = res["geojson"]["features"]
 
         sorted_feats = sorted(
@@ -134,12 +163,14 @@ def get_priority_zones(
 def get_zone_detail(
     grid_id: str,
     rain_24h: Optional[float] = Query(None),
+    prakasam_stage: Optional[float] = Query(None),
 ):
     """Inspect one Vijayawada grid cell."""
     try:
         res = predictor_service.predict_grid(
             grid_id=grid_id,
             rain_24h_mm=rain_24h,
+            prakasam_stage_m=prakasam_stage,
         )
         return res
     except ValueError as ve:
