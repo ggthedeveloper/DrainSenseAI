@@ -1,0 +1,12 @@
+{
+  "source_dem": "data/raw/dem/tiles/Copernicus_DSM_COG_10_N16_00_E080_00_DEM.tif",
+  "study_boundary": "data/metadata/study_area.geojson",
+  "analysis_grid": "data/interim/phase4/analysis_grid_250m.gpkg",
+  "projected_crs": "EPSG:32644",
+  "dem_resolution_m": 30,
+  "context_buffer_m": 3000,
+  "grid_resolution_m": 250,
+  "tpi_windows_pixels": [3, 7, 11],
+  "resampling": "bilinear",
+  "flow_method": "PyFlwDir D8, depression fill to pour point, edge outlets"
+}

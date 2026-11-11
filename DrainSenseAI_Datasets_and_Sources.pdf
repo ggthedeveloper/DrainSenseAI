@@ -1,0 +1,939 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/ggthedeveloper/DrainSenseAI)
+>> /Border [ 0 0 0 ] /Rect [ 93.70004 515.7906 287.299 526.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+5 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/ggthedeveloper/DrainSenseAI/archive/refs/heads/main.zip)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 450.7656 676.9406 461.2656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+6 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/raw/imd_daily_rainfall_stations.csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 410.1656 701.2052 420.6656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+7 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/raw/cwc_river_barrage_telemetry.csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 379.7656 709.8336 390.2656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+8 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/raw/isro_bhuvan_flood_inundation_benchmarks.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 349.3656 760.0426 359.8656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+9 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/historical_flood_events.csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 318.9656 689.6982 329.4656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+10 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/historical_flood_events.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 288.5656 692.1698 299.0656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+11 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/all_cities_grid_features.csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 268.0656 690.1052 278.5656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+12 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/vijayawada_grid_features.csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 207.0656 698.334 217.5656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+13 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/vja_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 176.1106 665.4336 184.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+14 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/vijayawada_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 165.6106 692.5768 174.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+15 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/che_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 145.6656 667.9052 156.1656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+16 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/bom_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 115.2656 670.3694 125.7656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+17 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/blr_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 84.86555 664.1978 95.36555 ] /Subtype /Link /Type /Annot
+>>
+endobj
+18 0 obj
+<<
+/Annots [ 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R 
+  14 0 R 15 0 R 16 0 R 17 0 R ] /Contents 111 0 R /MediaBox [ 0 0 841.8898 595.2756 ] /Parent 110 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+19 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/current_risk_predictions.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 515.2656 695.448 525.7656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+20 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/processed/evaluation_report.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 484.8656 674.0768 495.3656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+21 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/models/drainsense_xgb_v1.joblib)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 443.7106 684.7698 452.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+22 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/models/drainsense_xgb_v1_metadata.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 433.2106 716.0348 442.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+23 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 412.7106 655.5546 421.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+24 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_vja.json)
+>> /Border [ 0 0 0 ] /Rect [ 661.7262 412.7106 671.1834 421.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+25 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_vijayawada.json)
+>> /Border [ 0 0 0 ] /Rect [ 677.355 412.7106 713.9554 421.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+26 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_che.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 402.2106 613.2044 411.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+27 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_bom.json)
+>> /Border [ 0 0 0 ] /Rect [ 619.376 402.2106 633.769 411.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+28 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_blr.json)
+>> /Border [ 0 0 0 ] /Rect [ 639.9406 402.2106 648.162 411.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+29 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/evaluation.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 381.7106 650.6336 390.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+30 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/historical_events.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 371.2106 672.0122 380.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+31 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/model_metadata.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 360.7106 672.0196 369.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+32 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/amd_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 340.2106 615.6686 349.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+33 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/ccu_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 621.8402 340.2106 633.3546 349.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+34 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/cok_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 639.5262 340.2106 651.0406 349.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+35 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/del_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 657.2122 340.2106 667.0838 349.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+36 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/gau_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 329.7106 613.6188 338.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+37 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/hyd_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 619.7904 329.7106 631.7192 338.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+38 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/pat_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 637.8908 329.7106 648.1768 338.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+39 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/data/legacy_prototypes/pnq_grid_500m.json)
+>> /Border [ 0 0 0 ] /Rect [ 654.3484 329.7106 666.6916 338.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+40 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_amd.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 299.6106 615.6686 308.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+41 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_ccu.json)
+>> /Border [ 0 0 0 ] /Rect [ 621.8402 299.6106 633.3546 308.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+42 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_cok.json)
+>> /Border [ 0 0 0 ] /Rect [ 639.5262 299.6106 651.0406 308.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+43 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_del.json)
+>> /Border [ 0 0 0 ] /Rect [ 657.2122 299.6106 667.0838 308.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+44 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_gau.json)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 289.1106 613.6188 297.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+45 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_hyd.json)
+>> /Border [ 0 0 0 ] /Rect [ 619.7904 289.1106 631.7192 297.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+46 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_pat.json)
+>> /Border [ 0 0 0 ] /Rect [ 637.8908 289.1106 648.1768 297.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+47 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/frontend/public/data/current_risk_pnq.json)
+>> /Border [ 0 0 0 ] /Rect [ 654.3484 289.1106 666.6916 297.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+48 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/docs/assets/catchment_topography_profiles.png)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 268.6106 718.9134 277.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+49 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/docs/assets/rainfall_deluge_hyetographs.png)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 258.1106 708.6348 266.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+50 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/docs/assets/model_performance_matrix.png)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 247.6106 705.734 256.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+51 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/docs/assets/shap_feature_importance.png)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 237.1106 699.5846 245.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+52 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=16.5062&longitude=80.6480&start_date=2024-08-20&end_date=2024-09-12&hourly=precipitation,rain&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 161.1656 688.4624 171.6656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+53 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=13.0827&longitude=80.2707&start_date=2023-11-25&end_date=2023-12-12&hourly=precipitation,rain&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 130.7656 690.5122 141.2656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+54 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=19.0760&longitude=72.8777&start_date=2023-07-15&end_date=2023-07-28&hourly=precipitation,rain&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 100.3656 691.748 110.8656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+55 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=12.9716&longitude=77.6200&start_date=2022-08-28&end_date=2022-09-08&hourly=precipitation,rain&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 69.96555 689.2838 80.46555 ] /Subtype /Link /Type /Annot
+>>
+endobj
+56 0 obj
+<<
+/Annots [ 19 0 R 20 0 R 21 0 R 22 0 R 23 0 R 24 0 R 25 0 R 26 0 R 27 0 R 28 0 R 
+  29 0 R 30 0 R 31 0 R 32 0 R 33 0 R 34 0 R 35 0 R 36 0 R 37 0 R 38 0 R 
+  39 0 R 40 0 R 41 0 R 42 0 R 43 0 R 44 0 R 45 0 R 46 0 R 47 0 R 48 0 R 
+  49 0 R 50 0 R 51 0 R 52 0 R 53 0 R 54 0 R 55 0 R ] /Contents 112 0 R /MediaBox [ 0 0 841.8898 595.2756 ] /Parent 110 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+57 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=16.5062&longitude=80.6480&start_date=2024-08-25&end_date=2024-09-08&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 514.7106 648.5838 523.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+58 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=16.5062&longitude=80.6480&start_date=2020-10-10&end_date=2020-10-18&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 654.7554 514.7106 700.4134 523.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+59 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=13.0827&longitude=80.2707&start_date=2023-12-01&end_date=2023-12-08&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 504.2106 650.6262 513.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+60 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=13.0827&longitude=80.2707&start_date=2015-11-28&end_date=2015-12-06&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 656.7978 504.2106 706.1484 513.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+61 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=19.0760&longitude=72.8777&start_date=2023-07-18&end_date=2023-07-28&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 493.7106 648.162 502.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+62 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=19.0760&longitude=72.8777&start_date=2005-07-24&end_date=2005-07-30&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 654.3336 493.7106 701.22 502.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+63 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=12.9716&longitude=77.5946&start_date=2024-10-15&end_date=2024-10-24&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 483.2106 647.755 492.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+64 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=28.6139&longitude=77.2090&start_date=2023-07-08&end_date=2023-07-16&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 462.7106 632.9402 471.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+65 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=17.3850&longitude=78.4867&start_date=2020-10-12&end_date=2020-10-19&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 639.1118 462.7106 672.0048 471.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+66 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=22.5726&longitude=88.3639&start_date=2020-05-19&end_date=2020-05-24&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 678.1764 462.7106 711.4764 471.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+67 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=23.0225&longitude=72.5714&start_date=2022-07-10&end_date=2022-07-16&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 717.648 462.7106 751.3624 471.5906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+68 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=18.5204&longitude=73.8567&start_date=2019-09-24&end_date=2019-09-29&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 452.2106 634.583 461.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+69 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=9.9312&longitude=76.2673&start_date=2018-08-14&end_date=2018-08-22&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 640.7546 452.2106 674.062 461.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+70 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=26.1445&longitude=91.7362&start_date=2022-06-14&end_date=2022-06-22&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 680.2336 452.2106 713.541 461.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+71 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://archive-api.open-meteo.com/v1/archive?latitude=25.5941&longitude=85.1376&start_date=2019-09-27&end_date=2019-10-04&hourly=precipitation,rain&timezone=Asia%2FKolkata&format=csv)
+>> /Border [ 0 0 0 ] /Rect [ 719.7126 452.2106 751.3772 461.0906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+72 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://www.kaggle.com/api/v1/datasets/download/sudalairajkumar/chennai-water-management)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 422.1106 674.8908 430.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+73 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://www.kaggle.com/datasets/sudalairajkumar/chennai-water-management)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 411.6106 671.2056 420.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+74 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://download.geofabrik.de/asia/india-latest.osm.pbf)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 361.1106 665.4336 369.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+75 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://download.geofabrik.de/asia/india.html)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 350.6106 671.6126 359.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+76 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://open-meteo.com/en/docs/elevation-api)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 330.1106 693.8126 338.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+77 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://api.open-meteo.com/v1/elevation?latitude=16.5062&longitude=80.6480)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 319.6106 682.7052 328.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+78 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://overpass-turbo.eu/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 289.5106 654.3262 298.3906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+79 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://www.openstreetmap.org/)
+>> /Border [ 0 0 0 ] /Rect [ 660.4978 289.5106 712.7344 298.3906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+80 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://mausam.imd.gov.in/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 259.1106 645.2686 267.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+81 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://hydro.imd.gov.in/hydrometweb/PRODUCTS/Publications/Rainfall%20Statistics%20of%20India%20-%202024/Rainfall%20Statistics%20of%20India%202024.pdf)
+>> /Border [ 0 0 0 ] /Rect [ 651.4402 259.1106 700.3764 267.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+82 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://indiawris.gov.in/wris/#/DataDownload)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 248.6106 639.1044 257.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+83 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nwdp.nwic.in/)
+>> /Border [ 0 0 0 ] /Rect [ 645.276 248.6106 687.6114 257.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+84 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood)
+>> /Border [ 0 0 0 ] /Rect [ 693.783 248.6106 759.5912 257.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+85 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://data.gov.in/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 238.1106 679.4196 246.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+86 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://apsdma.ap.gov.in/)
+>> /Border [ 0 0 0 ] /Rect [ 685.5912 238.1106 718.8986 246.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+87 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://tnsdma.tn.gov.in/)
+>> /Border [ 0 0 0 ] /Rect [ 725.0702 238.1106 756.313 246.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+88 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://ndma.gov.in/)
+>> /Border [ 0 0 0 ] /Rect [ 762.4846 238.1106 784.2702 246.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+89 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://open-meteo.com/en/docs/historical-weather-api)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 217.6106 691.341 226.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+90 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://api.open-meteo.com/v1/forecast)
+>> /Border [ 0 0 0 ] /Rect [ 697.5126 217.6106 769.485 226.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+91 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://spacedata.copernicus.eu/collections/copernicus-digital-elevation-model)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 207.1106 674.062 215.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+92 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM)
+>> /Border [ 0 0 0 ] /Rect [ 680.2336 207.1106 755.8986 215.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+93 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://browser.dataspace.copernicus.eu/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 196.6106 663.7834 205.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+94 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://gpm.nasa.gov/data/imerg)
+>> /Border [ 0 0 0 ] /Rect [ 669.955 196.6106 735.334 205.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+95 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGHH_07/summary)
+>> /Border [ 0 0 0 ] /Rect [ 741.5056 196.6106 776.8702 205.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+96 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGHH_07/summary)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 186.1106 625.5328 194.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+97 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://opentopography.org/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 175.6106 658.8624 184.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+98 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://earthexplorer.usgs.gov/)
+>> /Border [ 0 0 0 ] /Rect [ 665.034 175.6106 733.299 184.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+99 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developers.google.com/earth-engine/datasets/catalog/CGIAR_SRTM90_V4)
+>> /Border [ 0 0 0 ] /Rect [ 739.4706 175.6106 778.1208 184.4906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+100 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://esa-worldcover.org/)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 165.1106 657.1974 173.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+101 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook)
+>> /Border [ 0 0 0 ] /Rect [ 663.369 165.1106 766.9616 173.9906 ] /Subtype /Link /Type /Annot
+>>
+endobj
+102 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/ml/src/features/feature_builder.py)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 88.61055 660.5052 97.49055 ] /Subtype /Link /Type /Annot
+>>
+endobj
+103 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/ml/src/features/label_generator.py)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 78.11055 662.5624 86.99055 ] /Subtype /Link /Type /Annot
+>>
+endobj
+104 0 obj
+<<
+/Annots [ 57 0 R 58 0 R 59 0 R 60 0 R 61 0 R 62 0 R 63 0 R 64 0 R 65 0 R 66 0 R 
+  67 0 R 68 0 R 69 0 R 70 0 R 71 0 R 72 0 R 73 0 R 74 0 R 75 0 R 76 0 R 
+  77 0 R 78 0 R 79 0 R 80 0 R 81 0 R 82 0 R 83 0 R 84 0 R 85 0 R 86 0 R 
+  87 0 R 88 0 R 89 0 R 90 0 R 91 0 R 92 0 R 93 0 R 94 0 R 95 0 R 96 0 R 
+  97 0 R 98 0 R 99 0 R 100 0 R 101 0 R 102 0 R 103 0 R ] /Contents 113 0 R /MediaBox [ 0 0 841.8898 595.2756 ] /Parent 110 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+105 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/backend/app/api/endpoints.py)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 515.2656 643.2336 525.7656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+106 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://raw.githubusercontent.com/ggthedeveloper/DrainSenseAI/main/ml/src/inference/predictor.py)
+>> /Border [ 0 0 0 ] /Rect [ 601.2756 474.6656 639.9332 485.1656 ] /Subtype /Link /Type /Annot
+>>
+endobj
+107 0 obj
+<<
+/Annots [ 105 0 R 106 0 R ] /Contents 114 0 R /MediaBox [ 0 0 841.8898 595.2756 ] /Parent 110 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+108 0 obj
+<<
+/PageMode /UseNone /Pages 110 0 R /Type /Catalog
+>>
+endobj
+109 0 obj
+<<
+/Author (DrainSenseAI Data Provenance Audit) /CreationDate (D:20261110135339+05'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261110135339+05'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (\(unspecified\)) /Title (DrainSenseAI Datasets and Sources Catalog) /Trapped /False
+>>
+endobj
+110 0 obj
+<<
+/Count 4 /Kids [ 18 0 R 56 0 R 104 0 R 107 0 R ] /Type /Pages
+>>
+endobj
+111 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 3250
+>>
+stream
+Gb!$I>BAOW(4b<6/'_'`mE,u+!k]dSYoG.:`eeJVg7>?-)N'+l-G4SKOfQe,pcSU+OE)V)QIW,'Bl"EkK7iVt!.ofR5?.S#_uQ\o0K>sq9t6SlAV@nE-[9k,l9DK;&r1F/jON^UjdD>p5T".*@05DH)kIGj>W/6tml!+]b=iRC7LY>4C`Pn3/G$bi,a)EF]mqoRn8hIfn,nWt1(-J[E(_2Vi6%Z"TKg<<=1J&tNqkJ'ZgO6$@_:E'^eKl/c`hC)Q*=66N60I@6V9I#2hB\'!lX$"CGPhT):Z!D:n'Jt4I\PHm++!6(oHh/,RUeNb\JpHR7ICa+l[YgWLWul84'<;QlLpYA-#Yl@rMs]hnMd6\\t-\9O^"%:jb`h9j.E7_.[nIQ<][lQVIJYU__*OZSW\h=VQWfs5>_1lI]@dnljhFH!$lql8:!;GKD'[08eaAIm"Xm_dZJ<8<CiDq7KgcWE>$+]bB(lXgG+?8&g9u`86!E?NBP\,$R>I-Jr3_*Ss/N6P+sf2h)GH!i*UcarE/kMaW*L&(7F:M<*<.Q_d?;po&\X5/LGNVVh\^Rcb5/F-.8IRXh#(To]?8/'*>o]IS$.J%_68[FT,o`js*H<gH&4//_UoEl0l%(*VS6BiEFak\X@R1LEl^nVY5Y5fpnH:ohsEbt]E6Y85Q0LuTACf21kq)PKK%TFS6BYn7]83H/G*<%?+@_J\I2?-Dg*NEXOKG$U/RL^4nQnQZ05?iG4CMsH\!';sC/1=1_k)o:SS,IHb')8Yq^nN)V:g'eeYTFi_EBNmt2G-l)hC8"h"H8b0A5=KL(GF/Cg9k(QsFmS"\S'?+uD]?VX83a-:NrH:5g-"@B_h.8U9rR@h_mSm#.n\3h31@i6=7qYt4Rm4ih8dG,MQWiTL<NrW/*[U_?a9?ap56t)Zr^crm5N+6>kJi59iIO)Cfo)r<T^th'u6rK?,onI+#KdFqOj.SlIM8Uo!h[hUQQih,tFh-NHCTkbb,6/El?\_2St2OKaenRgaZW,.f8J\E<-8_*_*b?$0kZY\;-,Ea3n0c!;m+g3C_V#JjH:?KA.JlLE"Gh-q99\9MncO<sI^d>j8c3F%gK#.]7X5R-B#3V>aGk&b$+UMk,JD!KJ44UN;s9ULLo3+_;)<P=(q.;:Gs5)!llD\?+gBa&h)q:3L6r%hm>sN)).L:hP\V<_=TG\J2_GPnifBURS9%'O6Xj]c-:G)BGR#A82[pH1*Nd"4NIgSr_>-FLj4p<q@rn=D4's/W2'sW9.9]L>U*]<FX>D`6aA9qloil:=)>8LAu[AL$;MIPuF+3D908RYF#(Z"&'OdD9l)UBq:1T+ihgSO2=-OjhKZEVJ0@%N%&Ag=./*cc^$>K9]ip]]fDm#f5d]\H8OU$ks)`qO:+G+2Sd/QeE6GaQ<aK-oYtXZn]D>F,b7JdaIhGIA%'1Ap"Gs65(L[fi3B<0e_!dE"0))MSrT^t(p1eURMda*3(IV7rZERS^?e*APOkcM_MlE$U9-<+.bfCRdE;FDp+H<>6qLE5/2JANksR<s#HKZ*fZN$h1[^*b7\EcbX>L)_H8#"QnK"&8)HrHHE,g0SLUU?[Zcffb9MOP38"\*[LG2#dK5Nfnf,LAi5%;LiLNe/+rGl&GI/<*=$a`S7GU-rc%jN]Yo5n^X"U6>>Rh[t&^VP=PcHqD\j,'C>r`kBi&W'U(fr?:3-l%.2r0hXtNl!HH;bA9thmlR:e[g<GQj;h8nZPUhBf:B1oC1@??PEA'oblP4m_e/Ur>O27b:D]2ZYj[3n;c[DWI\1TG7Phi:djC$TNRJ=`6o,J2p]qBA5OuXA3>duF?0nq179U2)G^KJ'!^=^a)=!6R]"8VOA3c2_Sb7;1+J8*"_7g'=KGp&p)90eTN4h]%Iu9ohk<m0:[4lS-5[PolS%c'H8O.:4&p$]H($./\H7j>dAd^K>+f*7QYR8PH]d/iS=`18kMIt7l9Mf-2*2`0ga/!J*9)l<OL,fHS.077lmRlsVfRJZQt%<W#(BMZ-uaf9FA+9^>h2Ojg@B?AGTP6R9[fYn;$H0')r9"gUNcG'!Zh$h3NlA9n>j=pmucMI3=coM8c0.5Eu@d7DrmT[1A@P!.rh<$d4a<PB&9dXG$VsYo8od-&5;0\8[C&L-Z2#W@d5jkj6m,[,tE_2hHG[&\K1LNJ<',"RZaT2+%K[%_^s&A^ZY_C$G5IObS0POgu*J%4<fZ0HmnY+l&X&_9X-;`@^$ftZZ%ss$,7lEdF!eKZqBp]-Ou+<gO8.UTKIRF$3,MdU<HGH@A&%t<L3UrFut>Lg`]n:%pFWdk<%50/L\)k$pEHk9a@JGWbpI,&,0//JbC,=I3Z4'e_f_QgjI5YREOL/h:QL^WR5aOX_FhM^/bCh!I?Ga?e:Gp.!)3ebU/ZVb`1Qd5]VH3OsUOHr!YNUMYYiK[GnWR@%H5%B:,5;!Rc`_9)C*f(UXZ-SQqTuKJA@h%+?t-O;.I![o^5!&-fCb+4(MQhts>b+&,][\P/rNZ\[A&LN7h=3SD@18Jt"_LdkH3]rT`>D"m/'^V>=>a,R*[H?X)1MF&:'kFIm#319R4&?#()PpNOnR(bBuHGh5m*k&I>aO!b0bPA24J#O[m6)JQ]0A5tL8*A7F$;P9KXV>Ke"e^/$<ad0_n^A@<[_A;Q,q8E43;"7_$TimfK;c$9JEF+sdN<N+[2+H87biYhKu>%.2d8DeZY/UaKU7I89=X0P&J4,h5XZ3WAua+Tb+kc5SYo&5\+KYOjDTC/Zrg9Ts57PdlV0$#IpT'!c&Y25c/!QP30cW3NA\j<%9p)R1P36kos81SK63"<l-<g5I0H`^4`=dmX"SAW]`.I=F&.QbIf.g(5-bt8(?3H;g\_5]mb#SLgF<BmKR1>bm=;@WoblDg*OKYsqliKJ#n(XoRn`<X_qcStT?NkFF\mO4grW2s`utsP"eE`8:00K,a1+=5H9QTEL7<>,;>1`)>i$[P97:XGU?p"[nJ=h=lH).(FfZ7!qAc\3:<LZ*%e+:uGc#c-WCa!&s+p])I75,uNs]H[#@e%1]#\JT=g6BPes4=d\^=Hk==4k^H,dic?.!o0<NG!QF`d_f<E-ZY`ThnV]3)bn`Tm;']3)bn.?M-3egdh/k[J]1XBho6k[J\DXBho6k[Kf;[>WRnF`DOsXArN=d)G8s=M%\K=;S%8?EI,u]Im/b\lsgQ=fXqsdqWYd5$*I7AsZa1rQnjtbHNLtP;Vu"]*:e(/+R6\rQs'h=oH.:rrGh(;,%~>endstream
+endobj
+112 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 3869
+>>
+stream
+Gb"/)flGh,(4FM1i+5eY`e"4&i)3kPi$aVLN1IIqGL&sJX&QG/92&9[RYqjXrEOjl-rUnhFS@mk>Y0nQ!]]r0KqO7;&(U\T('qUc6`2"SU(#j@,0DW1GF.Okma^d0aqb3ie`<"gf^]jo%`2IiO"c4j(W:Al1/e9g3P-j[Fua&gED/L?@IsU1hC!a`h9%.2B:mOt5P%gAV<BeJNUp[);hXS<iuiI2cQlt<d+pX&pK"El1ItHhCjFZV"lY8?"G6h8liNV1&[';:K%1/"CkSe4*G>S\+rFri&&VFaL'@5i1h7:H&j<s_C"6#4Mg93@QWg*LLHUF/L(X,a![jZ?GF9cBOg]l_@jEGSmTb<'m1j<Lq-cqPj'&cf>I8]r$?t*?IV+/HgZ<X]4bOWq(^,P-O9MB^F=qI2>_BTt-E_3PQU0TiL_+[q1:@VA\'YUAG-c=i^*$ocg2gYA6QH9.3Y$%)^o#O"gKPbu0?k':\MQ1Ncn>*#.GNQII;+%F'CKjmW%Y4W=4[k\mu_;&/C\#_$.2G`C*'?7!Em?mX_N9d;.YgnW/'B$"\cgq>L3kVC7[^_(?cH\#X[4=#*U%*B,.0/^X?u]B6fC&#<1'Ad8PqMm4-9@1(,H'D`04a;2-Ntc66DVkp-S$=V+*-c0HX(P*$h\2K)XKJ.tG&#HSemO2BPAq@B8fQU18u`l12!gj55%aEDE+Vcq]gQ<opAFf02LVop=idSJusFHS#.N3[F9Uq_nUM4=b`FUT_uQH%>Gb@Zc<W/us9#@p,f'em(%RlTJr?uT=f,FMh.L,EKH=7K7E_[@@(`6[KYOJ!^.9I`%,\%s7!Fjk1C-]:0e0I:7%\AE>kqTfPtd:^m5-ZV2'(X$'cs6Ji(jAIb'a=p$In;qX7-r5J/L8OOhcbg0fH4rhPi($!?leU>,(n[RQJE[k`!Lpp[n]"ggmJ=I1dD/d>,S1f@LBpUoS!n4I$;61(>g*7p*.@o>($-"_[a.9KY!*2!*ehs2Yod^GI*l3=Ob#'Ur%Rl1']VS6j!<rK@*W06@j1W[O9,C`<)U&(IH-[nK+-3MTX@munEn,teABaN#"UhLN<UKbE#RmW>0&6$-Al!A.(fk+@QEjPkiV2EGkT;d&MTEm\pndqC/1sNd-FlpM&up4M*=uD\,HN5U9++QcN)C-L-i;MnZ:*l35NcQ\fKT:7pkOqdcr5WjsMs(4o8V-^qu+cF^P6:J7[LVlT5.Uj<i]L7nY6Hpb`&b=V]:kTdVWYSLX2$Q2<cE0maa%;>`"pJ=FqqkS)h&E=@'[.p_D?%tl!ndF"Ktl<p/:"?VR`7jY#uU46O_Mdo$A,kTPBGRS,7r+LsC-*X-5lL<.f*WVBg-8@d-YtnVce/Ls<mqJHs0]DaKS!W&'In(<(%b(7dMW,bDI4u2$Ub?5l"?()Cf#S'QJ:!ed'aiYAn0nL+NpnqNT.3@>+;N:cMH5;Q=pOE+'p/;:&NjZl*mNMl)iHHh9i%*9Lc7?E<WdU93XHRNZ9k</$Y9*c,>frqFiaTmX(+bH6s&Q<:Zt-bT5VJn.3+n64IV"4#9Mnn]0Z/nE.jJG(k"N%!^5MFJ7?3UG@.Oq[:?hKQdW']QT&Ijn)a8ASaE?kJn*qfD6:#cNYQ<?WfugYO#V$hQXaObGeE90ol$G6=iDMrFBq8O<9/c_+h[4F#+^)VDtUA?Ctk]P_JSYNp-s7B:IR-H[79ZjkT1pj<;cafc0qS>^A0;Z4"+p?dZ_4hhXMaqFB"":9+!;m+0OO''m#GqAR>o0!/FH';5R>c%4@kWb1EGp2_'(A6`W(XcW1>j%CWnoBeV)"dEA9Z&N)0L.U8>Sj=,"Be&sjEJRAOuoUm9K-.OJKCN!c-[=;'._`g-)ghi`WjeGtD#'ec5DH3jhXO]a-DjG6Y;FB!Y2l[DKKo<F8qD:^o.$$QYk1I\mZ)tG"oBL2`]_\]>G8[dmKQ?3N<Y1b>=e)U[1-L%ISgD3p/-oC[M$aBGDSRWP3,TOZ86e-gidP`V#mT*M*$lC$[j^^</jP_PCRdb_"4@8Dd2H,lYK@O[<0tIlqah'%Md0l:J`itg=OaUPBNCVfVnbeo1rFSQ4=\N:^_ktDdH9rblFdecK-dmX2N4D<[(3Mg@4/hhZ`oW^nbr80'\Nd4JLXur'qH5m@mBsj4f(N5WkL[/e%Gae](kCMAd+.-`#6]@.Rjq!j?mV[,gk<<V]JIr3B_Mn0od5XT%2C`#!-@;_p3l,,O<>dX<23qA'fZ0b[IQ9&D/d<*\=aM36p@Hm6WMQ/[fPS"m'W3MST\YQJFI<2R]SmVChMqi?H>E^irm:%uA*%I:REd0;d'tl"#s$<5u[9Y6<-boQoYD%%FF](0LE97qM>i$]HCeA+<Qs"`It>hKBI]V'`\mpe$q#5.:@FOSb[oYmWu?gZclmm'pAKb?Jo[.t3'u(IUZo6#q[mW&IT.NKX8<#8l!D5D8WXp@pk!ChF:EBNa8<P+MNLqO2j/(,)F#QpHaMcHk?SSYOTf:U4<f!&s*_c'N,]TFdcOhf%,Le0.$"V_H?D9P&"Ui'.BZmY@\!K/6>Ok=SONb&JX(ksCCX>#;kJ(ngYW&M7u(d6P@[&\'lNG[f1D+3QVFNXf$rMX(/]%p,0>M4=-WOYU8<fjq8J9Cmj4];SLLI<*,t(S+Z/*N?r==:iiG278$;&I'N]+.Wkq&7\PR0c)J"6kS@U>K#9`7csTekj!C.b1pRu17ffkEir^B`rMK2J\'7Ol6F^oF>]]4nU)Xh@`2Hj,5t]e7/<eHA*+U\+UNV)H_ke53I[3AQ7$\m/6$GaqUV4kQh)*oIX?bhcW3UNlmfsSh:4.g/9Mi7eaLMQO%&[8TW"eb;a2s<e/bT9U?d]f.N)/[:^uZZZ*#?a%s&f?DBdCpko@,),%Ar!R&aH0/lU82YI_U;-,:E63Sq&C?*SQ2q?;R%OKPOOod^?T=]a*<eo)^jk+\Sfeh8)gAmNf_J[.@LZ`^6q?-@&:;UkcUcY.jWg@5dHkfa.3:PtO[B(i0!M3pfao_<]k3k2+0.5=jf;X3U64jSAl[.ZLNJ$l2KEapOM52J6$,BLAfl3WcVd9=bu$F5C.,UbIQm;$hC,EiFQ@e8IAIW,>el3t1%q-aT@Rg7&WGR`H?H7@4ChHd+I>ojSeX6nD\a][q8;>7[Qb%RhWs*%Nc`N4DoCB9oTA_h!Jh/gKLEa8D[:=Bf)p-OPC?Kg`:?>jc^iHj8U&(gbAL[X`pLGHK!/H4Qd5PqX+i1$>@[^c($T**["iQVlZodU2.alfG"IsjTF2eN1SFQT6'leFZDr't,)BY[UGP(&Cg8kMV,W`%rI&U2LqWI*NOcX=[nGJ:oLogM9OnpJVK:4d&='hRrIqJD6b_@aeC`#UUbZ5=<&Db/PWb!Ur'P;Q^T>_6h\P5@1,U()iA.cOM>FZ>]&kju&Sr%;'!EokI7*UB[,E!UT'GGC51q5H`8:]4El_e!relO+PPl<?806q;;97=MHk4rsMR!2mshr&N]BL6N/K!<kHV`!UI`h(tr4:?E+cbY!psP7SoqF;7'.QUeA'J91qNP0)AXNuhm_$Zc:heX,A=Gi\Nd*$()Aq;Ph,3%A;,0*%do.['ek!D/e)D#akgjoQ[AEH,gC!)btpEh!JuT6$B!og`)'PfDuk:nGo-j;6c?X^g><"/fnKkDqJQe^K6o\>5iRRRbBZ3uQ<@0Mh81/\,Q)qbMmBpiCDrZk[dX>V]m0M8CQkTS(r&/n#ct^:S)a^6<!h8(/G+1Q:qi6_:)V+7%2;B*3pQV2L2Q:`fb]bF=h`fft<l7$)"=5Zb=V2.g-<)WpjoN\jEAY-g"qe/5$W0r%a8X%"+F)3)442<rQ19H0u%9Bca]h!XfffqUVldI\j8'Bmtr!NSMGaT~>endstream
+endobj
+113 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 4157
+>>
+stream
+Gau`V=``=W&q801ka,!m3u/:pk0B/Aa[Zus)H.O*DRmnY9<cWn+uLY-@ik?QD`;paPX?P#RFEK?d#A8+ps<\4#DR`<r-Q-Z31.P]+U>0elisu&kV2l@j4T4&53+Mc@aL@'O"6ZoEl.rI2fshSTGY8V*#ml`1%9R5dngc`=&i(>KfQ`)gahTJ@a>Qj&LLt+![BAk&s4O1&_q%5cU@nSaXmm.l7E0QT4%@5B)a-EJ)G4%Pr2&dD1h)g%9pXhR!8t.<g[=MWX^G:EQ839S%=<;\?-><1l!T+'N8!?mT@h;3Q(u:re\hHT7Y3p%4X`iW>*BNn[P5O2T,.8^UC-[,p0T8Hob3M[e3XYPZcD%]\E942]I-JlgD<#1oP0$prWA;f+k3t5!q8BPCWY[OMLD<:(f+[`eM5B9K>o:;NAjM>L.Q(D(3[ec.j_;4(r)U2iQ1=>FMGKDCD=`IqH!D^Ljc(gsU-V\+V$6bb2/sHY1itoZF8kpnbN:o'>H+^lNZAQqO21)9<\#8E=1lH.3IN8dn#7)e_>Ohk_FG5R%=CY\Ag7W*j6l`At'LbJ=AUiQr*'"%qid_B#atZI_]h;_QrPE7m;h?3#2+!q'QchMTgT?[g]X=Q?EuF`+nSLa&8-r]9_I&<Ai2UH9'6iI(B.%28,!JGBD;d<uj"hSQl7"FTm[+$51M'YTb%$og3,U/J'ZYbc#20U%+/_o]k@N6__5>cOe-K>k^*PG?9]r?RA3Ih"+1ZV$)qoe(U?fO&po,NpgL@Z`c_O3/%CMOAkD#[f,C\X#UPC?\3WZHR(0B!u>@H?5-'p(&:\khl[_X&^Qk>9u0Z?`][OaANEV-u+2;C[s^F)t[mF+iUP@h@CFMI0'drj+h(EIL($+hfqG+7E-%HZ@7IfV;`nHNcEP4Xcb"Akh1U,p\)?i_%3&de6e'IUJP3E;EB&kWg,c`3U%-b.\-So4g:=4_"giNKkcKZ)6a/_%F8uW*sf[$GsbMP$^6O4b&J,#c>HOR/Po]\MPFhhDBL%B=$\fG.46RC37AVs;XGg!<-l7r;mC1<0*]SDi"7F_g^@^R>=@Ng]N>:1Y33RKCr=&WT(rm8fVf4[9*=WZ)-Qd]cNA.*)H<U!dLJDK%+BgpB::uQV_lTXLc"JfGRPfOVbuh1:Gp=TMW`o6!hVEf%\@F$eTnm#(Xi!>!.no<"c1J!@+Pu7MuF3kcdZ;7ql3A@S&oN*kq/<,-B^S*=X)g!&4ML4mT\`M?SECJ`RleZHhh@dNrM8Z&[YdL"lqm)1E:k]R>LYD`Q2FBWjl%IR@aD/,FM>J7rk/K+nXD<C[5u0Ar[)Q,^3@1%qZ:=%cF'BC.E4l6WN0(C$K:d<&I=R2,gWU0]BBXnKsN4.LosrYihhVg.4]Q1#p0RkVYDROaGcnn,X\+@oaTl6@.]8As=PVqE;YkS]%fK#>qEBiOHI6)GM-1afhjM'bP>;1N)Wt,-JTdMo_*:m[m;6JK1\4K)DTjK&!AnO<-bqe\2/I=6g"b<pKn!=>A3`8?,eri`d#ZMmlr#Ou0fd@HdN+iM@`QM&51+FsY#tk@d8Qd=)6;WOu%o@s)'%:O#GX15s'aJL?"oVM)!P,U0s\r:h`QG9TSBH#ctZ4J%]N\0VG7HhbJQEWH,"R3FiQC"<k!R"H`I7cbOp\;@o\&(L454(^)?P5T`*It(Iu+1uPing']Y(O1DqIK-RgKX#&;V"Y[ipr"B4`0<J,cXp,&RJo:D[m%YZb.fO7mU"i/$+Q&U++C_Q7J7/S!bOp$or_\7@C1&Bh1[@+VBsrC7s^d,P77kGjB8lQI.$XGl\c*1c\3=umhTe2,.d<IA,ce(KF?[i1Nro\LG\_e>s\uZnk2<O-F^n3?c[V@o+.VH3Y88=%_idQS&Rdj'5n?/K0p3<.aVf-jbh%9kb-B>b8p:SY;CBU)`o]7]NV`66@(;go]aa$!(/k?Ppfcalg(%_-au5@rtZ-kGU9iO]6WKl>)PB4kF2UHkjJ6TI1h[gPAg02oRsM%1f]$WVMi$u:2+X]_GN>-VjqtP:c3tk0H*_PP\Lcg@NG9#aFA%plt=XCL\8!YCG/+1:>kuR`7GrZ6[2%E_3ONLo_+.rQ6*8s4bRQ(p2!G&nHRYLB`_Tl^^H6KnL,KsEr#"'^k?qbhZd0*fO%n>#S/(baD7bZGSn_!_ZOs\!s;q$Gh?9K<Th'eZc^='mPg$c8JNMR7fWV_DOa>DIs0.5T*l:>Eeq1/8JA5OmR4_]P(_hi6U9QnXBuPNgj-`"XXN29KuBTmNfFE$6+P#@(59S7'c!2@IJ+.Z94f3n1Numoi*F1G`HP1#H7.T%S5\!%R+Z^m?i[.2Uf'BDd"?>#S^e3tZ+\#*$_Nf'ip5fBB&E*NB=uf8=u4pg1Ga6Vq<)YAL7Z%N69'jACSAs#5D$N@joP`[&^DIQN8i=p3`I,=;st7]Lk_;qi7@D<Hm`4"dC)ufW8HafB/_dKgdg<EB`eq_+o+UGpiD2ZkMsBl1>[WeU<jr-j7&%G_\7FseZ20Ql0(rE*#B0';Rjcc*9`\)Mba%`g"dX\X;Yi26TK4_BZS9]Ajo+a7samtWYn\p6++0W+C/%cA$r=eD5(4Co-CmeW"`(/*S?7h%<H/CAY\(MDgkp:33%d&gSe;^/qA;X*5+gP(^ea#M@^cXW3WE1_/0q;U[Pjd<;fh59fAVgS&AMo%ICqR!<&S%XCU\j0@!AKV];TNUZqdI@b@uPH[Z/(\!oGfgI!HP<=>B=NUl0"Z6p6+);Q`jQq'iV5VWFd1`8EHR%:[HT,+3hOC[#4"@u$KFH,hQi]RnWIOb%>ce=#T'O*pk.0QU0a$gsOdIQhjW2*?[^BBfO1jBlh_1!9gDMjqVi^G5nWbq6B:mEO`(98hurBu;F^"d,&NY7u,WJFgmTA7heIsO;#_&^,c@@8,.7(DkVJ[m:OX[IIS/Yn7)1J<BQD]VDnE=pLX0\6?7]&f02?K@>E@9!*H#BD@M'bqD,P),Sc7Iq90,@kO))=rDKQ*DUo`/SHY+KBk'0dVEgI@!7A-@GnDWOSgh/*fnbY+nRq)O4m,3Y64QIH3]0;%61SM8Y.F(f(LB-:/f2XtWmTai1a'hf'$ueM1fLQAPIq?#Dq2F]<6;&/;Og*)3UJe2.lgh?fjb`#I2&$[feG@]5X8rKB&e-To>Vd+h:B$3S?:!,Bh["HU![la0Hk2lc=WfhUo<JN4:]6."e6&4cJOLg.*&J3o9n'0)D=c];7%[pp4D-gn3tXbnaKBfs0^>"?cg>MhV.jo=Ha\M0mKGl4cUn;&ZC3#[k>9>#Q@M^T&N&gl@6D+6^@f]i1@YIC7UBDhf,#J=?A+TfnVd#!9)Rpe.2>dW[BXX.[]ou1GDAOsqOQW6UZN3d=oc5'b6M?S$deeQ@oetAtD_jXNja];TU[eb)H[=OcgNL<5M6Uk&be>NfP6CW*GA5q)E;`D"]VnO<7:kke4fr7\Y"6Hn+b,J1[JJ(.Wf1g*C)^qUq;b_[D%[>GJB;RjE#E!4gX3]aC>=rE8"kM1.lAINa=/.0d`>XUa.K7u2D02OhUgms\>s!UPeN3*+hK,u$KH!@W_Kj]dJq.E@Ee65kQ7aS?:*UCU1^2/`+f4l1,8#gcUPn[f9VV=nKV4$L6iTFf@OT[!'WB!jT4b)im6&_W#=X!4_%kF-`m6/\dOZC0K:d8kU71@8o%/IeEGSq@\3BRQREehXPU*ARYZ72HBSJj3gAdLGW)j@Q@k6'p&,>EbW7N+kG-$9Gjo2=p8hHmHG!!Acc)9aHr]6)%,"]^^ImMtj-ta8r.K+KkHuYT&GL[.Hfs<5NcZ[[an7M)dBZ;V?`?D!Iqdl6MmS.<I01l0krW<B"8\!WQ$2dga7=!.-orc7iV38tgg(6e".51KJH/tn&16facWABsPHYMh2J5"PkhkP!A=X3@--W>"EJU9Vp/K6.]XliCo^VdH$;QlL)]snF55kJVAO_7Dd^[ip]SjC;a0Y4e\?-Fori4!a3,CB\C<)s>N58!OEo6TF%$OEIeb']F(X<6th;,mTPcVO7YQGp2VX1aQS,8:Q,jjIEqPmfD)mT*/`12n]R3]kM$<+)@%rI)lFGo?WSSkq>W<08:4F1'50SZ&'*D%7r^NV\?(^GdsVg/*,'p4T=i"-YZ5D+=O(>j>-iZorK/&[Wnq,sdhU^k_pj'BVD(~>endstream
+endobj
+114 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 1255
+>>
+stream
+Gatm:9lJcG&A@7.bc+.eL*8!C&s"Z./5i94C'j)M5bUelbZ5fl8oC)Ih]X;pEkPeW5pO<+3LkB4pLYg/T_L58=k!H?1:Xi+^c5j4?m,h"]7m<PjPQ0K&ee\JEh"M.j@mKW64li4JV[-!R=KRe%W%(F#u6YFF5S481(;RBL=8eZlR#V+Ve.l,RJ2!)q@6gtg9+/D3e2Pm`rL>ZK7`S$Z>Yi<[[<[@Rn_s/Osgo!KMZ&gP")qh1_V@%KSP(kPfX1:Mo$<jQr\igP!^4/,++>JS22i+(9]HiIE!QfRk+jpM8htP`Z2Gp6m`WBDSHi+LlGV(Og;*a)fDA`3H0W.Q7D(6P*jTAMC]fY'(ZlT#OdJ<"5#Y0n>Ki1d(r:GSYY$KlG^Se#M)!<'BpoaX*BUY3$a.ON7f>OUL\<Ef=FjA!_jtM1)RLq175GpqfN/<VfS,)n=q4i4uN::ot%Xt4,=e/:0>Ts(N3&kL!cr-[gd6EcEof8P;gJ>D2O,Y"o-M_\uLP8Tu*pL^)r#c&8]/W/Tber>G5sU5YM4eE4?d)S+G=Xa"ObU]unbVQa:L_rAV@%RZF6(U'a2LZ0*=t"-/p<@g`Qq&*&'BU(%40rJ:qZ_S+I1J.HMe*GaqQ^G`)RY&GMfk_BkV+8L-m"n$:N4W(uf*]U&og(VRL2nE.Z]^*hRYW4u*\YCTl8dNgFkYa9$jHVL6/^-!=<Op3bj7)9&b&bSjcX<01Z=lm2@LVn1FJGMY7;iEMN=`G.)c08>C3A!LAG$(d\mP;9`g6N\O!_'\O@H/6F_,"O=(PNMRu>QLMX&:Q)F`2p8/Yn<SnQ33WtN3h)Wc%?*AYn>ECV%T*t,"jA42;c**/0hnf8:M,s3.R(QS"L[f<P^2sThLAM:%V9\$2p+Jg17`ra@QmBSZm8P&P%>,#3(i:A_mcYjS*J99_[29.e0#qVmeed5[?[(q=7kk5mR+J.Bmk`HkMKDE+CFcGjOegO0h#FJ,e=4NLP*oJOiq-_rfO]N9FI=d1PM-5j3Znf'5(nkk2Ko?/o/RX];q^M"n-&Fmq>6A!1#.b0=agd@5).gFT2-:L;-tBo_aM1`p5sccHBD8%MnMKM1aSA!uIlegYN+e0XOP!IHnoWK<^h//V*]M]6H@'qQOj.@JN7<K.1IKt$c4:TFafX>/iFhB(m+ppo4P^1t?U)63eD$+@$YVB2I')4c]Ns1]a1X"*h2`o[Eu15NZlB#L:8c`.2igG+d,+-*kS/;!IrZ'iquWG;Phl~>endstream
+endobj
+xref
+0 115
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000518 00000 n 
+0000000744 00000 n 
+0000001003 00000 n 
+0000001262 00000 n 
+0000001534 00000 n 
+0000001795 00000 n 
+0000002058 00000 n 
+0000002321 00000 n 
+0000002583 00000 n 
+0000002836 00000 n 
+0000003096 00000 n 
+0000003349 00000 n 
+0000003602 00000 n 
+0000003855 00000 n 
+0000004170 00000 n 
+0000004433 00000 n 
+0000004690 00000 n 
+0000004941 00000 n 
+0000005199 00000 n 
+0000005457 00000 n 
+0000005719 00000 n 
+0000005987 00000 n 
+0000006249 00000 n 
+0000006509 00000 n 
+0000006770 00000 n 
+0000007026 00000 n 
+0000007289 00000 n 
+0000007549 00000 n 
+0000007810 00000 n 
+0000008071 00000 n 
+0000008332 00000 n 
+0000008593 00000 n 
+0000008854 00000 n 
+0000009115 00000 n 
+0000009376 00000 n 
+0000009637 00000 n 
+0000009899 00000 n 
+0000010161 00000 n 
+0000010423 00000 n 
+0000010685 00000 n 
+0000010947 00000 n 
+0000011209 00000 n 
+0000011471 00000 n 
+0000011733 00000 n 
+0000011998 00000 n 
+0000012261 00000 n 
+0000012520 00000 n 
+0000012779 00000 n 
+0000013091 00000 n 
+0000013403 00000 n 
+0000013714 00000 n 
+0000014026 00000 n 
+0000014514 00000 n 
+0000014850 00000 n 
+0000015186 00000 n 
+0000015522 00000 n 
+0000015858 00000 n 
+0000016193 00000 n 
+0000016527 00000 n 
+0000016862 00000 n 
+0000017198 00000 n 
+0000017534 00000 n 
+0000017870 00000 n 
+0000018205 00000 n 
+0000018540 00000 n 
+0000018874 00000 n 
+0000019209 00000 n 
+0000019545 00000 n 
+0000019786 00000 n 
+0000020011 00000 n 
+0000020219 00000 n 
+0000020417 00000 n 
+0000020614 00000 n 
+0000020841 00000 n 
+0000021020 00000 n 
+0000021203 00000 n 
+0000021382 00000 n 
+0000021685 00000 n 
+0000021882 00000 n 
+0000022055 00000 n 
+0000022269 00000 n 
+0000022442 00000 n 
+0000022620 00000 n 
+0000022797 00000 n 
+0000022970 00000 n 
+0000023175 00000 n 
+0000023365 00000 n 
+0000023595 00000 n 
+0000023874 00000 n 
+0000024067 00000 n 
+0000024249 00000 n 
+0000024461 00000 n 
+0000024673 00000 n 
+0000024853 00000 n 
+0000025035 00000 n 
+0000025263 00000 n 
+0000025444 00000 n 
+0000025686 00000 n 
+0000025941 00000 n 
+0000026196 00000 n 
+0000026762 00000 n 
+0000027011 00000 n 
+0000027261 00000 n 
+0000027498 00000 n 
+0000027570 00000 n 
+0000027901 00000 n 
+0000027986 00000 n 
+0000031329 00000 n 
+0000035291 00000 n 
+0000039541 00000 n 
+trailer
+<<
+/ID 
+[<6592f22c41f878a0485a363fe4e53e26><6592f22c41f878a0485a363fe4e53e26>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 109 0 R
+/Root 108 0 R
+/Size 115
+>>
+startxref
+40889
+%%EOF

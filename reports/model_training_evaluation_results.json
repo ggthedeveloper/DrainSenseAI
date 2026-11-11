@@ -1,0 +1,271 @@
+{
+  "model_version": "2.0",
+  "training_timestamp": "2026-11-11T10:57:15Z",
+  "dataset_reference": "data/processed/drainsense_v2_training_matrix.csv",
+  "n_samples": 111100,
+  "split_summary": {
+    "train_samples": 77000,
+    "val_samples": 16500,
+    "test_samples": 17600
+  },
+  "feature_columns": [
+    "elevation_m",
+    "slope_deg",
+    "tpi_11",
+    "topographic_trap_index",
+    "distance_to_water_m",
+    "drainage_density_km_km2",
+    "curve_number",
+    "rain_24h_mm",
+    "prakasam_stage_m"
+  ],
+  "tier_1_unsupervised_clusters": {
+    "Archetype_0": {
+      "count": 42,
+      "pct": 3.8,
+      "mean_elevation_m": 107.15,
+      "mean_slope_deg": 25.89,
+      "mean_tpi_11": 9.69,
+      "mean_impervious_ratio": 0.74,
+      "mean_curve_number": 98.0
+    },
+    "Archetype_1": {
+      "count": 286,
+      "pct": 26.0,
+      "mean_elevation_m": 22.5,
+      "mean_slope_deg": 2.87,
+      "mean_tpi_11": -0.49,
+      "mean_impervious_ratio": 0.85,
+      "mean_curve_number": 97.98
+    },
+    "Archetype_2": {
+      "count": 700,
+      "pct": 63.6,
+      "mean_elevation_m": 19.72,
+      "mean_slope_deg": 2.0,
+      "mean_tpi_11": -0.36,
+      "mean_impervious_ratio": 0.65,
+      "mean_curve_number": 96.48
+    },
+    "Archetype_3": {
+      "count": 72,
+      "pct": 6.5,
+      "mean_elevation_m": 21.61,
+      "mean_slope_deg": 1.08,
+      "mean_tpi_11": -0.05,
+      "mean_impervious_ratio": 0.35,
+      "mean_curve_number": 82.92
+    }
+  },
+  "tier_2_binary_benchmarking": {
+    "Dummy Baseline": {
+      "accuracy": 0.6017,
+      "precision": 0.3311,
+      "recall": 0.1842,
+      "f1_score": 0.2367,
+      "roc_auc": 0.4982,
+      "pr_auc": 0.3345,
+      "brier_score": 0.3983,
+      "train_time_sec": 0.003,
+      "confusion_matrix": [
+        [
+          9503,
+          2196
+        ],
+        [
+          4814,
+          1087
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "accuracy": 0.9645,
+      "precision": 0.913,
+      "recall": 0.9883,
+      "f1_score": 0.9491,
+      "roc_auc": 0.994,
+      "pr_auc": 0.9809,
+      "brier_score": 0.0264,
+      "train_time_sec": 0.083,
+      "confusion_matrix": [
+        [
+          11143,
+          556
+        ],
+        [
+          69,
+          5832
+        ]
+      ]
+    },
+    "Decision Tree": {
+      "accuracy": 0.9484,
+      "precision": 0.8677,
+      "recall": 0.9981,
+      "f1_score": 0.9284,
+      "roc_auc": 0.9936,
+      "pr_auc": 0.9833,
+      "brier_score": 0.0495,
+      "train_time_sec": 0.073,
+      "confusion_matrix": [
+        [
+          10801,
+          898
+        ],
+        [
+          11,
+          5890
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.9316,
+      "precision": 0.8307,
+      "recall": 0.9997,
+      "f1_score": 0.9074,
+      "roc_auc": 0.9953,
+      "pr_auc": 0.9897,
+      "brier_score": 0.0512,
+      "train_time_sec": 0.558,
+      "confusion_matrix": [
+        [
+          10497,
+          1202
+        ],
+        [
+          2,
+          5899
+        ]
+      ]
+    },
+    "XGBoost (Raw)": {
+      "accuracy": 0.9686,
+      "precision": 0.9261,
+      "recall": 0.9851,
+      "f1_score": 0.9547,
+      "roc_auc": 0.9986,
+      "pr_auc": 0.9973,
+      "brier_score": 0.0203,
+      "train_time_sec": 0.199,
+      "confusion_matrix": [
+        [
+          11235,
+          464
+        ],
+        [
+          88,
+          5813
+        ]
+      ]
+    },
+    "Calibrated XGBoost (Production)": {
+      "accuracy": 0.9536,
+      "precision": 0.9888,
+      "recall": 0.8714,
+      "f1_score": 0.9264,
+      "roc_auc": 0.992,
+      "pr_auc": 0.9752,
+      "brier_score": 0.0638,
+      "train_time_sec": 0.44,
+      "confusion_matrix": [
+        [
+          11641,
+          58
+        ],
+        [
+          759,
+          5142
+        ]
+      ]
+    }
+  },
+  "production_model": "Calibrated XGBoost (Production)",
+  "feature_importances": [
+    {
+      "feature": "rain_24h_mm",
+      "importance": 0.6042
+    },
+    {
+      "feature": "curve_number",
+      "importance": 0.0802
+    },
+    {
+      "feature": "drainage_density_km_km2",
+      "importance": 0.076
+    },
+    {
+      "feature": "distance_to_water_m",
+      "importance": 0.0637
+    },
+    {
+      "feature": "elevation_m",
+      "importance": 0.0556
+    },
+    {
+      "feature": "topographic_trap_index",
+      "importance": 0.0478
+    },
+    {
+      "feature": "prakasam_stage_m",
+      "importance": 0.0472
+    },
+    {
+      "feature": "slope_deg",
+      "importance": 0.0205
+    },
+    {
+      "feature": "tpi_11",
+      "importance": 0.0047
+    }
+  ],
+  "tier_3_multiclass_attribution": {
+    "classes": [
+      "BARRAGE_BACKWATER",
+      "DRAINAGE_DEFICIT",
+      "NONE_DRY",
+      "NONE_SAFE",
+      "NONE_STEEP_SLOPE",
+      "SURFACE_RUNOFF_CHOKE"
+    ],
+    "overall_accuracy": 0.9514,
+    "weighted_f1": 0.9522,
+    "per_class": {
+      "BARRAGE_BACKWATER": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "DRAINAGE_DEFICIT": {
+        "precision": 0.5129533678756477,
+        "recall": 0.7795275590551181,
+        "f1-score": 0.61875,
+        "support": 127.0
+      },
+      "NONE_DRY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1100.0
+      },
+      "NONE_SAFE": {
+        "precision": 0.9740877842411423,
+        "recall": 0.949582431178472,
+        "f1-score": 0.9616790226584525,
+        "support": 9699.0
+      },
+      "NONE_STEEP_SLOPE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 900.0
+      },
+      "SURFACE_RUNOFF_CHOKE": {
+        "precision": 0.913138440860215,
+        "recall": 0.9412885348112228,
+        "f1-score": 0.9269998294388538,
+        "support": 5774.0
+      }
+    }
+  }
+}
