@@ -755,6 +755,13 @@ export const RiskMap: React.FC<RiskMapProps> = ({
                   <span className="text-[8px] font-bold text-rose-400">CRIT</span>
                 </div>
               </div>
+            ) : colorMode === "elevation" ? (
+              <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium">
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Lowland &lt;10 m</div>
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]"></span> Plain 10–20 m</div>
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span> Slope 20–35 m</div>
+                <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#a855f7]"></span> Ridge ≥35 m</div>
+              </div>
             ) : (
               <div className="flex items-center gap-2.5 text-[11px] font-medium">
                 <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Lowland</div>
