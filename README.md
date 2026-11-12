@@ -113,6 +113,17 @@ When a cell is classified as flooded, Tier 3 identifies the primary physical mec
 - **Copernicus DEM Preprocessing:** Raw Copernicus GLO-30 raster tiles contained void dropout artifacts (-990.33m). These were detected and corrected using spatial boundary constraints and localized 8-neighbor median imputation.
 - **Zero-Rainfall Baselines:** The historical record was augmented with 20 verified dry-season days (0.0mm rainfall, nominal 3.5m river stage) to teach the model true baseline conditions and prevent over-prediction during dry spells.
 
+### Data Lineage & Public Source Repositories
+
+| Dataset / File | Size | Records / Coverage | Source Organization | Public Portal / Access URL |
+| :--- | :--- | :--- | :--- | :--- |
+| `terrain_features.csv` | 612 KB | 1,100 cells x 36 spatial features | European Space Agency (ESA) | [OpenTopography Copernicus GLO-30](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.032021.4326.1) |
+| `cwc_krishna_river_telemetry_vja.csv` | 14.8 MB | 65,776 hourly SCADA records | Central Water Commission (CWC) | [India-WRIS Portal](https://indiawris.gov.in/wris/) |
+| `cwc_daily_rainfall_krishna_vja.csv` | 411 KB | 2,738 daily station rain gauges | CWC & IMD | [Open Government Data India](https://data.gov.in/) / [IMD Mausam](https://mausam.imd.gov.in/) |
+| `catchment_characteristics_indofloods.csv` | 146 KB | 108 basin geomorphic indices | IIT Gandhinagar / NHP | [IndoFloods Zenodo Archive](https://zenodo.org/records/7808241) |
+| `urban_pluvial_flood_risk_dataset.csv` | 441 KB | 2,963 urban drainage segments | Global Municipal Benchmarks | [Zenodo Open Research Data](https://zenodo.org/) |
+| `vijayawada_event_telemetry.csv` | 4.5 KB | 101 stratified storm events | DrainSenseAI Pipeline | [Official Project Repository](https://github.com/ggthedeveloper/DrainSenseAI) |
+
 ### Production Features (9 Schema Variables)
 
 | Feature Name | Type | Unit | Description |
