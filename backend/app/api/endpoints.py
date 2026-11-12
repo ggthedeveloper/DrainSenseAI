@@ -116,6 +116,14 @@ def get_priority_zones(
     Return algorithmically prioritized municipal response list for selected city.
     """
     try:
+        if not isinstance(city_id, str):
+            city_id = "VJA"
+        if not isinstance(limit, int):
+            limit = 10
+        if not isinstance(rain_24h, (int, float)):
+            rain_24h = None
+        if not isinstance(prakasam_stage, (int, float)):
+            prakasam_stage = None
         res = predictor_service.get_current_risk_map(
             city_id=city_id,
             rain_24h_mm=rain_24h,
@@ -507,7 +515,7 @@ def optimize_fleet_dispatch(req: DispatchOptimizationRequest):
     try:
         cid = req.city_id.upper()
         # Retrieve prioritized zones for the city
-        p_res = get_priority_zones(city_id=cid, limit=15)
+        p_res = get_priority_zones(city_id=cid, limit=15, rain_24h=None, prakasam_stage=None)
         priority_zones = p_res.get("zones", [])
 
         dispatch_result = optimize_municipal_dispatch(

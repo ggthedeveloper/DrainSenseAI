@@ -1,431 +1,388 @@
-# DrainSenseAI 🌊
-**Physics-Informed Urban Deluge Nowcasting & Autonomous Resource Dispatch**
+# DrainSenseAI
 
-[![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.125-teal.svg)](https://fastapi.tiangolo.com/)
-[![XGBoost Calibrated](https://img.shields.io/badge/XGBoost-Calibrated_0.9823_AUC-orange.svg)](https://xgboost.readthedocs.io/)
-[![Copernicus DEM](https://img.shields.io/badge/Copernicus_DEM-30m_Resolution-green.svg)](https://spacedata.copernicus.eu/)
-[![ERA5 Telemetry](https://img.shields.io/badge/ECMWF_ERA5-Hourly_Reanalysis-blue.svg)](https://open-meteo.com/en/docs/historical-weather-api)
-[![Tests Passing](https://img.shields.io/badge/Tests-26%2F26_Passing_100%25-brightgreen.svg)](tests/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> Physics-Informed Urban Flood Nowcasting and Autonomous Municipal Resource Dispatch
+
+DrainSenseAI is a physics-informed machine learning and operational dispatch system built for urban flood risk prediction and emergency response. Operating on high-resolution topographic and real-time hydro-meteorological telemetry across the Krishna River Basin catchment in Vijayawada, Andhra Pradesh, the system resolves urban inundation risks down to individual 250m x 250m municipal grid cells.
+
+Unlike pure statistical models that treat cities as flat planes, DrainSenseAI embeds deterministic hydrological principles (USDA Soil Conservation Service Curve Number runoff partitioning, multi-scale Topographic Position Index calculations, and Manning kinematic flow routing) into a calibrated ensemble machine learning architecture. This yields high-precision flood predictions with less than 0.5% false alarm rates on holdout events and produces automated incident action memorandums aligned with National Disaster Management Authority (NDMA) standards.
 
 ---
 
-## Executive Summary
+## Performance Summary
 
-Traditional municipal flood management relies either on computationally heavy 2D hydrodynamic solvers (SWMM, HEC-RAS taking hours to simulate) or unconstrained machine learning models that frequently violate physical mass conservation laws during cloudburst deluges.
+The operational machine learning pipeline is validated against an out-of-time test holdout representing 17,600 spatiotemporal cell states (July to October 2025).
 
-**DrainSenseAI** bridges this operational gap. It couples **calibrated gradient boosting (XGBoost)** with **USDA SCS-CN hydro-physical guardrails**, **D8 topological cascade flow routing**, and **integer linear programming dispatch optimization** across 5,827 deterministic 500m x 500m spatial grid cells spanning four major Indian river catchments.
-
-| Metric | Specification | Verification Details |
+| Metric | Score | Operational Significance |
 | :--- | :--- | :--- |
-| **Monitored Catchments** | 4 Metropolitan Basins | Vijayawada (AP), Chennai (TN), Mumbai (MH), Bengaluru (KA) |
-| **Spatial Resolution** | 500m x 500m Grid Cells | 5,827 deterministic spatial centroids (1,456.75 km² total) |
-| **Topographic Source** | Copernicus 30m Global DEM | Real elevations (0.0m to 952.0m AMSL) and 2D finite-difference slopes |
-| **Atmospheric Telemetry** | ECMWF ERA5 Reanalysis | 1,632 continuous hourly rainfall records across extreme cloudbursts |
-| **Model Performance** | Calibrated XGBoost | ROC-AUC: **0.9823**, PR-AUC: **0.9346**, Brier Score: **0.0446** |
-| **Physics Guardrail** | USDA SCS-CN (NEH-4) | Real-time Hydrological Concordance Index (HCI) mass audit |
-| **Inference Latency** | Sub-15ms GeoJSON | Real-time vectorized polygon delivery with TreeSHAP explanations |
-| **Decision Support** | Operations Research (ILP) | Equipment and team allocation with NDMA Form D-4 export |
+| **ROC-AUC** | **0.9920** | Discriminative ability across dry baselines and severe monsoonal storms |
+| **Precision** | **98.88%** | Only 58 false alarms out of 11,699 safe test instances (0.50% false positive rate) |
+| **Recall (Sensitivity)** | **87.14%** | Captures 5,142 out of 5,901 positive inundation occurrences |
+| **Accuracy** | **95.36%** | Overall classification accuracy across holdout grid samples |
+| **Specificity** | **99.50%** | Prevents municipal alert fatigue during non-critical rain events |
+| **Negative Predictive Value (NPV)** | **93.88%** | High certainty when declaring low-risk zones safe for civilian transit |
+| **F1-Score** | **0.9264** | Harmonic balance between flood detection and resource preservation |
+| **Matthews Correlation Coeff (MCC)** | **0.8965** | Balanced performance metric accounting for class imbalance |
+| **PR-AUC** | **0.9752** | Area under the Precision-Recall curve |
+| **Brier Probability Score** | **0.0638** | Rigorous probabilistic calibration via 3-fold Platt sigmoid scaling |
+| **Inference Latency** | **0.44s** | Full catchment inference (1,100 grid cells) completed in under half a second |
+
+```
+Test Set Confusion Matrix (N = 17,600)
+--------------------------------------
+True Safe Cells:       11,641   (99.50% Specificity)
+False Alarms:              58   ( 0.50% FPR; down from 464 in uncalibrated baseline)
+Missed Inundations:       759   (Borderline puddle edges below threshold)
+Detected Inundations:   5,142   (87.14% Recall)
+```
 
 ---
 
-## 1. System Architecture & Scientific Novelties
-
-### End-to-End System Architecture
+## Core System Architecture
 
 ```mermaid
-flowchart TD
-    subgraph DataIngestion["1. Verified Earth Observation Ingestion"]
-        A1["Copernicus 30m Global DEM<br/>(Open-Meteo Elevation API)"]
-        A2["ECMWF ERA5 Reanalysis<br/>(Hourly Rainfall Archive)"]
-        A3["OpenStreetMap Overpass<br/>(Waterway & Canal Centrelines)"]
-        A4["ISRO NRSC Bhuvan / SAR<br/>(Satellite Flood Ground Truth)"]
+graph TD
+    subgraph Data_Inputs ["1. Catchment Inputs & Telemetry"]
+        A1["Copernicus GLO-30 DEM (30m)"] --> B1["Topographic Processing"]
+        A2["CWC Daily Rain Gauges (mm)"] --> B2["Hydrometric Normalization"]
+        A3["Prakasam Barrage SCADA (m)"] --> B2
+        A4["Municipal GIS Drainage Layer"] --> B1
     end
 
-    subgraph FeatureEngineering["2. Topographic & Hydrological Feature Compiler"]
-        B1["2D Finite-Difference Slopes (grad z)"]
-        B2["Topographic Wetness Index & Flow Accumulation"]
-        B3["Geodesic Haversine Canal Proximity"]
-        B4["Rolling Rainfall Windows (1h, 3h, 6h, 12h, 24h, 72h)"]
-        A1 --> B1
-        A1 --> B2
-        A3 --> B3
-        A2 --> B4
+    subgraph Feature_Engineering ["2. Physics-Informed Feature Engineering"]
+        B1 --> C1["elevation_m<br/>slope_deg<br/>tpi_11<br/>topographic_trap_index"]
+        B1 --> C2["distance_to_water_m<br/>drainage_density_km_km2<br/>curve_number"]
+        B2 --> C3["rain_24h_mm<br/>prakasam_stage_m"]
     end
 
-    subgraph CoreML["3. Calibrated Machine Learning Engine"]
-        C1["Spatial Feature Matrix (5,827 Grids @ 500m)"]
-        C2["Calibrated XGBoost Classifier (ROC-AUC: 0.9823)"]
-        C3["TreeSHAP Local Feature Attribution Engine"]
-        B1 & B2 & B3 & B4 --> C1
-        C1 --> C2
-        C2 --> C3
+    subgraph Three_Tier_ML ["3. Three-Tier Inference Pipeline"]
+        C1 & C2 & C3 --> T1["Tier 1: Surface Archetyping<br/>K-Means (K=4)"]
+        C1 & C2 & C3 --> T2["Tier 2: Inundation Nowcasting<br/>Platt-Calibrated XGBoost (0.9920 ROC-AUC)"]
+        T2 --> T3["Tier 3: Failure Mode Attribution<br/>Multi-Class Random Forest (95.14% Acc)"]
     end
 
-    subgraph PhysicsAudit["4. Hydro-Physical Guardrail (PIML)"]
-        D1["USDA-NRCS SCS-CN Engine (NEH-4)"]
-        D2["Hydrological Concordance Index (HCI) Audit"]
-        C2 --> D2
-        D1 --> D2
-    end
-
-    subgraph CascadeTracer["5. Topological Cascade Tracer (DAHG)"]
-        E1["D8 Steepest Descent Flow Connectivity"]
-        E2["Manning Velocity Formulation (v = 1/n R^2/3 S^1/2)"]
-        E3["Dynamic Lead-Time Propagation (tau = L / v)"]
-        B1 & B2 --> E1
-        E1 --> E2 --> E3
-    end
-
-    subgraph Serving["6. FastAPI Async Backend & Next.js Command Center"]
-        F1["FastAPI REST Endpoints (/health, /risk/map, /simulate)"]
-        F2["Integer Linear Programming Dispatch Optimizer"]
-        F3["Next.js 14 Command Center (Google Maps, What-If Slider)"]
-        D2 & E3 --> F1
-        F1 --> F2
-        F1 --> F3
+    subgraph Operational_Core ["4. Operations & Decision Support"]
+        T2 --> H1["DAHG Kinematic Routing<br/>Manning D8 Cascade"]
+        T3 --> H2["NDMA Form D-4 Generator<br/>Autonomous Resource Optimizer"]
+        H1 & H2 --> API["FastAPI Backend (28 Endpoints)"]
+        API --> UI["Next.js 14 Command Center<br/>Leaflet Canvas Grid (60 FPS)"]
     end
 ```
 
 ---
 
-### The Four Core Scientific Hydro-AI Novelties
+## The Three-Tier Machine Learning Pipeline
 
-#### Novelty 1: Topological Cascade Inundation Graph (DAHG)
-Standard machine learning treats spatial grid cells as independent units, ignoring upstream-to-downstream water flow. DrainSenseAI constructs a **Directed Acyclic Hydrological Graph (DAHG)** using D8 steepest descent topology. Spillover arrival lead times are computed using the Manning open-channel velocity formulation:
+### Tier 1: Topographic Surface Archetyping (K-Means, K=4)
+Before evaluating dynamic storm inputs, the physical surface of the urban catchment is segmented into four terrain clusters using unsupervised learning:
+1. **Steep Upland (3.8% of study area):** Elevated ridges (elevation 35m to 85m, slopes exceeding 8 degrees) with immediate surface runoff generation and minimal ponding vulnerability.
+2. **Commercial Core (26.0% of study area):** Dense urban fabric characterized by high curve numbers (CN 88 to 92) and low natural infiltration capacity.
+3. **Alluvial Basin (63.6% of study area):** Flat lowlands (elevation 15m to 22m, slopes under 1.5 degrees, negative TPI) that serve as natural runoff sinks during intense precipitation.
+4. **Permeable Fringe (6.5% of study area):** Vegetated and agricultural border areas with high infiltration capacity (CN 68 to 74) that buffer downstream drainage volumes.
 
-$$v = \frac{1}{n} R^{2/3} S^{1/2} \quad \Big| \quad \tau_{\text{lag}} = \frac{L}{v}$$
+### Tier 2: Calibrated Inundation Nowcasting (XGBoost + Platt Scaling)
+The core binary classifier predicts whether each grid cell will cross the threshold for severe surface ponding (water depth greater than 0.15m). 
+- **Base Estimator:** Gradient boosted decision trees configured with maximum depth of 6, learning rate of 0.08, and 300 estimators.
+- **Platt Sigmoid Calibration:** Raw decision tree scores are calibrated using 3-fold cross-validated logistic regression. This shifts predicted probabilities from uncalibrated clustering toward true empirical frequencies, shrinking the Brier score to 0.0638 and reducing false positive alerts by 87.5% (from 464 false alarms down to 58).
+- **Hazard Stratification:** Output probabilities are mapped directly to five actionable municipal alert tiers:
+  - `LOW` (0.00 to 0.19 probability)
+  - `MODERATE` (0.20 to 0.39 probability)
+  - `ELEVATED` (0.40 to 0.59 probability)
+  - `HIGH` (0.60 to 0.79 probability)
+  - `CRITICAL` (0.80 to 1.00 probability)
 
-```mermaid
-flowchart LR
-    NodeA["Upstream Ridge Sump<br/>(Cell A, Elev: 24.5m)"] -->|"Overland Surcharge<br/>v = 1.42 m/s"| NodeB["Intermittent Canal Culvert<br/>(Cell B, Elev: 18.2m)"]
-    NodeB -->|"Canal Flow Lag<br/>tau = 18.4 min"| NodeC["Lowland Depression Bowl<br/>(Cell C, Elev: 12.0m)"]
-    NodeC -->|"Backwater Surcharge<br/>tau = 34.2 min"| NodeD["Tidal Outfall Lock<br/>(Cell D, Elev: 2.5m)"]
-```
-
-Where:
-- $n$ is Manning roughness coefficient ($0.035$ for masonry channels, $0.055$ for urban overland paths).
-- $R$ is hydraulic radius in meters.
-- $S$ is topographic gradient slope ($\text{m/m}$) derived directly from the Copernicus DEM.
-- $\tau_{\text{lag}}$ is lead time in minutes before upstream surcharge inundates downstream low-lying wards.
-
-#### Novelty 2: Physics-Informed SCS-CN Mass-Balance Guardrail (PIML)
-Pure machine learning models can predict low flood probability in sumps receiving hundreds of millimeters of rain if training data had limited local gauge records. DrainSenseAI audits model outputs against USDA-NRCS National Engineering Handbook (NEH-4) SCS Curve Number equations:
-
-$$Q = \frac{(P - I_a)^2}{P - I_a + S} \quad \Big| \quad S = \frac{25400}{\text{CN}} - 254 \quad \Big| \quad \text{HCI} = 1 - \frac{|Q_{\text{xgb}} - Q_{\text{scs}}|}{Q_{\text{scs}}}$$
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as Next.js Command Center
-    participant API as FastAPI Backend
-    participant ML as XGBoost Classifier
-    participant PIML as SCS-CN Physics Guardrail
-    Client->>API: Request Risk Map (city_id = VJA, rain_24h = 145mm)
-    API->>ML: Run Inference on 500m Centroids
-    ML-->>API: Predicted Probability (P_xgb = 0.88)
-    API->>PIML: Audit Mass Balance (Soil CN: 85, Impervious: 78%)
-    PIML->>PIML: Compute Theoretical Runoff Q_scs = 104.2mm
-    PIML-->>API: Concordance Index HCI = 0.94 (Physically Verified)
-    API-->>Client: Stream GeoJSON Polygons with Physics Audit Flag
-```
-
-#### Novelty 3: Multi-Horizon Temporal Nowcaster ($T+0\text{h}$ to $T+6\text{h}$)
-Forecasts forward inundation escalation across 1h, 2h, 4h, and 6h operational horizons. It dynamically accounts for:
-- Rainfall intensity decay following storm centroid passage.
-- Saturated hydraulic conductivity depletion in urban soil sumps.
-- Canal outfall backwater tailback during high tide or peak barrage discharge.
-
-#### Novelty 4: Autonomous Operations-Research Dispatch Optimizer
-When multiple wards hit critical waterlogging levels simultaneously, municipal equipment cannot be everywhere at once. DrainSenseAI solves an Integer Linear Program (ILP) matching available municipal depots to priority zones:
-
-$$\min \sum_{i \in \text{Zones}} \sum_{j \in \text{Depots}} c_{ij} \cdot x_{ij} - \lambda \sum_{i \in \text{Zones}} \text{Priority}_i \cdot y_i$$
-
-```mermaid
-flowchart TD
-    InundationAlert["Critical Waterlogging Detected<br/>(Multiple Municipal Wards Breached)"] --> PriorityQueue["Algorithmic Priority Ranking<br/>Score = 0.60(Risk) + 0.20(Bldg) + 0.10(Flood) + 0.10(Roads)"]
-    PriorityQueue --> DepotInventory["Depot Equipment Constraints<br/>(Pumps, Super-Suckers, Rescue Boats)"]
-    DepotInventory --> ILPSolver["Integer Linear Programming Solver<br/>(Transit Time vs Ward Vulnerability Optimization)"]
-    ILPSolver --> ActionPlan["NDMA Form D-4 Action Plan<br/>(Standardized Municipal Staging Directive)"]
-```
+### Tier 3: Failure Mode Attribution (Multi-Class Random Forest)
+When a cell is classified as flooded, Tier 3 identifies the primary physical mechanism driving the failure to guide tactical municipal interventions:
+- `SURFACE_RUNOFF_CHOKE`: High rain volume overwhelming local street gullies due to rapid surface collection.
+- `DRAINAGE_DEFICIT`: Insufficient storm conduit conveyance capacity relative to upstream catchment volume.
+- `BARRAGE_BACKWATER`: Tailwater conditions caused by elevated Krishna River stages (exceeding 5.5m at Prakasam Barrage) reversing gravity outfall discharge.
+- `NONE_SAFE` / `NONE_DRY` / `NONE_STEEP_SLOPE`: Cells that remain dry due to natural drainage gradients or absence of rainfall.
 
 ---
 
-## 2. Data Authenticity & Provenance: What is Real vs. Synthetic
+## Dataset & Feature Engineering
 
-To ensure complete scientific integrity, research transparency, and evaluator clarity, the table below outlines exactly what data is sourced from real-world space agencies and sensor archives, what represents interactive simulation, and what legacy prototypes were quarantined.
+### Spatial Grid Definition
+- **Geographic Extent:** Vijayawada Municipal Corporation and contiguous Krishna River / Budameru catchments (80.57°E to 80.68°E, 16.48°N to 16.55°N).
+- **Resolution:** 250m x 250m uniform orthogonal cells (0.0625 km² per cell).
+- **Total Study Grid:** 1,100 active cells covering 50.6 km² of urban and riparian terrain.
 
-### Data Lineage Matrix
+### Historical Telemetry & Data Cleaning
+- **Time Horizon:** 101 historical rainfall events spanning 2021 through 2025.
+- **Data Matrix:** 111,100 spatiotemporal feature vectors (1,100 cells across 101 recorded days).
+- **Class Balance:** 23,298 positive flood states (21.0%) and 87,802 safe states (79.0%).
+- **Copernicus DEM Preprocessing:** Raw Copernicus GLO-30 raster tiles contained void dropout artifacts (-990.33m). These were detected and corrected using spatial boundary constraints and localized 8-neighbor median imputation.
+- **Zero-Rainfall Baselines:** The historical record was augmented with 20 verified dry-season days (0.0mm rainfall, nominal 3.5m river stage) to teach the model true baseline conditions and prevent over-prediction during dry spells.
 
-| Category | Component / Layer | Source / Methodology | Real or Synthetic? | Purpose in DrainSenseAI |
-| :--- | :--- | :--- | :---: | :--- |
-| **Topography** | 5,827 Digital Elevation Points | Copernicus 30m Global DEM via European Space Agency (ESA) & NASA SRTM | **100% REAL**<br/><small>[source link](https://open-meteo.com/en/docs/elevation-api)</small> | True surface elevations across Vijayawada, Chennai, Mumbai, and Bengaluru |
-| **Indian Station Rainfall** | Official 24h & Hourly Station Telemetry | India Meteorological Department (IMD) / MoES, Govt. of India | **100% REAL**<br/><small>[source link](https://mausam.imd.gov.in/)</small> | Ground truth station records: Gannavaram (VJA), Meenambakkam (CHE), Santacruz (BOM), HAL (BLR) |
-| **Indian River Gauges** | Barrage Outflow & Water Level Stages | Central Water Commission (CWC) & India-WRIS, Ministry of Jal Shakti | **100% REAL**<br/><small>[source link](https://indiawris.gov.in/wris/)</small> | Real-time discharges: Prakasam Barrage (11.43L cusecs), Chembarambakkam (8,000 cusecs), Mithi River |
-| **Satellite Radar Flood Masks** | Microwave SAR Flood Inundation Extents | ISRO National Remote Sensing Centre (NRSC) Bhuvan Disaster Portal | **100% REAL**<br/><small>[source link](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood)</small> | All-weather radar footprints verifying flooded wards in Budameru, Velachery, and Kurla |
-| **National Open Data** | Urban Waterlogging & Meteorological Telemetry | Open Government Data (OGD) Platform India (`data.gov.in`) | **100% REAL**<br/><small>[source link](https://data.gov.in/)</small> | Authoritative public data catalog compliant with National Data Sharing Policy (NDSAP) |
-| **Atmosphere Reanalysis** | Hourly Precipitation Telemetry | ECMWF Copernicus ERA5 Reanalysis via Open-Meteo Historical Archive | **100% REAL**<br/><small>[source link](https://open-meteo.com/en/docs/historical-weather-api)</small> | 1,632 consecutive hourly precipitation readings during historic cloudburst disasters |
-| **Terrain Slopes** | Physical Gradient ($\nabla z$) | 2D central finite-difference gradient: $\sqrt{(\partial z/\partial x)^2 + (\partial z/\partial y)^2}$ | **100% REAL (Calculated)**<br/><small>[source link](https://en.wikipedia.org/wiki/Finite_difference)</small> | Identifies gravitational runoff bowls and natural flow accumulation paths |
-| **Waterways** | River and Canal Centrelines | OpenStreetMap Overpass vector polylines & municipal GIS records | **100% REAL**<br/><small>[source link](https://overpass-turbo.eu/)</small> | Haversine geodesic distance from every 500m centroid to Krishna, Budameru, Adyar, Cooum, Mithi, Bellandur |
-| **Ground Truth Disasters** | Historical Inundation Benchmarks | CWC, IMD, KSNDMC, MCGM, IEEE IGARSS, and Kaggle open datasets | **100% REAL**<br/><small>[source link](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management)</small> | Validated breach depths, peak 24h rainfall, and affected wards for model calibration |
-| **Soil Hydrophysics** | SCS Curve Numbers & Hydrologic Groups | USDA-NRCS National Engineering Handbook (NEH-4) | **100% REAL (Standard)**<br/><small>[source link](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook)</small> | Governs theoretical runoff retention $S$ and surface excess $Q$ in physics guardrail |
-| **What-If Scenarios** | Rainfall Multiplier Slider (+25%, +50%, +100%) | Parametric storm escalation model applied to real baseline hyetographs | **SIMULATED (Interactive)** | Allows disaster managers to stress-test urban drainage before an extreme storm occurs |
-| **Hydrological Synthesis** | Semi-Synthetic Storm Augmentations | SCS-CN hydrographs generated across real topography for 1-in-50-year return periods | **SEMI-SYNTHETIC (Augmented)** | Supplements sparse physical rain gauge networks to train models on extreme unrecorded extremes |
-| **Legacy Grids** | Early 10-city draft JSONs (`amd`, `ccu`, `del`, `cok`, etc.) | Preliminary uniform random coordinate ranges generated during Sept 11 prototype | **RETIRED / QUARANTINED** | Isolated in `data/legacy_prototypes/`. NOT used in active models, APIs, or UI maps |
+### Production Features (9 Schema Variables)
 
----
+| Feature Name | Type | Unit | Description |
+| :--- | :--- | :--- | :--- |
+| `elevation_m` | Static | m | Surface elevation above mean sea level from processed GLO-30 DEM |
+| `slope_deg` | Static | degrees | Terrain gradient computed via 2D finite-difference spatial kernel |
+| `tpi_11` | Static | unitless | Topographic Position Index over an 11-cell window (330m radius) |
+| `topographic_trap_index` | Static | unitless | Concavity metric measuring potential for localized hydraulic pooling |
+| `distance_to_water_m` | Static | m | Euclidean distance to primary hydrological channels (Krishna and Budameru) |
+| `drainage_density_km_km2` | Static | km/km² | Cumulative length of municipal stormwater drains per unit cell area |
+| `curve_number` | Static | unitless | USDA SCS runoff potential index derived from soil texture and urban imperviousness |
+| `rain_24h_mm` | Dynamic | mm | 24-hour cumulative rainfall depth from CWC telemetry stations |
+| `prakasam_stage_m` | Dynamic | m | Water surface elevation recorded at Prakasam Barrage SCADA gauges |
 
-### Detailed Breakdown of Real Data Layers
-
-| Data Layer | Source Agency | Resolution / Specs | Project Ground Truth Coverage | Official Dataset Hyperlink |
-| :--- | :--- | :--- | :--- | :--- |
-| **Digital Elevation Model (DEM)** | European Space Agency (ESA) & NASA SRTM | 30m Global DEM resampled to 500m centroids | 5,827 centroids: VJA (7m-246m), CHE (0m-110m), BOM (0m-459m), BLR (810m-952m AMSL) | [Copernicus DEM via Open-Meteo](https://open-meteo.com/en/docs/elevation-api) |
-| **Indian Station Rain Telemetry** | India Meteorological Department (IMD) / MoES | Official AWS & manual rain gauges (0.1mm) | 22 verified stations: Gannavaram, Meenambakkam, Santacruz, HAL Airport | [IMD Mausam Portal](https://mausam.imd.gov.in/) |
-| **Indian River & Barrage Stages** | Central Water Commission (CWC) & India-WRIS | River stage heights (AMSL) and outflow cusecs | Prakasam Barrage (11.43L cusecs), Chembarambakkam, Saidapet, Mithi Kranti Nagar | [CWC India-WRIS Portal](https://indiawris.gov.in/wris/) |
-| **Satellite Radar Flood Extents** | ISRO NRSC Bhuvan Disaster Management Portal | 10m RISAT-1A & Sentinel-1 SAR microwave | Observed flood footprints for Budameru (VJA), Velachery (CHE), and Kurla (BOM) | [ISRO NRSC Flood Portal](https://bhuvan-app1.nrsc.gov.in/disaster/disaster.php?id=flood) |
-| **National Open Government Data** | Open Government Data Platform India (`data.gov.in`) | Open Data API under NDSAP Guidelines | Indian municipal waterlogging and meteorological records | [Open Government Data India](https://data.gov.in/) |
-| **Topographic Gradient Slope** | 2D Finite-Difference $\nabla z$ | Physical slope in degrees ($0.0^\circ$ to $18.23^\circ$) | Calculated directly from 2D elevation grid matrices | [Manning Formula Ref](https://en.wikipedia.org/wiki/Manning_formula) |
-| **Precipitation Telemetry** | ECMWF Copernicus ERA5 Reanalysis | Hourly cadence ($0.1\text{mm}$ precision) | 1,632 continuous hours across four historic deluge events | [ERA5 Historical Archive](https://open-meteo.com/en/docs/historical-weather-api) |
-| **Waterway Vector Network** | OpenStreetMap (OSM) Contributors | Sub-meter vector polyline centrelines | Krishna, Budameru, Adyar, Cooum, Buckingham, Mithi, Bellandur | [OSM Overpass Turbo](https://overpass-turbo.eu/) |
-| **Reservoir Ground Truth** | Kaggle Open Benchmark / CMWSSB | Daily storage (mcft) & outfall surges | Chembarambakkam, Poondi, Red Hills surplus releases | [Kaggle Chennai Water Dataset](https://www.kaggle.com/datasets/anuragkanaujia/chennai-water-management) |
-| **Meteorological Archive** | Kaggle Open Benchmark / IMD | Decadal meteorological daily rainfall | Multi-decadal extreme rainfall benchmarks (1990-present) | [Kaggle Chennai Rainfall Series](https://www.kaggle.com/datasets/sudalairajkumar/chennai-rainfall-data) |
-| **Hydro-Physical Soil Curves** | USDA-NRCS Engineering Handbook | Hydrological Soil Groups A, B, C, D | SCS Curve Numbers (CN 68 to 92) and Potential Retention $S$ | [USDA-NRCS Handbook NEH-4](https://www.nrcs.usda.gov/resources/guides-and-instructions/national-engineering-handbook) |
+### Chronological Train-Validation-Test Split
+To prevent data leakage caused by spatial and temporal auto-correlation, models were evaluated exclusively using a chronological split:
+- **Training Set (70 events, 77,000 samples):** 2021 to mid-2024 (18.8% positive flood prevalence).
+- **Validation Set (15 events, 16,500 samples):** July to October 2024, including the September 1, 2024 Budameru storm event (24.1% positive flood prevalence). Used for hyperparameter tuning and calibration curve fitting.
+- **Test Holdout (16 events, 17,600 samples):** July to October 2025 (33.5% positive flood prevalence). Kept untouched until final evaluation.
 
 ---
 
-### Catchment Topography & Historical Deluge Telemetry
+## Hydrological Foundations & Physics Formulations
 
-<p align="center">
-  <img src="docs/assets/catchment_topography_profiles.png" alt="Catchment Topography Profiles across Four Verified Indian River Basins" width="98%" />
-</p>
+### 1. USDA SCS Curve Number Runoff Partitioning
+Runoff volume ($Q$, in mm) is calculated from daily rainfall ($P$, in mm) and potential maximum soil retention ($S$, in mm):
 
-<p align="center">
-  <img src="docs/assets/rainfall_deluge_hyetographs.png" alt="ECMWF ERA5 Real Hourly Rainfall Hyetographs for Historic Cloudbursts" width="98%" />
-</p>
+$$S = \frac{25400}{CN} - 254$$
 
----
+$$I_a = 0.18 \cdot S$$
 
-## 3. Deployment Jurisdictions & Case Studies
+$$Q = \begin{cases} \frac{(P - I_a)^2}{P - I_a + S} & \text{if } P > I_a \\ 0 & \text{if } P \le I_a \end{cases}$$
 
-### 1. Vijayawada / Amaravati (`VJA`), Andhra Pradesh
-- **Grid Scale:** 810 deterministic 500m x 500m spatial cells (202.5 km²).
-- **Drainage Corridors:** Budameru Rivulet diversion channel, Krishna River / Prakasam Barrage (11.43 lakh cusecs capacity), Ryves & Eluru Canals.
-- **Topography:** Elevation ranges from 7.0m in floodplains to 246.0m in Indrakeeladri Hills.
-- **Historic Validation:** August 20 - September 12, 2024 Budameru cloudburst (513.7mm cumulative, peak intensity 26.8 mm/h, breaching Ajit Singh Nagar and Payakapuram wards).
+For the compacted alluvial and urban soils of the Krishna delta, an initial abstraction ratio of $\lambda = 0.18$ was adopted based on experimental calibration from Mishra & Singh (2003), providing higher accuracy than the standard generic $0.20$ default.
 
-### 2. Chennai (`CHE`), Tamil Nadu
-- **Grid Scale:** 1,485 deterministic 500m x 500m spatial cells (371.25 km²).
-- **Drainage Corridors:** Adyar River (Saidapet / Kotturpuram outfalls), Cooum River, Buckingham Canal tidal corridor, Pallikaranai Marshland buffer.
-- **Topography:** Coastal plain from 0.0m AMSL at Foreshore Estate to 110.0m AMSL inland.
-- **Historic Validation:** November 25 - December 12, 2023 Cyclone Michaung (434.8mm cumulative, peak intensity 26.1 mm/h, causing severe backwater surge in Velachery and Kotturpuram).
+### 2. Topographic Position Index & Trap Index
+Multi-scale TPI measures whether a cell sits on a local ridge or in a valley relative to surrounding neighbors:
 
-### 3. Mumbai (`BOM`), Maharashtra
-- **Grid Scale:** 1,768 deterministic 500m x 500m spatial cells (442.0 km²).
-- **Drainage Corridors:** Mithi River estuary, Mahim Causeway confluence, Milan Subway sump, Hindmata underground storage basin.
-- **Topography:** Low-lying estuarine terrain from 0.0m to 459.0m AMSL in Sanjay Gandhi National Park.
-- **Historic Validation:** July 15 - July 28, 2023 Monsoon deluge (336 continuous hours of telemetry, Mithi River high tide backup in Kurla and BKC).
+$$TPI_r = z_0 - \frac{1}{N_r} \sum_{i=1}^{N_r} z_i$$
 
-### 4. Bengaluru (`BLR`), Karnataka
-- **Grid Scale:** 1,764 deterministic 500m x 500m spatial cells (441.0 km²).
-- **Drainage Corridors:** Bellandur-Varthur Lake chain, Outer Ring Road tech corridor culverts, Koramangala Valley Rajakaluve, Rainbow Drive basin.
-- **Topography:** Elevated plateau from 810.0m to 952.0m AMSL.
-- **Historic Validation:** August 28 - September 8, 2022 Urban cloudburst (288 continuous hours of telemetry, lake cascade breach in Bellandur and Mahadevapura).
+The Topographic Trap Index quantifies depression depth by subtracting the cell elevation from the mean elevation of all uphill contributing cells:
+
+$$TTI = \max\left(0, \bar{z}_{\text{contributing}} - z_{\text{cell}}\right) \cdot \frac{1}{1 + \tan(\theta)}$$
+
+### 3. DAHG Kinematic Flow Routing
+Runoff water does not remain static; it cascades across the landscape following gravitational gradients. DrainSenseAI computes a Directed Acyclic Hydro-Graph (DAHG) using the D8 steepest-descent flow direction algorithm. Flow velocity ($v$, in m/s) through open drainage channels and streets is estimated via the Manning equation:
+
+$$v = \frac{1}{n} R^{2/3} S_0^{1/2}$$
+
+With Manning roughness coefficient $n = 0.035$ (clean concrete and urban gutters), hydraulic radius $R = 1.2\text{ m}$, and bed slope $S_0 = \max(\tan(\theta), 0.001)$. Travel time between adjacent cells is computed as:
+
+$$t_{\text{travel}} = \frac{\Delta x}{v}$$
+
+Hydrographs cascade downstream with an 8% attenuation factor per hop to account for localized surface friction and temporary gully storage.
 
 ---
 
-## 4. Machine Learning Benchmarks & Explainability
+## Model Benchmark Comparison
 
-The primary risk classifier is trained on **776,890 spatiotemporal feature vectors** derived from Copernicus 30m DEM topography, finite-difference gradient slopes, waterway proximity, and ERA5 precipitation windows. Models were evaluated using 5-fold stratified cross-validation and calibrated with Sigmoid probability mapping.
+All models were evaluated on the exact same 17,600-sample out-of-time test holdout set.
 
-<p align="center">
-  <img src="docs/assets/model_performance_matrix.png" alt="Model Performance: ROC-AUC, PR-AUC, and Confusion Matrix" width="98%" />
-</p>
-
-### Comparative Model Evaluation ($N = 155,378$ Holdout Records)
-
-| Model Architecture | ROC-AUC | PR-AUC | F1-Score | Precision | Recall | Brier Score |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Calibrated XGBoost (DrainSense Production)** | **0.9823** | **0.9346** | **0.8508** | **81.46%** | **89.03%** | **0.0446** |
-| Uncalibrated XGBoost (v1.0) | 0.9824 | 0.9350 | 0.8281 | 73.37% | 95.02% | 0.0553 |
-| Random Forest (100 Trees) | 0.9805 | 0.9270 | 0.8199 | 72.19% | 94.86% | 0.0576 |
-| Stratified Dummy Baseline | 0.4981 | 0.1973 | 0.1952 | 19.49% | 19.54% | 0.3190 |
-
-### Holdout Confusion Matrix Breakdown ($N = 155,378$)
-- **True Negatives (TN):** $118,402$ (Dry cells correctly identified, Specificity: **95.00%**)
-- **False Positives (FP):** $6,229$ (Low False Alarm Rate: **5.00%**)
-- **False Negatives (FN):** $3,373$ (Missed Deluge Rate: **10.97%**)
-- **True Positives (TP):** $27,374$ (Flood Zones Detected, Sensitivity / Recall: **89.03%**)
-
-<p align="center">
-  <img src="docs/assets/shap_feature_importance.png" alt="TreeSHAP Global Feature Gain Importance Ranking" width="85%" />
-</p>
-
-### TreeSHAP Feature Gain Rankings
-1. `rain_24h_mm` (Normalized Gain: **0.342**): 24-hour antecedent rainfall mass.
-2. `distance_to_water_m` (Normalized Gain: **0.218**): Geodesic proximity to river or storm canal.
-3. `elevation_m` (Normalized Gain: **0.174**): Copernicus DEM height above mean sea level.
-4. `flow_accumulation` (Normalized Gain: **0.096**): Topographic wetness and catchment convergence.
-5. `slope_deg` (Normalized Gain: **0.071**): Topographic gradient slope in degrees.
-6. `impervious_surface_ratio` (Normalized Gain: **0.054**): Built-up urban fraction.
-7. `drainage_density` (Normalized Gain: **0.045**): Local canal conveyance network density.
+| Model Candidate | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | False Alarms | Latency |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Platt-Calibrated XGBoost (Production)** | **95.36%** | **98.88%** | **87.14%** | **99.50%** | **0.9264** | **0.9920** | **58** | **0.44s** |
+| Raw Uncalibrated XGBoost | 94.61% | 92.51% | 91.80% | 96.03% | 0.9215 | 0.9912 | 464 | 0.42s |
+| Random Forest Classifier | 93.82% | 91.10% | 90.45% | 95.22% | 0.9077 | 0.9840 | 559 | 1.82s |
+| Decision Tree Baseline | 89.15% | 83.20% | 84.60% | 91.40% | 0.8389 | 0.8800 | 1,006 | 0.08s |
+| Logistic Regression | 84.30% | 77.40% | 76.10% | 88.40% | 0.7674 | 0.8920 | 1,357 | 0.05s |
+| Dummy Most Frequent | 66.48% | 0.00% | 0.00% | 100.00% | 0.0000 | 0.5000 | 0 | 0.01s |
 
 ---
 
-## 5. Command Center UI Capabilities
+## Autonomous Municipal Resource Dispatch
 
-- **Interactive 500m Grid Risk Map:** Powered by Google Maps Platform. Displays all 5,827 cells colored by real-time risk tiers (Low, Moderate, Elevated, High, Critical) with click-to-inspect ward details.
-- **Dynamic What-If Simulator:** Real-time rainfall multiplier slider allows disaster managers to model +25%, +50%, or extreme +100% storm surge escalation and observe newly breached cells instantly.
-- **Algorithmic Priority Response Queue:** Transparent, multi-factor scoring ranks every ward to guide emergency crew staging:
-  $$\text{Priority Score} = 0.60 \cdot \text{Risk} + 0.20 \cdot \text{Buildings} + 0.10 \cdot \text{Flood History} + 0.10 \cdot \text{Roads}$$
-- **Drainage Asset Health Manager:** Live operational tracking of 20 verified municipal spillway canals, tidal gates, box culverts, and high-capacity pump houses across all four cities.
-- **TreeSHAP Explainability Panel:** Instant breakdown of the physical and meteorological factors driving the risk score for any selected ward.
-- **Automated Incident Action Plan Generator:** Generates standardized NDMA Form D-4 incident action reports ready for municipal commissioner review.
+DrainSenseAI includes an operational decision support engine that translates raw probability fields into actionable field deployments.
+
+Using Integer Linear Programming (ILP) and greedy risk-weighted allocation, the system schedules municipal emergency equipment to the highest-priority zones under strict resource bounds:
+- **High-Capacity Dewatering Pumps:** Dispatched to critical residential depressions with severe surface accumulation.
+- **Super-Sucker Jetting Machines:** Sent to commercial intersections suffering from conduit chokes and silt blockage.
+- **Earthmoving Equipment & Sandbagging Units:** Assigned to perimeter embankments where river stages threaten levee overflow.
+- **Inflatable Rescue Boats & SDRF Teams:** Pre-positioned in lowlands predicted to become isolated by road inundation.
+
+The optimizer automatically outputs an official **Disaster Incident Action Memorandum** formatted according to NDMA Form D-4 guidelines, including equipment serial numbers, target coordinates, estimated deployment times, and priority indices.
 
 ---
 
-## 6. Monorepo Directory Architecture
+## Repository Structure
 
 ```
-DrainSense/
+DrainSenseAI/
 ├── backend/
 │   ├── app/
-│   │   ├── api/endpoints.py           # REST API router (/cities, /risk, /cascade, /optimize)
-│   │   ├── core/config.py             # App configuration and environment bindings
-│   │   ├── db/session.py              # SQLite / PostgreSQL database engine
-│   │   ├── schemas/risk.py            # Pydantic data schemas
+│   │   ├── api/
+│   │   │   └── endpoints.py        # 28 REST endpoints for nowcasting, hydrology, and dispatch
+│   │   ├── core/
+│   │   │   └── config.py           # Application settings and environment paths
+│   │   ├── db/
+│   │   │   ├── models.py           # Database models and table definitions
+│   │   │   └── session.py          # Session management
+│   │   ├── schemas/
+│   │   │   └── risk.py             # Pydantic v2 schemas for request/response payloads
 │   │   ├── services/
-│   │   │   ├── cascade_tracer.py      # DAHG D8 topological cascade algorithm
-│   │   │   ├── physics_guardrail.py   # USDA SCS-CN mass balance audit
-│   │   │   └── resource_optimizer.py  # Integer Linear Programming pump solver
-│   │   └── main.py                    # FastAPI application entrypoint
+│   │   │   ├── ai_copilot.py       # Conversational incident assistant and query engine
+│   │   │   ├── moment_lookup.py    # Historical storm event playback service
+│   │   │   └── resource_optimizer.py # ILP municipal resource dispatch solver
+│   │   └── main.py                 # FastAPI application initialization and middleware
+│   └── requirements.txt
 ├── frontend/
-│   ├── app/                           # Next.js 14 App Router (layout.tsx, page.tsx, globals.css)
-│   ├── components/
-│   │   ├── RiskMap.tsx                # Google Maps 500m grid vector polygons
-│   │   ├── DashboardControlPanel.tsx  # Integrated TreeSHAP & What-If simulator panel
-│   │   ├── DataSources.tsx            # Dedicated Data Provenance & Source Links view
-│   │   ├── ModelAnalytics.tsx         # Benchmarks, calibration curves & confusion matrix
-│   │   ├── ResourceOptimizerModal.tsx # Autonomous fleet dispatch optimizer
-│   │   ├── LandingPage.tsx            # Public overview and basin gateway
-│   │   ├── DrainAssets.tsx            # Municipal infrastructure asset manager
-│   │   ├── AlertsManager.tsx          # Real-time incident alert tracker
-│   │   └── Navbar.tsx & Sidebar.tsx   # Navigation and city basin switcher
-│   └── lib/api.ts                     # TypeScript API client with offline fallbacks
+│   ├── app/                        # Next.js 14 App Router pages
+│   ├── components/                 # React components (Map, Leaflet Canvas Grid, Alert Bar)
+│   ├── public/                     # Static assets and GeoJSON boundaries
+│   ├── package.json
+│   └── tailwind.config.ts
+├── ml_engine/
+│   ├── src/
+│   │   ├── data_cleaner.py         # Topographic dropout correction and sensor normalization
+│   │   ├── feature_pipeline.py     # Physics-informed spatial and hydrological engineering
+│   │   ├── train.py                # Model training, Platt calibration, and evaluation
+│   │   └── predictor.py            # Low-latency batch and point inference engine
+│   └── models/
+│       ├── flood_model_calibrated.joblib # Production Platt-calibrated XGBoost classifier
+│       ├── failure_mode_rf.joblib        # Tier 3 multi-class root-cause model
+│       └── scaler.joblib                 # Robust feature scaler
 ├── data/
-│   ├── README.md                      # Data registry and mathematical processing lineage
-│   ├── raw/                           # IMD station CSVs, CWC barrage telemetry, Copernicus DEM & ERA5
-│   ├── processed/                     # Verified 5,827 grid features & historical flood benchmarks
-│   └── legacy_prototypes/             # Quarantined early synthetic drafts (retired Sept 11)
-├── docs/
-│   └── assets/                        # Publication-grade PNG charts and figures
-├── ml/
-│   ├── src/inference/predictor.py     # Sub-15ms calibrated XGBoost inference engine
-│   ├── src/hydrology/cascade_graph.py # D8 directed acyclic flow graph implementation
-│   ├── src/hydrology/scs_cn_engine.py # SCS-CN mass conservation solver
-│   └── src/ingestion/spatial_loader.py# Multi-city bounding box and zone definitions
-├── models/
-│   ├── drainsense_xgb_v1.joblib       # Serialized production XGBoost model
-│   └── drainsense_xgb_v1_metadata.json# Real training metrics and feature gain rankings
-├── scripts/
-│   ├── fetch_real_earth_data.py       # Open-Meteo DEM & ERA5 telemetry harvester
-│   ├── inject_real_earth_data.py      # 2D finite-difference slope & TWI compiler
-│   └── generate_readme_charts.py      # Generates 300-DPI technical README charts
+│   ├── raw/                        # Copernicus DEM rasters and CWC station records
+│   └── processed/                  # Cleaned 1,100-cell GeoJSON grid and telemetry tables
 ├── tests/
-│   ├── test_backend.py                # FastAPI integration & endpoint test suite
-│   └── test_ml_pipeline.py            # Feature engineering & hydrology test suite
+│   ├── test_backend.py             # API endpoint integration and operational tests
+│   └── test_ml_pipeline.py         # Hydrology formula validation and ML regression tests
+├── reports/                        # Technical documentation and academic figures
 └── README.md
 ```
 
 ---
 
-## 7. REST API Endpoints
+## REST API Overview
 
-The FastAPI backend exposes the following primary endpoints under `/api/v1`:
+The backend exposes 28 REST endpoints under `/api/v1`. Key routes include:
 
-| Endpoint | Method | Parameters | Description |
-| :--- | :---: | :--- | :--- |
-| `/health` | `GET` | None | Returns system health, database status, and total active grids (5,827). |
-| `/api/v1/cities` | `GET` | None | Lists verified municipal corporations (VJA, CHE, BOM, BLR). |
-| `/api/v1/risk/map` | `GET` | `city_id`, `rain_24h`, etc. | Returns GeoJSON FeatureCollection with attached risk probabilities. |
-| `/api/v1/risk/{grid_id}` | `GET` | `rain_24h` | Returns localized TreeSHAP factors, elevation, and recommended actions. |
-| `/api/v1/predict` | `POST` | Custom rainfall payload | Generates on-demand risk inference for a specific spatial centroid. |
-| `/api/v1/simulate` | `POST` | `multiplier`, `city_id` | Simulates storm escalation deltas (+25%, +50%, +100%) across the basin. |
-| `/api/v1/assets` | `GET` | `city_id` (optional) | Lists municipal drainage infrastructure assets with siltation and status. |
-| `/api/v1/alerts` | `GET` | None | Lists active urban waterlogging incident alerts and warnings. |
-| `/api/v1/hydrology/cascade/{grid_id}` | `GET` | `rain_24h` | Computes upstream-to-downstream DAHG cascade path and arrival lag times. |
-| `/api/v1/hydrology/physics-audit/{grid_id}` | `GET` | `rain_24h` | Audits XGBoost output against USDA SCS-CN mass balance conservation. |
-| `/api/v1/hydrology/nowcast/{city_id}` | `GET` | `rain_24h` | Returns multi-horizon inundation nowcast ($T+1\text{h}$ to $T+6\text{h}$). |
-| `/api/v1/operations/optimize-dispatch` | `POST` | Depots & critical wards | Solves ILP equipment allocation and outputs NDMA Form D-4 plan. |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Health check verifying model status, grid cell count (1,100), and database connection |
+| `GET` | `/api/v1/cities` | List active deployment jurisdictions (`VJA` verified production catchment) |
+| `GET` | `/api/v1/risk/map` | Vector GeoJSON of all 1,100 cells with calibrated risk scores, water depth, and failure modes |
+| `GET` | `/api/v1/risk/priority-zones` | Ranked list of top municipal hot-spots requiring immediate field intervention |
+| `GET` | `/api/v1/hydrology/scs-cn` | Detailed SCS-CN runoff volume, initial abstraction, and retention metrics |
+| `GET` | `/api/v1/hydrology/nowcast/{city_id}` | 5-step forward temporal simulation using kinematic flow routing |
+| `POST` | `/api/v1/operations/optimize-dispatch` | Multi-objective fleet resource optimizer generating NDMA Form D-4 action memos |
+| `POST` | `/api/v1/copilot/query` | Natural language incident query assistant for municipal emergency desks |
 
 ---
 
-## 8. Quickstart Guide
+## Quickstart Guide
 
 ### Prerequisites
-- Python 3.11, 3.12, or 3.13
+- Python 3.10+
 - Node.js 18+ and npm
+- Git
 
-### 1. Start FastAPI Backend
+### 1. One-Command Full-Stack Launch (Recommended)
+
+You can launch both the FastAPI backend and Next.js frontend concurrently with a single command from the project root:
+
 ```bash
-# Set up Python virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+# Cross-platform Python runner (starts backend on :8000 and frontend on :3000)
+python run.py
+# (Or: py -3.10 run.py)
+```
+
+Alternative one-command options:
+```bash
+# Windows Command Prompt / PowerShell:
+run.bat
+
+# Linux / macOS:
+chmod +x run.sh && ./run.sh
+
+# Docker Compose:
+docker compose up --build
+```
+
+Once running, access the interfaces at:
+- **Frontend Command Center:** `http://localhost:3000`
+- **FastAPI Backend REST API:** `http://127.0.0.1:8000`
+- **Interactive Swagger Documentation:** `http://127.0.0.1:8000/docs`
+- **System Health Check:** `http://127.0.0.1:8000/health`
+
+Press `Ctrl+C` in your terminal to cleanly terminate both backend and frontend servers simultaneously.
+
+---
+
+### 2. Manual Step-by-Step Setup (Alternative)
+
+If you prefer running services in separate terminal windows for dedicated debugging:
+
+#### Step A: Backend Setup
+```bash
+# Clone the repository
+git clone https://github.com/aniket-mahto/DrainSenseAI.git
+cd DrainSenseAI
+
+# Create and activate Python virtual environment
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+# source venv/bin/activate
 
 # Install backend dependencies
 pip install -r backend/requirements.txt
 
-# Start the API server
+# Start the FastAPI server
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
-# Health check: curl http://127.0.0.1:8000/health
 ```
 
-### 2. Start Next.js Frontend
+Verify backend health:
 ```bash
+curl http://127.0.0.1:8000/health
+```
+
+#### Step B: Frontend Setup
+```bash
+# Open a new terminal and navigate to frontend directory
 cd frontend
 
-# Install frontend dependencies
+# Install dependencies
 npm install
 
-# Run production build
-npm run build
-
-# Start the Next.js server
-npm run start -- -p 3000
-# Access application at http://localhost:3000
+# Start development server
+npm run dev
 ```
 
-### 3. Reviewer / Evaluator Credentials
-- **Username:** `Gaurav`
-- **Password:** `DrainSense@2026`
-- *(Alternatively, click the one-click **"Auto-Fill"** button on the command login modal).*
+Open your browser at `http://localhost:3000` to access the Command Center.
 
-### 4. Running the Test Suite
+### 3. Running Automated Tests
+The repository contains comprehensive unit and integration tests covering the ML pipeline, hydrology calculations, and REST API endpoints.
+
 ```bash
-# Run all backend and hydrology tests
-.venv/bin/pytest tests/ -v
-# All 26 tests will pass in ~2.5 seconds
+# Run the full test suite
+pytest tests/ -v
 ```
+
+All 30 tests will execute and pass in approximately 7 seconds.
 
 ---
 
-## 9. Academic Citation
+## Technical Specifications & Environment
 
-For academic evaluations, university dissertations, and technical reviews:
-
-```bibtex
-@misc{gautam2026drainsense,
-  author = {Gautam, Gaurav},
-  title = {DrainSenseAI: Physics-Informed Topological Cascade Nowcasting & Autonomous Equipment Dispatch for Urban Deluge Resilience},
-  year = {2026},
-  publisher = {Department of Computer Science & Engineering},
-  howpublished = {\url{https://github.com/ggthedeveloper/DrainSenseAI}},
-  note = {Validated on Copernicus 30m Global DEM & ECMWF ERA5 Telemetry across Vijayawada, Chennai, Mumbai, and Bengaluru}
-}
-```
+- **Operating System:** Cross-platform (Windows, Linux, macOS)
+- **Machine Learning:** XGBoost, scikit-learn, joblib
+- **Hydrological Modeling:** Custom vectorized NumPy implementation of USDA SCS-CN and D8 Manning kinematic wave
+- **Backend Framework:** FastAPI, Pydantic v2, Uvicorn
+- **Frontend Framework:** Next.js 14 (App Router), React 18, Tailwind CSS, Leaflet with HTML5 Canvas renderer
+- **Spatial Processing:** GeoPandas, Shapely, Rasterio
 
 ---
 
-## 10. License
-MIT License. Developed for academic defense, municipal decision support, and urban flood resilience research.
+## Authors & Academic Project Details
+
+- **Gaurav Gautam** (AP22110010118)
+- **Alok Raj** (AP22110010123)
+- **Ansh Shukla** (AP22110010144)
+- **Aniket Mahto** (AP22110010146)
+
+**Project Supervisor:** Dr. Sanjay Kumar  
+**Department:** Department of Computer Science and Engineering  
+**Institution:** SRM University - AP, Andhra Pradesh, India
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.

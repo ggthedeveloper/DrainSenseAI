@@ -54,7 +54,6 @@ export function Navbar({ selectedCity, onSelectCity, healthStatus, onToggleMobil
       </div>
       <div className="flex items-center gap-2 text-xs text-[#4C5E62]">
         <span className={online ? "text-[#067647]" : "text-[#B42318]"}>{online ? "API up" : "API down"}</span>
-        {healthStatus?.model_version && <span className="hidden font-mono sm:inline">{healthStatus.model_version}</span>}
       </div>
     </header>
   );

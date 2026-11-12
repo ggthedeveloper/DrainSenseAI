@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Noto_Sans_Devanagari, Noto_Sans_Telugu } from "next/font/google";
@@ -32,6 +33,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${devanagari.variable} ${telugu.variable}`}>
+      <Script id="ignore-wallet-extension" strategy="beforeInteractive">{`
+        (function () {
+          function isWalletInject(event) {
+            var message = String((event && event.message) || "");
+            var file = String((event && event.filename) || "");
+            var stack = "";
+            try {
+              stack = String((event && event.error && event.error.stack) || "");
+            } catch (err) {}
+            var blob = message + " " + file + " " + stack;
+            return blob.indexOf("Cannot redefine property: ethereum") !== -1
+              || (blob.indexOf("chrome-extension://") !== -1 && blob.indexOf("ethereum") !== -1);
+          }
+          window.addEventListener("error", function (event) {
+            if (!isWalletInject(event)) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }, true);
+        })();
+      `}</Script>
       <body className="bg-[#F3F7F6] text-[#12262A] antialiased">
         {children}
         <Toaster position="top-right" />
